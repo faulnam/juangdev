@@ -35,7 +35,7 @@ export function ServicesCTA() {
               href="/#portfolio"
               className="w-full sm:w-auto px-8 py-4 bg-white/5 text-white font-bold rounded-full text-[0.95rem] border border-white/20 hover:bg-white/10 transition-all flex items-center justify-center"
             >
-              Lihat Portofolio
+              View Portfolio
             </Link>
           </div>
         </ScrollReveal>

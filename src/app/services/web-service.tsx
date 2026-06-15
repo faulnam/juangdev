@@ -22,7 +22,7 @@ const servicesData = [
   {
     name: "Company Profile",
     price: "199.000",
-    description: "Tingkatkan kredibilitas bisnis Anda dengan website profil perusahaan yang profesional. Menampilkan informasi perusahaan, layanan, portofolio, dan kontak dengan elegan.",
+    description: "Boost your business credibility with a professional company profile website. Menampilkan informasi perusahaan, layanan, portofolio, dan kontak dengan elegan.",
     features: [
       "Gratis Domain & Hosting 1 Tahun",
       "Desain Premium & Mobile Responsive",
@@ -131,7 +131,7 @@ export function WebService() {
                 <div>
                   <div className="flex items-end justify-between mb-8 border-b border-white/10 pb-6">
                     <div>
-                      <p className="text-white/50 text-xs font-bold uppercase tracking-wider mb-2">Mulai Dari</p>
+                      <p className="text-white/50 text-xs font-bold uppercase tracking-wider mb-2">Starting From</p>
                       <p className="text-4xl font-black text-[#C7F236]">Rp {activeService.price}</p>
                     </div>
                     <a href="#pricing" className="text-white/70 hover:text-white text-sm font-semibold flex items-center gap-1 transition-colors">

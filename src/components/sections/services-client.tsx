@@ -101,7 +101,7 @@ export function ServicesClient({ data }: { data: Service[] }) {
                   </div>
                   <div className="mt-5 flex flex-col gap-3">
                     <div className={`text-xs ${styles.price}`}>
-                      Mulai dari{" "}
+                      Starting from{" "}
                       <span className={`text-base ${styles.priceValue}`}>{service.startingPrice}</span>
                     </div>
                     <a

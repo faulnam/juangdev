@@ -26,7 +26,7 @@ export default async function ServiceFeaturesPage() {
       <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
         <div className="p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <Layers className="w-5 h-5 text-slate-500" /> Daftar Fitur Tambahan
+            <Layers className="w-5 h-5 text-slate-500" /> Daftar Add-on Features
           </h2>
           <a href="#add-form" className="bg-slate-900 text-white hover:bg-slate-800 px-4 py-2 rounded-md font-semibold text-sm flex items-center transition-colors">
             <Plus className="w-4 h-4 mr-2" /> Tambah Fitur
@@ -94,7 +94,7 @@ export default async function ServiceFeaturesPage() {
       <div id="add-form" className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden mt-8">
         <div className="p-4 border-b border-slate-200 bg-slate-50/50">
           <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <Plus className="w-5 h-5 text-slate-500" /> Tambah Fitur Tambahan
+            <Plus className="w-5 h-5 text-slate-500" /> Tambah Add-on Features
           </h2>
         </div>
         <div className="p-6">
@@ -103,7 +103,7 @@ export default async function ServiceFeaturesPage() {
             <div className="space-y-2">
               <Label htmlFor="serviceId" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Untuk Layanan <span className="text-red-500">*</span></Label>
               <select id="serviceId" name="serviceId" required className="w-full border border-slate-300 rounded-md bg-white px-3 py-2 text-sm outline-none focus:border-slate-900">
-                <option value="">-- Pilih Layanan Utama --</option>
+                <option value="">-- Select Main Service --</option>
                 {allServices.map((svc) => (
                   <option key={svc.id} value={svc.id}>{svc.title}</option>
                 ))}

@@ -22,7 +22,7 @@ export function PortfolioCTA() {
             </h2>
             
             <p className="text-white/80 text-[0.95rem] md:text-base max-w-xl mx-auto leading-relaxed font-medium mb-10">
-              Hubungi kami sekarang untuk berdiskusi langsung mengenai konsep, teknologi, dan biaya estimasi proyek baru Anda.
+              Contact us now to directly discuss the concept, technology, and estimated cost for your new project.
             </p>
             
             <a

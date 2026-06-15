@@ -24,7 +24,7 @@ export function UiUxService() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold border-2 border-[#2563EB] text-[#2563EB] hover:bg-[#2563EB] hover:text-white transition-all shrink-0 w-fit"
             >
-              Tanya Layanan Ini <ArrowUpRight className="w-4 h-4" />
+              Inquire About This Service <ArrowUpRight className="w-4 h-4" />
             </a>
           </div>
 
@@ -63,7 +63,7 @@ export function UiUxService() {
                     <span className="font-bold text-lg">Rp</span>
                   </div>
                   <div>
-                    <p className="text-white/70 text-xs font-bold uppercase tracking-wider mb-1">Harga Mulai Dari</p>
+                    <p className="text-white/70 text-xs font-bold uppercase tracking-wider mb-1">Starting Price</p>
                     <p className="text-2xl font-black text-white">499.000</p>
                   </div>
                 </div>

@@ -15,7 +15,7 @@ export function ContactHero() {
             Hubungi <span className="text-[#C7F236] font-serif italic">Kami</span>
           </h1>
           <p className="text-white/80 text-[0.95rem] md:text-base max-w-2xl mx-auto leading-relaxed font-medium mb-12">
-            Ada ide besar yang ingin diwujudkan atau pertanyaan mengenai layanan kami? Sampaikan pesan Anda, kami siap berkolaborasi.
+            Have a big idea you want to realize or questions about our services? Send your message, we're ready to collaborate.
           </p>
         </ScrollReveal>
       </div>

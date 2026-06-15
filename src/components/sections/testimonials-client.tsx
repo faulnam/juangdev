@@ -27,10 +27,10 @@ export function TestimonialsClient({ data }: { data: Testimonial[] }) {
         <div className="mb-16 md:mb-20">
           <ScrollReveal className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl lg:text-[2.75rem] font-black text-white leading-tight tracking-tight mb-5">
-              Apa Kata <span className="text-[#C7F236] font-serif italic">Klien Kami</span>
+              What Our <span className="text-[#C7F236] font-serif italic">Clients Say</span>
             </h2>
             <p className="text-[#94a3b8] text-base md:text-[1.05rem] leading-relaxed max-w-2xl mx-auto font-medium">
-              Testimoni jujur dari para pemilik bisnis yang telah mempercayakan platform digital mereka bersama tim JuangDev.
+              Honest testimonials from business owners who have entrusted their digital platforms with the JuangDev team.
             </p>
           </ScrollReveal>
         </div>

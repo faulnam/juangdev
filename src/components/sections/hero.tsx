@@ -9,7 +9,7 @@ const PRICING_LIST = [
   { price: "99K", label: "Landing Page" },
   { price: "199K", label: "Company Profile" },
   { price: "399K", label: "E-Commerce" },
-  { price: "499K", label: "Sistem Informasi" },
+  { price: "499K", label: "Information System" },
   { price: "999K", label: "Custom Web App" },
 ];
 
@@ -135,7 +135,7 @@ export function Hero() {
 
           {/* Right Side — Floating Cards */}
           <motion.div
-            className="w-full lg:w-[38%] relative h-[300px] sm:h-[400px] lg:h-[450px] flex items-center justify-center"
+            className="w-full lg:w-[38%] relative h-[300px] sm:h-[400px] lg:h-[450px] flex items-center justify-center lg:-translate-y-12 lg:-translate-x-8"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, delay: 0.2 }}
@@ -217,7 +217,7 @@ export function Hero() {
                     transition={{ duration: 0.4 }}
                     className="flex flex-col w-full"
                   >
-                    <p className="text-sm sm:text-xl font-black text-black leading-none mb-1">Mulai {PRICING_LIST[pricingIndex].price}</p>
+                    <p className="text-sm sm:text-xl font-black text-black leading-none mb-1">Starts from {PRICING_LIST[pricingIndex].price}</p>
                     <p className="text-[8px] sm:text-[10px] text-black/70 font-bold uppercase tracking-wider min-h-[15px]">{PRICING_LIST[pricingIndex].label}</p>
                   </motion.div>
                 </AnimatePresence>

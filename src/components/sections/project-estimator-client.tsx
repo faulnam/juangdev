@@ -62,9 +62,9 @@ export function ProjectEstimatorClient({
     
     const serviceName = services.find(s => s.id === selectedServiceId)?.title;
     const tierName = designTiers.find(t => t.id === selectedTierId)?.name;
-    const featureNames = selectedFeatureIds.map(fid => serviceFeatures.find(f => f.id === fid)?.name).join(", ") || "Tidak ada";
+    const featureNames = selectedFeatureIds.map(fid => serviceFeatures.find(f => f.id === fid)?.name).join(", ") || "None";
 
-    const message = `Halo tim JuangDev, saya ingin konsultasi mengenai proyek baru.\n\n*Estimasi Pilihan:*\n- Layanan: ${serviceName}\n- Tingkat Design: ${tierName}\n- Fitur Tambahan: ${featureNames}\n*Estimasi Harga:* Rp ${totalPrice.toLocaleString('id-ID')}\n\n*Nama:* ${formData.name}\n*WhatsApp:* ${formData.phone}\n*Email:* ${formData.email || '-'}\n\n*Detail Proyek:*\n${formData.details}`;
+    const message = `Hello JuangDev team, I'd like to consult about a new project.\n\n*Selected Estimates:*\n- Layanan: ${serviceName}\n- Design Tier: ${tierName}\n- Add-on Features: ${featureNames}\n*Estimated Price:* Rp ${totalPrice.toLocaleString('id-ID')}\n\n*Name:* ${formData.name}\n*WhatsApp:* ${formData.phone}\n*Email:* ${formData.email || '-'}\n\n*Project Details:*\n${formData.details}`;
     const encodedMessage = encodeURIComponent(message);
     window.open(`https://wa.me/6283852174877?text=${encodedMessage}`, '_blank');
   };
@@ -82,21 +82,21 @@ export function ProjectEstimatorClient({
           <div className="flex flex-col">
             <ScrollReveal>
               <h2 className="text-3xl md:text-4xl lg:text-[2.75rem] font-black text-[#1a1f3c] leading-tight tracking-tight mb-5">
-                Kalkulator Harga<br />
+                Price Estimator<br />
                 <span className="font-serif italic text-[#2563EB]">A La Carte</span>
               </h2>
               <p className="text-[#64748b] text-[0.95rem] md:text-base leading-relaxed mb-8 max-w-md font-medium">
-                Pilih layanan, tingkat desain, dan fitur tambahan yang Anda butuhkan. Dapatkan estimasi harga instan untuk proyek digital Anda.
+                Choose the service, design tier, and add-on features you need. Get an instant price estimate for your digital project.
               </p>
             </ScrollReveal>
 
             <ScrollReveal delay={0.1}>
               <div className="bg-white border-2 border-slate-100 rounded-[2rem] p-8 shadow-xl shadow-slate-200/50 mt-4">
-                <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2">Estimasi Total Biaya</p>
+                <p className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2">Total Estimated Cost</p>
                 <div className="text-4xl lg:text-5xl font-black text-[#1a1f3c]">
                   Rp {totalPrice.toLocaleString('id-ID')}
                 </div>
-                <p className="text-xs text-slate-500 mt-4 font-medium">* Harga ini hanya estimasi awal dan bisa berubah sesuai kompleksitas riil proyek.</p>
+                <p className="text-xs text-slate-500 mt-4 font-medium">* This price is only an initial estimate and may change depending on the actual project complexity.</p>
               </div>
             </ScrollReveal>
             
@@ -107,9 +107,9 @@ export function ProjectEstimatorClient({
                     <Check className="w-5 h-5" strokeWidth={3} />
                   </div>
                   <div>
-                    <p className="text-[#C7F236] font-bold text-[0.9rem] mb-1.5 uppercase tracking-wide">Sesi Konsultasi Gratis</p>
+                    <p className="text-[#C7F236] font-bold text-[0.9rem] mb-1.5 uppercase tracking-wide">Free Consultation Session</p>
                     <p className="text-white/85 text-[0.9rem] leading-relaxed font-medium">
-                      Ngobrol santai seputar ide Anda. Kami bantu buatkan strategi dasar tanpa biaya atau komitmen apapun di awal.
+                      A casual chat about your ideas. We help build a basic strategy without any upfront cost or commitment.
                     </p>
                   </div>
                 </div>
@@ -128,7 +128,7 @@ export function ProjectEstimatorClient({
                   <div>
                     <label className="flex items-center gap-2 text-[0.8rem] font-black text-[#1e2547] uppercase tracking-wider mb-4">
                       <span className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs">1</span> 
-                      Pilih Layanan Utama <span className="text-red-500">*</span>
+                      Select Main Service <span className="text-red-500">*</span>
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {services.map((service) => (
@@ -160,7 +160,7 @@ export function ProjectEstimatorClient({
                   <div className={!selectedServiceId ? "opacity-50 pointer-events-none" : ""}>
                     <label className="flex items-center gap-2 text-[0.8rem] font-black text-[#1e2547] uppercase tracking-wider mb-4">
                       <span className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs">2</span> 
-                      Tingkat Design <span className="text-red-500">*</span>
+                      Design Tier <span className="text-red-500">*</span>
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       {designTiers.map((tier) => (
@@ -189,10 +189,10 @@ export function ProjectEstimatorClient({
                   <div className={!selectedServiceId ? "hidden" : ""}>
                     <label className="flex items-center gap-2 text-[0.8rem] font-black text-[#1e2547] uppercase tracking-wider mb-4">
                       <span className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs">3</span> 
-                      Fitur Tambahan (Opsional)
+                      Add-on Features (Opsional)
                     </label>
                     {availableFeatures.length === 0 ? (
-                      <p className="text-sm text-slate-500 italic bg-slate-50 p-4 rounded-xl border border-slate-100">Tidak ada fitur tambahan khusus untuk layanan ini.</p>
+                      <p className="text-sm text-slate-500 italic bg-slate-50 p-4 rounded-xl border border-slate-100">There are no specific add-on features for this service.</p>
                     ) : (
                       <div className="space-y-2">
                         {availableFeatures.map((feature) => (
@@ -229,7 +229,7 @@ export function ProjectEstimatorClient({
                   <div className={(!selectedServiceId || !selectedTierId) ? "opacity-50 pointer-events-none" : ""}>
                     <label className="flex items-center gap-2 text-[0.8rem] font-black text-[#1e2547] uppercase tracking-wider mb-4">
                       <span className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs">4</span> 
-                      Data Diri Anda
+                      Your Details
                     </label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
                       <input
@@ -238,7 +238,7 @@ export function ProjectEstimatorClient({
                         value={formData.name}
                         onChange={handleInputChange}
                         required
-                        placeholder="Nama Lengkap *"
+                        placeholder="Full Name *"
                         className="w-full px-5 py-3.5 rounded-xl border-2 border-slate-100 bg-[#f8f9fc] text-[0.95rem] font-medium text-[#1a1f3c] placeholder:text-slate-400 focus:outline-none focus:border-[#2563EB]"
                       />
                       <input
@@ -257,7 +257,7 @@ export function ProjectEstimatorClient({
                       onChange={handleInputChange}
                       required
                       rows={3}
-                      placeholder="Ceritakan detail proyek Anda secara singkat *"
+                      placeholder="Briefly tell us about your project details *"
                       className="w-full px-5 py-4 rounded-xl border-2 border-slate-100 bg-[#f8f9fc] text-[0.95rem] font-medium text-[#1a1f3c] placeholder:text-slate-400 focus:outline-none focus:border-[#2563EB] resize-none mb-5"
                     />
                     
@@ -267,7 +267,7 @@ export function ProjectEstimatorClient({
                       className="w-full flex items-center justify-center gap-2 rounded-xl py-4 text-[0.95rem] font-bold transition-all duration-300 bg-[#2563EB] text-white hover:bg-[#1d4ed8] shadow-lg shadow-[#2563EB]/25"
                     >
                       <Send className="w-4 h-4" strokeWidth={2.5} />
-                      Kirim Pesan via WhatsApp
+                      Send Message via WhatsApp
                     </button>
                   </div>
                 </form>

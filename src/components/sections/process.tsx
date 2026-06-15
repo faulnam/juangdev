@@ -8,38 +8,38 @@ const steps = [
   {
     id: "01",
     icon: <Monitor className="w-[1.125rem] h-[1.125rem] text-white" strokeWidth={2} />,
-    title: "Konsultasi & Briefing Kebutuhan",
+    title: "Consultation & Requirement Briefing",
     description:
-      "Sampaikan kebutuhan bisnis Anda kepada kami, mulai dari jenis platform yang ingin dibuat, fitur-fitur utama yang dibutuhkan, hingga target audiens yang ingin dicapai.",
+      "Tell us your business needs, starting from the type of platform you want to build, the key features needed, to the target audience you want to reach.",
   },
   {
     id: "02",
     icon: <Lightbulb className="w-[1.125rem] h-[1.125rem] text-white" strokeWidth={2} />,
-    title: "Rekomendasi Solusi & Paket",
+    title: "Solution & Package Recommendations",
     description:
-      "Tim kami akan menganalisis kebutuhan Anda dan menyarankan jenis website/aplikasi serta paket investasi terbaik yang paling tepat guna dan efisien untuk bisnis Anda.",
+      "Our team will analyze your needs and suggest the best type of website/application and investment package that is most effective and efficient for your business.",
   },
   {
     id: "03",
     icon: <Handshake className="w-[1.125rem] h-[1.125rem] text-white" strokeWidth={2} />,
-    title: "Deal & Pengisian Informasi",
+    title: "Deal & Information Gathering",
     description:
-      "Setelah menyetujui proposal, Anda melakukan pembayaran Down Payment (DP) sebesar 50%. Selanjutnya, Anda mengisi data informasi lengkap serta menyerahkan aset (logo, teks, gambar) yang ingin ditampilkan.",
+      "After approving the proposal, you make a 50% Down Payment (DP). Next, you provide complete information and hand over assets (logo, text, images) to be displayed.",
   },
   {
     id: "04",
     icon: <Rocket className="w-[1.125rem] h-[1.125rem] text-white" strokeWidth={2} />,
-    title: "Pengerjaan & Serah Terima",
+    title: "Development & Handover",
     description:
-      "Kami memproses pengerjaan dengan update berkala. Setelah proyek selesai diuji dan disetujui, Anda melakukan pelunasan sisa 50% sebelum website diserahterimakan seutuhnya.",
+      "We process the development with regular updates. Once the project is fully tested and approved, you pay the remaining 50% before the website is completely handed over.",
   },
 ];
 
 const bullets = [
-  "Alur kerja adaptif & fleksibel",
-  "Diskusi & konsultasi berkala",
-  "Revisi solutif sesuai kesepakatan",
-  "Dukungan penuh setelah proyek rilis",
+  "Adaptive & flexible workflow",
+  "Regular discussions & consultations",
+  "Solution-oriented revisions upon agreement",
+  "Full support after project release",
 ];
 
 export function Process() {
@@ -52,14 +52,14 @@ export function Process() {
           <div className="flex flex-col gap-6 lg:sticky lg:top-32 self-start">
             <ScrollReveal>
               <h2 className="text-3xl md:text-4xl lg:text-[2.75rem] font-black text-[#1a1f3c] leading-tight tracking-tight">
-                4 Langkah Mudah<br />
-                Memulai <span className="font-serif italic text-[#2563EB]">Proyek Anda</span>
+                4 Easy Steps<br />
+                To Start <span className="font-serif italic text-[#2563EB]">Your Project</span>
               </h2>
             </ScrollReveal>
 
             <ScrollReveal delay={0.1}>
               <p className="text-[#4f5b7d] text-base md:text-[1.05rem] leading-relaxed">
-                Ingin mulai membangun proyek Anda? Hubungi kami langsung dengan klik tombol WhatsApp di bawah. Kami akan memandu Anda secara transparan dari briefing kebutuhan hingga serah terima melalui 4 langkah praktis berikut.
+                Ready to start building your project? Contact us directly by clicking the WhatsApp button below. We will guide you transparently from requirement briefing to handover through these 4 practical steps.
               </p>
             </ScrollReveal>
 
@@ -93,7 +93,7 @@ export function Process() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 rounded-full px-7 py-3.5 text-[0.9rem] font-bold bg-[#2563EB] text-white hover:bg-[#1d4ed8] transition-all w-fit shadow-lg shadow-[#2563EB]/25 mt-2"
               >
-                Mulai Konsultasi Proyek
+                Start Project Consultation
                 <ArrowUpRight className="w-[1.125rem] h-[1.125rem]" strokeWidth={2.5} />
               </a>
             </ScrollReveal>

@@ -25,7 +25,7 @@ export function ContactFormSection() {
     e.preventDefault();
     if (!isFormValid) return;
 
-    const message = `Halo JuangDev, saya ingin konsultasi proyek baru.\n\n*Layanan yang Dibutuhkan:* ${selectedService}\n*Nama Lengkap:* ${formData.name}\n*Nomor WA:* ${formData.whatsapp}\n*Email:* ${formData.email || "-"}\n\n*Gambaran Proyek:*\n${formData.description}`;
+    const message = `Hello JuangDev, I would like to consult about a new project.\n\n*Required Service:* ${selectedService}\n*Full Name:* ${formData.name}\n*WhatsApp:* ${formData.whatsapp}\n*Email:* ${formData.email || "-"}\n\n*Project Overview:*\n${formData.description}`;
     window.open(`https://wa.me/6283852174877?text=${encodeURIComponent(message)}`, '_blank');
   };
 
@@ -42,14 +42,14 @@ export function ContactFormSection() {
                 Besar <span className="text-[#2563EB] font-serif italic">Bisnis Anda</span>
               </h2>
               <p className="text-[#64748b] text-[0.95rem] md:text-base leading-relaxed font-medium mb-10 max-w-md">
-                Kami percaya produk digital yang hebat berawal dari pemahaman mendalam tentang masalah yang ingin diselesaikan. Isi formulir konsultasi dan tim kami akan segera menghubungi Anda.
+                We believe great digital products start with a deep understanding of the problem to be solved. Fill out the consultation form and our team will contact you shortly.
               </p>
 
               <div className="bg-[#0A1E5E] rounded-3xl p-8 md:p-10 shadow-2xl shadow-[#0A1E5E]/20 relative overflow-hidden mt-auto border-2 border-[#0A1E5E] border-b-[8px] border-b-[#05113A]">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-[#1d4ed8] rounded-full blur-[80px] opacity-20 -translate-y-1/2 translate-x-1/3" />
                 
                 <h3 className="text-[#C7F236] text-xs font-bold uppercase tracking-widest mb-8 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-[#C7F236]"></span> Komitmen Pelayanan Kami
+                  <span className="w-2 h-2 rounded-full bg-[#C7F236]"></span> Our Service Commitment
                 </h3>
 
                 <div className="space-y-6 relative z-10">
@@ -91,7 +91,7 @@ export function ContactFormSection() {
                 
                 {/* Services Pills */}
                 <div>
-                  <label className="block text-[#1a1f3c] text-xs font-bold uppercase tracking-wider mb-3">Layanan yang Dibutuhkan *</label>
+                  <label className="block text-[#1a1f3c] text-xs font-bold uppercase tracking-wider mb-3">Required Service *</label>
                   <div className="flex flex-wrap gap-2">
                     {services.map((srv) => (
                       <button
@@ -112,7 +112,7 @@ export function ContactFormSection() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label htmlFor="name" className="block text-[#1a1f3c] text-xs font-bold uppercase tracking-wider mb-2">Nama Lengkap *</label>
+                    <label htmlFor="name" className="block text-[#1a1f3c] text-xs font-bold uppercase tracking-wider mb-2">Full Name *</label>
                     <input
                       type="text"
                       id="name"

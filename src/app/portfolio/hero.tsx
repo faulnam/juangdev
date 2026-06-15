@@ -11,10 +11,10 @@ export function PortfolioHero() {
       <div className="relative z-10 max-w-4xl mx-auto px-6 text-center">
         <ScrollReveal>
           <h1 className="text-4xl md:text-5xl lg:text-[4rem] font-black text-white leading-tight tracking-tight mb-6">
-            Karya & <span className="text-[#C7F236] font-serif italic">Portofolio</span>
+            Works & <span className="text-[#C7F236] font-serif italic">Portfolio</span>
           </h1>
           <p className="text-white/80 text-[0.95rem] md:text-base max-w-2xl mx-auto leading-relaxed font-medium">
-            Jelajahi portofolio studi kasus produk digital rancangan kami. Kami memadukan kode berkualitas tinggi dengan pengalaman visual yang memikat.
+            Explore our portfolio of digital product case studies. We blend high-quality code with captivating visual experiences.
           </p>
         </ScrollReveal>
       </div>

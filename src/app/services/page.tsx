@@ -9,7 +9,7 @@ import { ServicesCTA } from "./cta";
 
 export const metadata = {
   title: "Services - JuangDev",
-  description: "Layanan pembuatan website, aplikasi mobile, dan desain UI/UX dari JuangDev.",
+  description: "Website development, mobile app, and UI/UX design services by JuangDev.",
 };
 
 export default function ServicesPage() {

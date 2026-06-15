@@ -15,7 +15,7 @@ const guarantees = [
   },
   {
     title: "Gratis",
-    subtitle: "DOMAIN & HOSTING",
+    subtitle: "REVISI 2 KALI",
     theme: "light",
   },
   {

@@ -40,9 +40,9 @@ function parseContent(text: string): ReactNode[] {
 }
 
 const QUICK_QUESTIONS = [
-  "Layanan apa saja yang tersedia?",
-  "Berapa harga landing page?",
-  "Konsultasi gratis?",
+  "What services are available?",
+  "How much is a landing page?",
+  "Free consultation?",
 ];
 
 export function Chatbot() {
@@ -51,7 +51,7 @@ export function Chatbot() {
     {
       id: "welcome-msg",
       role: "assistant",
-      content: "Halo! 👋 Saya Customer Service JuangDev. Ada yang bisa saya bantu terkait layanan website atau aplikasi untuk bisnis Anda?",
+      content: "Hello! 👋 I'm JuangDev Customer Service. How can I help you with website or application services for your business?",
     },
   ]);
   const [input, setInput] = useState("");
@@ -115,7 +115,7 @@ export function Chatbot() {
       setMessages((prev) =>
         prev.map((m) =>
           m.id === assistantId
-            ? { ...m, content: "Maaf, terjadi kendala teknis. Silakan coba lagi atau hubungi kami di [WhatsApp](https://wa.me/6283852174877)." }
+            ? { ...m, content: "Sorry, a technical issue occurred. Please try again or contact us on [WhatsApp](https://wa.me/6283852174877)." }
             : m
         )
       );
@@ -173,7 +173,7 @@ export function Chatbot() {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-white font-semibold text-sm leading-tight">Customer Service</p>
-            <p className="text-blue-200 text-xs">JuangDev • Online sekarang</p>
+            <p className="text-blue-200 text-xs">JuangDev • Online now</p>
           </div>
           <button
             onClick={() => setIsOpen(false)}
@@ -217,7 +217,7 @@ export function Chatbot() {
           {/* Quick questions (only before user sends first message) */}
           {hasOnlyWelcome && (
             <div className="flex flex-col gap-1.5 mt-1">
-              <p className="text-xs text-slate-400 pl-9">Pertanyaan populer:</p>
+              <p className="text-xs text-slate-400 pl-9">Popular questions:</p>
               {QUICK_QUESTIONS.map((q) => (
                 <button
                   key={q}
@@ -241,7 +241,7 @@ export function Chatbot() {
               className="flex-1 bg-slate-50 border border-slate-200 rounded-full px-4 py-2.5 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Ketik pesan Anda..."
+              placeholder="Type your message..."
               disabled={isLoading}
               autoComplete="off"
             />
@@ -253,7 +253,7 @@ export function Chatbot() {
               {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
             </button>
           </form>
-          <p className="text-center text-[10px] text-slate-300 mt-2">Didukung oleh Gemini AI • JuangDev</p>
+          <p className="text-center text-[10px] text-slate-300 mt-2">Powered by Gemini AI • JuangDev</p>
         </div>
       </div>
     </>

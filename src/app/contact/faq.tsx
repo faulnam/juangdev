@@ -16,7 +16,7 @@ const contactFaqs = [
   },
   {
     question: "Apakah JuangDev menerima NDA (perjanjian kerahasiaan)?",
-    answer: "Tentu. Kami menghargai inovasi bisnis Anda. Kami sangat terbuka dan siap untuk menandatangani Non-Disclosure Agreement (NDA) sebelum Anda membagikan detail rahasia proyek."
+    answer: "Absolutely. We value your business innovation. We are very open and ready to sign a Non-Disclosure Agreement (NDA) before you share any confidential project details."
   },
   {
     question: "Bagaimana sistem pembayaran proyek di JuangDev?",

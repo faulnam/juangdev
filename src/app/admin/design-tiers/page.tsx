@@ -16,10 +16,10 @@ export default async function DesignTiersPage() {
       <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
         <div className="p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <Palette className="w-5 h-5 text-slate-500" /> Daftar Tingkat Design
+            <Palette className="w-5 h-5 text-slate-500" /> Daftar Design Tier
           </h2>
           <a href="#add-form" className="bg-slate-900 text-white hover:bg-slate-800 px-4 py-2 rounded-md font-semibold text-sm flex items-center transition-colors">
-            <Plus className="w-4 h-4 mr-2" /> Tambah Tingkat Design
+            <Plus className="w-4 h-4 mr-2" /> Tambah Design Tier
           </a>
         </div>
 
@@ -84,13 +84,13 @@ export default async function DesignTiersPage() {
       <div id="add-form" className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden mt-8">
         <div className="p-4 border-b border-slate-200 bg-slate-50/50">
           <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <Plus className="w-5 h-5 text-slate-500" /> Tambah Tingkat Design
+            <Plus className="w-5 h-5 text-slate-500" /> Tambah Design Tier
           </h2>
         </div>
         <div className="p-6">
           <form action={async (formData) => { "use server"; await addDesignTier(formData); }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Nama Tingkat Design <span className="text-red-500">*</span></Label>
+              <Label htmlFor="name" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Nama Design Tier <span className="text-red-500">*</span></Label>
               <Input id="name" name="name" required className="bg-white border-slate-300" placeholder="Contoh: Premium Custom" />
             </div>
             
@@ -110,7 +110,7 @@ export default async function DesignTiersPage() {
 
             <div className="col-span-full pt-4 border-t border-slate-200 flex items-center justify-end">
               <Button type="submit" className="bg-slate-900 hover:bg-slate-800 text-white font-bold">
-                Simpan Tingkat Design
+                Simpan Design Tier
               </Button>
             </div>
           </form>

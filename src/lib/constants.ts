@@ -12,7 +12,7 @@ export const NAV_LINKS = [
 ] as const;
 
 export const WHATSAPP_NUMBER = "6283852174877";
-export const WHATSAPP_MESSAGE = "Halo JuangDev, saya ingin konsultasi mengenai pembuatan website/aplikasi.";
+export const WHATSAPP_MESSAGE = "Hello JuangDev, I would like to consult about website/application development.";
 export const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(WHATSAPP_MESSAGE)}`;
 
 // ---- Hero Trust Indicators ----
@@ -36,40 +36,40 @@ export const SERVICES = [
   {
     icon: "Globe",
     title: "Landing Page",
-    description: "Halaman web tunggal yang dioptimasi secara khusus untuk memaksimalkan konversi pemasaran bisnis Anda.",
-    features: ["Desain Responsif", "SEO Basic", "Mobile Friendly"],
+    description: "A single-page website highly optimized to maximize your business marketing conversion.",
+    features: ["Responsive Design", "Basic SEO", "Mobile Friendly"],
     startingPrice: "99K",
     color: "lime" as const,
   },
   {
     icon: "Monitor",
     title: "Company Profile",
-    description: "Website profesional dan elegan untuk membangun kredibilitas serta menampilkan identitas bisnis Anda ke publik.",
-    features: ["Hingga 5 Halaman", "Galeri", "Form Kontak"],
+    description: "A professional and elegant website to build credibility and showcase your business identity to the public.",
+    features: ["Up to 5 Pages", "Gallery", "Contact Form"],
     startingPrice: "199K",
     color: "blue" as const,
   },
   {
     icon: "ShoppingBag",
     title: "E-Commerce",
-    description: "Toko online modern dengan sistem belanja terstruktur, lengkap dengan katalog produk dan checkout.",
-    features: ["Katalog Produk", "Keranjang Belanja", "Integrasi WA"],
+    description: "Modern online store with structured shopping systems, complete with product catalogs and checkout.",
+    features: ["Product Catalog", "Shopping Cart", "WhatsApp Integration"],
     startingPrice: "399K",
     color: "white" as const,
   },
   {
     icon: "Bot",
-    title: "Sistem Informasi",
-    description: "Sistem digitalisasi pendataan dan pelaporan untuk mempermudah operasional internal perusahaan Anda.",
-    features: ["Manajemen Data", "Dashboard Analitik", "Export Laporan"],
+    title: "Information System",
+    description: "Data digitalization and reporting system to simplify your company's internal operations.",
+    features: ["Data Management", "Analytics Dashboard", "Export Reports"],
     startingPrice: "499K",
     color: "blue" as const,
   },
   {
     icon: "Palette",
     title: "Custom Web App",
-    description: "Pengembangan aplikasi web khusus dengan fitur kompleks yang dirancang mengikuti alur bisnis unik Anda.",
-    features: ["Desain UI/UX Custom", "API Integration", "Sistem Login/Role"],
+    description: "Custom web application development with complex features designed to follow your unique business flow.",
+    features: ["Custom UI/UX Design", "API Integration", "Login/Role System"],
     startingPrice: "999K",
     color: "lime" as const,
   },

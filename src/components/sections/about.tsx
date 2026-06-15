@@ -12,9 +12,9 @@ export function About() {
         {/* ── Section Header ── */}
         <ScrollReveal>
           <SectionHeader
-            title="Tentang"
+            title="About"
             highlight="JuangDev"
-            description="JuangDev hadir sebagai studio teknologi dan mitra strategis yang berdedikasi membangun website profesional, aplikasi mobile kustom, serta produk digital inovatif yang dirancang khusus untuk mempercepat pertumbuhan bisnis Anda."
+            description="JuangDev serves as a technology studio and strategic partner dedicated to building professional websites, custom mobile apps, and innovative digital products specifically designed to accelerate your business growth."
           />
         </ScrollReveal>
 
@@ -48,7 +48,7 @@ export function About() {
                     100%
                   </p>
                   <p className="text-[10px] lg:text-[11px] font-bold text-white/70 uppercase tracking-[0.2em] leading-tight">
-                    Transparansi Penuh
+                    Full Transparency
                   </p>
                 </div>
 
@@ -58,10 +58,10 @@ export function About() {
                 {/* 30 Hari */}
                 <div className="text-center flex-1">
                   <p className="text-4xl lg:text-5xl font-black text-white leading-none mb-3 tracking-tighter">
-                    30 Hari
+                    30 Days
                   </p>
                   <p className="text-[10px] lg:text-[11px] font-bold text-white/70 uppercase tracking-[0.2em] leading-tight">
-                    Dukungan Pascadeploy
+                    Post-deployment Support
                   </p>
                 </div>
               </div>
@@ -73,12 +73,12 @@ export function About() {
             <div className="rounded-[2rem] bg-[#c8f135] shadow-[0_20px_50px_-15px_rgba(200,241,53,0.3)] h-full flex flex-col overflow-hidden">
               <div className="p-8 pb-6">
                 <h3 className="text-2xl lg:text-3xl font-black text-[#0f1f5c] mb-4 leading-snug tracking-tight">
-                  Solusi Digital Bisnis<br />Anda
+                  Digital Solutions<br />For Your Business
                 </h3>
                 <p className="text-[#0f1f5c]/80 text-[0.85rem] leading-relaxed font-medium">
-                  Kami menghadirkan pembuatan website kustom mulai dari Landing Page, Company
-                  Profile, hingga E-Commerce yang cepat, responsif, aman, dan teroptimasi SEO
-                  untuk memaksimalkan kehadiran digital bisnis Anda.
+                  We deliver custom website development ranging from Landing Pages, Company
+                  Profiles, to E-Commerce that are fast, responsive, secure, and SEO-optimized
+                  to maximize your business digital presence.
                 </p>
               </div>
 
@@ -111,12 +111,12 @@ export function About() {
 
               <div className="p-8 pt-6 flex-1 flex flex-col justify-end">
                 <h3 className="text-2xl lg:text-3xl font-black text-white mb-4 leading-snug tracking-tight">
-                  Transparansi &amp;<br />Dukungan Berkala
+                  Transparency &amp;<br />Ongoing Support
                 </h3>
                 <p className="text-white/80 text-[0.85rem] leading-relaxed font-medium">
-                  Kami memberikan transparansi penuh mulai dari progres mingguan hingga
-                  penyerahan proyek secara utuh, didukung layanan pemeliharaan berkala untuk
-                  menjaga kestabilan website Anda.
+                  We provide full transparency from weekly progress updates to complete
+                  project handover, backed by regular maintenance services to ensure
+                  your website's stability.
                 </p>
               </div>
             </div>

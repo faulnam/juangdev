@@ -39,7 +39,7 @@ export function PricingClient({ plans }: { plans: Plan[] }) {
           <SectionHeader
             title="Paket & Investasi Terbaik Untuk"
             highlight="Bisnis Anda"
-            description="Harga transparan, tanpa biaya tersembunyi. Pilih paket yang paling sesuai dengan kebutuhan bisnis Anda."
+            description="Transparent pricing, no hidden fees. Choose the plan that best fits your business needs."
           />
         </ScrollReveal>
 

@@ -64,7 +64,7 @@ export function CostPlanner() {
 
   const handleConsult = () => {
     const fNames = selectedFeatures.map(id => features.find(f => f.id === id)?.name).join(", ");
-    const msg = `Halo JuangDev, saya telah mencoba kalkulator estimasi proyek.\n\n*Layanan:* ${selectedService.name}\n*Fitur:* ${fNames || '-'}\n*Desain:* ${selectedDesign.name}\n*Total Estimasi:* ${formatRupiah(totalCost)}\n\nSaya ingin konsultasi lebih lanjut mengenai ini.`;
+    const msg = `Hello JuangDev, I have tried the project estimation calculator.\n\n*Layanan:* ${selectedService.name}\n*Fitur:* ${fNames || '-'}\n*Desain:* ${selectedDesign.name}\n*Total Estimate:* ${formatRupiah(totalCost)}\n\nI would like to consult further regarding this.`;
     window.open(`https://wa.me/6283852174877?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
@@ -92,7 +92,7 @@ export function CostPlanner() {
               <div>
                 <div className="flex items-center gap-3 mb-5">
                   <div className="w-8 h-8 rounded-full bg-[#2563EB] text-white flex items-center justify-center font-bold text-sm">1</div>
-                  <h3 className="font-bold text-[#1a1f3c] text-lg">Pilih Jenis Layanan</h3>
+                  <h3 className="font-bold text-[#1a1f3c] text-lg">Select Service Type</h3>
                 </div>
                 <div className="flex flex-wrap gap-3 pl-11">
                   {services.map(svc => (
@@ -115,7 +115,7 @@ export function CostPlanner() {
               <div>
                 <div className="flex items-center gap-3 mb-5">
                   <div className="w-8 h-8 rounded-full bg-[#2563EB] text-white flex items-center justify-center font-bold text-sm">2</div>
-                  <h3 className="font-bold text-[#1a1f3c] text-lg">Fitur Tambahan</h3>
+                  <h3 className="font-bold text-[#1a1f3c] text-lg">Add-on Features</h3>
                 </div>
                 <div className="flex flex-wrap gap-3 pl-11">
                   {features.map(ft => {
@@ -172,7 +172,7 @@ export function CostPlanner() {
                 <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-[#C7F236]">
                   <Calculator className="w-5 h-5" />
                 </div>
-                <h3 className="text-white font-bold text-xl">Total Estimasi</h3>
+                <h3 className="text-white font-bold text-xl">Total Estimate</h3>
               </div>
 
               <div className="flex-grow space-y-6 relative z-10 mb-8">
@@ -187,7 +187,7 @@ export function CostPlanner() {
                 {selectedFeatures.length > 0 && (
                   <div className="flex justify-between items-start">
                     <div className="flex flex-col">
-                      <span className="text-white/60 text-xs font-bold uppercase tracking-wider mb-1">Fitur Tambahan ({selectedFeatures.length})</span>
+                      <span className="text-white/60 text-xs font-bold uppercase tracking-wider mb-1">Add-on Features ({selectedFeatures.length})</span>
                       <div className="flex flex-col gap-1">
                         {selectedFeatures.map(id => {
                           const f = features.find(x => x.id === id);
@@ -208,7 +208,7 @@ export function CostPlanner() {
               </div>
 
               <div className="relative z-10 pt-6 border-t border-white/10">
-                <p className="text-white/60 text-xs font-bold uppercase tracking-wider mb-2">Estimasi Total Biaya</p>
+                <p className="text-white/60 text-xs font-bold uppercase tracking-wider mb-2">Total Estimated Cost</p>
                 <p className="text-4xl font-black text-[#C7F236] mb-8">{formatRupiah(totalCost)}</p>
 
                 <button 

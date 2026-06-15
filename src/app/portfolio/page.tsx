@@ -7,7 +7,7 @@ import { PortfolioCTA } from "./cta";
 
 export const metadata = {
   title: "Portfolio - JuangDev",
-  description: "Jelajahi portofolio studi kasus produk digital rancangan JuangDev.",
+  description: "Explore the portfolio of digital product case studies designed by JuangDev.",
 };
 
 export default function PortfolioPage() {

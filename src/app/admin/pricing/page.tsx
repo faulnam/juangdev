@@ -16,7 +16,7 @@ export default async function PricingPage() {
       <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
         <div className="p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <BadgeDollarSign className="w-5 h-5 text-slate-500" /> Daftar Paket Harga
+            <BadgeDollarSign className="w-5 h-5 text-slate-500" /> Pricing Plans
           </h2>
           <a href="#add-form" className="bg-slate-900 text-white hover:bg-slate-800 px-4 py-2 rounded-md font-semibold text-sm flex items-center transition-colors">
             <Plus className="w-4 h-4 mr-2" /> Tambah Paket
@@ -54,7 +54,7 @@ export default async function PricingPage() {
             <tbody className="divide-y divide-slate-100">
               {allPricingPlans.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-slate-500">Belum ada paket harga.</td>
+                  <td colSpan={6} className="px-6 py-8 text-center text-slate-500">No pricing plans available.</td>
                 </tr>
               ) : (
                 allPricingPlans.map((item) => (

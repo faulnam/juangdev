@@ -22,7 +22,7 @@ export function FAQ() {
                 <span className="text-[#2563EB] font-serif italic">Ditanyakan?</span>
               </h2>
               <p className="text-[#64748b] text-[0.95rem] md:text-[1.05rem] leading-relaxed mb-8 max-w-sm">
-                Pertanyaan yang paling sering kami terima dari calon klien. Tidak menemukan jawaban yang Anda cari? Langsung hubungi kami.
+                The most frequent questions we receive from potential clients. Can't find the answer you're looking for? Contact us directly.
               </p>
               <a
                 href={WHATSAPP_URL}
@@ -30,7 +30,7 @@ export function FAQ() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 rounded-full px-8 py-3.5 text-[0.9rem] font-bold bg-[#2563EB] text-white hover:bg-[#1d4ed8] transition-all w-fit shadow-lg shadow-[#2563EB]/25"
               >
-                Hubungi Kami
+                Contact Us
                 <ArrowUpRight className="w-[1.125rem] h-[1.125rem]" strokeWidth={2.5} />
               </a>
             </ScrollReveal>

@@ -10,7 +10,7 @@ const portfolioData = [
   {
     title: "Anggana Project",
     category: "Company Profile",
-    description: "Website resmi Anggana Project, perusahaan yang bergerak di bidang layanan kreatif dan manajemen event. Menampilkan layanan, portofolio event, dan informasi corporate dengan desain modern.",
+    description: "Official website of Anggana Project, perusahaan yang bergerak di bidang layanan kreatif dan manajemen event. Menampilkan layanan, portofolio event, dan informasi corporate dengan desain modern.",
     tags: ["Next.js", "Tailwind CSS", "Framer Motion"],
     color: "bg-blue-600",
   },
@@ -24,7 +24,7 @@ const portfolioData = [
   {
     title: "Dapoer Niknik",
     category: "Landing Page",
-    description: "Landing page UMKM kuliner yang menonjolkan layanan katering dengan visual yang menggugah selera. Integrasi langsung pemesanan ke WhatsApp.",
+    description: "Culinary SME landing page yang menonjolkan layanan katering dengan visual yang menggugah selera. Integrasi langsung pemesanan ke WhatsApp.",
     tags: ["HTML5", "CSS3", "JavaScript"],
     color: "bg-orange-600",
   },

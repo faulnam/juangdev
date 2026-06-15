@@ -7,13 +7,14 @@ import {
   LayoutDashboard, Settings, Briefcase, ImageIcon, Users, 
   LogOut, User as UserIcon, Bell, ExternalLink, BadgeDollarSign, Palette, Layers, FileText
 } from "lucide-react";
+import { logoutAdmin } from "./login/actions";
 
 function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
 
   const handleLogout = async () => {
-    document.cookie = "admin_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    await logoutAdmin();
     router.push("/admin/login");
     router.refresh();
   };
@@ -57,8 +58,8 @@ function Sidebar() {
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">A La Carte Services</p>
           </div>
           <NavItem href="/admin/services" label="Layanan Utama" icon={Briefcase} />
-          <NavItem href="/admin/service-features" label="Fitur Tambahan" icon={Layers} />
-          <NavItem href="/admin/design-tiers" label="Tingkat Design" icon={Palette} />
+          <NavItem href="/admin/service-features" label="Add-on Features" icon={Layers} />
+          <NavItem href="/admin/design-tiers" label="Design Tier" icon={Palette} />
           
           <div className="py-2 px-6 mt-4">
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Content</p>
