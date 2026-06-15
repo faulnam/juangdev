@@ -88,7 +88,7 @@ export default async function DesignTiersPage() {
           </h2>
         </div>
         <div className="p-6">
-          <form action={addDesignTier} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <form action={async (formData) => { "use server"; await addDesignTier(formData); }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label htmlFor="name" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Nama Tingkat Design <span className="text-red-500">*</span></Label>
               <Input id="name" name="name" required className="bg-white border-slate-300" placeholder="Contoh: Premium Custom" />

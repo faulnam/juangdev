@@ -29,7 +29,7 @@ export default async function SettingsPage() {
             <div className="space-y-6 bg-[#f0f9ff] border border-[#bae6fd] p-5 rounded-xl">
               <h3 className="text-[#0369a1] font-bold text-sm mb-4">Hero Section Text</h3>
               
-              <form action={updateSetting} className="space-y-4 bg-white p-4 rounded-lg border border-slate-200">
+              <form action={async (formData) => { "use server"; await updateSetting(formData); }} className="space-y-4 bg-white p-4 rounded-lg border border-slate-200">
                 <input type="hidden" name="key" value="hero_title" />
                 <div className="space-y-2">
                   <Label htmlFor="hero_title" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Judul Utama (Hero Title)</Label>
@@ -46,7 +46,7 @@ export default async function SettingsPage() {
                 </div>
               </form>
 
-              <form action={updateSetting} className="space-y-4 bg-white p-4 rounded-lg border border-slate-200">
+              <form action={async (formData) => { "use server"; await updateSetting(formData); }} className="space-y-4 bg-white p-4 rounded-lg border border-slate-200">
                 <input type="hidden" name="key" value="hero_subtitle" />
                 <div className="space-y-2">
                   <Label htmlFor="hero_subtitle" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Sub-judul (Hero Subtitle)</Label>
@@ -68,7 +68,7 @@ export default async function SettingsPage() {
               
               <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
                 <h3 className="text-slate-800 font-bold text-sm mb-4">Gambar Utama (Hero Image)</h3>
-                <form action={updateSetting} className="space-y-4 flex gap-4">
+                <form action={async (formData) => { "use server"; await updateSetting(formData); }} className="space-y-4 flex gap-4">
                   <input type="hidden" name="key" value="hero_image" />
                   <div className="flex-1">
                     <p className="text-xs text-slate-500 mb-2">Upload gambar orang di hero section (Format transparan PNG disarankan).</p>
@@ -82,7 +82,7 @@ export default async function SettingsPage() {
 
               <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
                 <h3 className="text-slate-800 font-bold text-sm mb-4">Tentang Perusahaan (About Text)</h3>
-                <form action={updateSetting} className="space-y-4">
+                <form action={async (formData) => { "use server"; await updateSetting(formData); }} className="space-y-4">
                   <input type="hidden" name="key" value="about_text" />
                   <div className="space-y-2">
                     <textarea 

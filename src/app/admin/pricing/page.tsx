@@ -119,7 +119,7 @@ export default async function PricingPage() {
           </h2>
         </div>
         <div className="p-6">
-          <form action={addPricingPlan} className="flex flex-col lg:flex-row gap-8">
+          <form action={async (formData) => { "use server"; await addPricingPlan(formData); }} className="flex flex-col lg:flex-row gap-8">
             <div className="flex-1 space-y-6">
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

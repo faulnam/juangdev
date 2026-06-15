@@ -110,7 +110,7 @@ export default async function ServicesPage() {
           </h2>
         </div>
         <div className="p-6">
-          <form action={addService} className="flex flex-col lg:flex-row gap-8">
+          <form action={async (formData) => { "use server"; await addService(formData); }} className="flex flex-col lg:flex-row gap-8">
             <div className="flex-1 space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="title" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Nama Layanan <span className="text-red-500">*</span></Label>
