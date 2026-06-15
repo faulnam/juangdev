@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { addPortfolio, deletePortfolio, togglePortfolioStatus } from "./actions";
 import { ImageUpload } from "@/components/ui/image-upload";
 import { Edit, Trash2, EyeOff, Plus, Search, Filter } from "lucide-react";
+import Link from "next/link";
 
 export default async function PortfoliosPage() {
   const allPortfolios = await db.select().from(portfolios).orderBy(portfolios.createdAt);
@@ -78,9 +79,11 @@ export default async function PortfoliosPage() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Button variant="outline" size="icon" className="h-8 w-8 text-slate-700 border-slate-300 hover:bg-slate-100">
-                          <Edit className="w-4 h-4" />
-                        </Button>
+                        <Link href={`/admin/portfolios/${item.id}`}>
+                          <Button variant="outline" size="icon" className="h-8 w-8 text-slate-700 border-slate-300 hover:bg-slate-100">
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        </Link>
                         <form action={async () => { "use server"; await togglePortfolioStatus(item.id, item.isActive); }}>
                           <Button variant="outline" size="icon" type="submit" className="h-8 w-8 text-amber-500 border-amber-200 hover:bg-amber-50 hover:text-amber-600">
                             <EyeOff className="w-4 h-4" />
@@ -139,7 +142,7 @@ export default async function PortfoliosPage() {
                       <option value="Company Profile">Company Profile</option>
                       <option value="E-Commerce">E-Commerce</option>
                       <option value="Web App">Web App</option>
-                      <option value="Mobile App">Mobile App</option>
+                      <option value="Custome Web">Custome Web</option>
                     </select>
                   </div>
                   <div className="space-y-2">
@@ -153,7 +156,7 @@ export default async function PortfoliosPage() {
             <div className="w-full lg:w-[320px] space-y-6">
               <div>
                 <Label className="text-slate-700 font-bold text-xs uppercase tracking-wider block mb-2">Gambar Portfolio <span className="text-red-500">*</span></Label>
-                <p className="text-xs text-slate-500 mb-4">Upload gambar thumbnail portfolio. Format: JPG, PNG. Max: 2MB.</p>
+                <p className="text-xs text-slate-500 mb-4">Upload gambar thumbnail portfolio. Format: JPG, PNG. Max: 15MB.</p>
                 <ImageUpload name="imageUrl" />
               </div>
               

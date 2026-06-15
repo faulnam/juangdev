@@ -10,8 +10,15 @@ export function ImageUpload({ name = "imageUrl", defaultValue = "" }: { name?: s
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) return;
     
-    setUploading(true);
     const file = e.target.files[0];
+    
+    // Check if file size is > 15MB
+    if (file.size > 15 * 1024 * 1024) {
+      alert("Ukuran gambar maksimal 15MB");
+      return;
+    }
+
+    setUploading(true);
     const formData = new FormData();
     formData.append("file", file);
 

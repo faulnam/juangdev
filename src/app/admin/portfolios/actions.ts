@@ -48,3 +48,25 @@ export async function togglePortfolioStatus(id: number, isActive: boolean) {
     return { error: "Failed to toggle portfolio status" };
   }
 }
+
+export async function updatePortfolio(id: number, formData: FormData) {
+  const title = formData.get("title") as string;
+  const description = formData.get("description") as string;
+  const imageUrl = formData.get("imageUrl") as string;
+  const link = formData.get("link") as string;
+  const category = formData.get("category") as string;
+
+  if (!title || !description) return { error: "Title and description are required" };
+
+  try {
+    await db.update(portfolios)
+      .set({ title, description, imageUrl, link, category, updatedAt: new Date() })
+      .where(eq(portfolios.id, id));
+    revalidatePath("/admin/portfolios");
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    console.error("Update portfolio error", error);
+    return { error: "Failed to update portfolio item" };
+  }
+}
