@@ -13,8 +13,8 @@ import { BlogPreview } from "@/components/sections/blog-preview";
 import { ProjectEstimator } from "@/components/sections/project-estimator";
 import { FinalCta } from "@/components/sections/final-cta";
 import { Footer } from "@/components/sections/footer";
-import { FloatingWhatsApp } from "@/components/shared/floating-whatsapp";
 import { BackToTop } from "@/components/shared/back-to-top";
+import { Chatbot } from "@/components/chat/chatbot";
 
 export default function Home() {
   return (
@@ -35,7 +35,6 @@ export default function Home() {
         <ProjectEstimator />
       </main>
       <Footer />
-      <FloatingWhatsApp />
       <BackToTop />
     </>
   );
