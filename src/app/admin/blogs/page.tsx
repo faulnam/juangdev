@@ -103,7 +103,7 @@ export default async function BlogsPage() {
           </h2>
         </div>
         <div className="p-6">
-          <form action={addBlog} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <form action={async (formData) => { "use server"; await addBlog(formData); }} className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2 md:col-span-2">
               <Label htmlFor="title" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Judul Artikel <span className="text-red-500">*</span></Label>
               <Input id="title" name="title" required className="bg-white border-slate-300" placeholder="Contoh: Mengapa Next.js Sangat Populer di 2026" />
