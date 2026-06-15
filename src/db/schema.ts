@@ -82,6 +82,7 @@ export const portfolios = pgTable('portfolios', {
   imageUrl: varchar('image_url', { length: 255 }),
   link: varchar('link', { length: 255 }),
   category: varchar('category', { length: 100 }),
+  techs: varchar('techs', { length: 255 }), // Comma separated techs
   isActive: boolean('is_active').default(true).notNull(),
   orderIndex: integer('order_index').default(0).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),

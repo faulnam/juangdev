@@ -33,7 +33,7 @@ export default async function EditPortfolioPage({ params }: { params: { id: stri
 
       <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
         <div className="p-6">
-          <form action={async (formData) => { "use server"; await updatePortfolio(id, formData); redirect("/admin/portfolios"); }} className="flex flex-col lg:flex-row gap-8">
+          <form action={updatePortfolio.bind(null, id)} className="flex flex-col lg:flex-row gap-8">
             <div className="flex-1 space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="title" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Nama Portfolio <span className="text-red-500">*</span></Label>
@@ -71,6 +71,10 @@ export default async function EditPortfolioPage({ params }: { params: { id: stri
                     <Label htmlFor="link" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Link Website</Label>
                     <Input id="link" name="link" defaultValue={portfolio.link || ""} className="bg-white border-slate-300" placeholder="https://" />
                   </div>
+                </div>
+                <div className="mt-4 space-y-2">
+                  <Label htmlFor="techs" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Teknologi yang Digunakan</Label>
+                  <Input id="techs" name="techs" defaultValue={portfolio.techs || ""} className="bg-white border-slate-300" placeholder="Contoh: React, Next.js, Tailwind CSS (pisahkan dengan koma)" />
                 </div>
               </div>
             </div>

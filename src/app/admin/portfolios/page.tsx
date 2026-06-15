@@ -79,10 +79,8 @@ export default async function PortfoliosPage() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Link href={`/admin/portfolios/${item.id}`}>
-                          <Button variant="outline" size="icon" className="h-8 w-8 text-slate-700 border-slate-300 hover:bg-slate-100">
-                            <Edit className="w-4 h-4" />
-                          </Button>
+                        <Link href={`/admin/portfolios/${item.id}`} className="inline-flex items-center justify-center rounded-md text-sm font-medium h-8 w-8 text-slate-700 border border-slate-300 hover:bg-slate-100 transition-colors">
+                          <Edit className="w-4 h-4" />
                         </Link>
                         <form action={async () => { "use server"; await togglePortfolioStatus(item.id, item.isActive); }}>
                           <Button variant="outline" size="icon" type="submit" className="h-8 w-8 text-amber-500 border-amber-200 hover:bg-amber-50 hover:text-amber-600">
@@ -149,6 +147,10 @@ export default async function PortfoliosPage() {
                     <Label htmlFor="link" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Link Website</Label>
                     <Input id="link" name="link" className="bg-white border-slate-300" placeholder="https://" />
                   </div>
+                </div>
+                <div className="mt-4 space-y-2">
+                  <Label htmlFor="techs" className="text-slate-700 font-bold text-xs uppercase tracking-wider">Teknologi yang Digunakan</Label>
+                  <Input id="techs" name="techs" className="bg-white border-slate-300" placeholder="Contoh: React, Next.js, Tailwind CSS (pisahkan dengan koma)" />
                 </div>
               </div>
             </div>
