@@ -9,7 +9,6 @@ import { Pricing } from "@/components/sections/pricing";
 import { Testimonials } from "@/components/sections/testimonials";
 
 import { FAQ } from "@/components/sections/faq";
-import { BlogPreview } from "@/components/sections/blog-preview";
 import { ProjectEstimator } from "@/components/sections/project-estimator";
 import { FinalCta } from "@/components/sections/final-cta";
 import { Footer } from "@/components/sections/footer";
@@ -30,7 +29,6 @@ export default function Home() {
         <Testimonials />
 
         <FAQ />
-        <BlogPreview />
         <FinalCta />
         <ProjectEstimator />
       </main>

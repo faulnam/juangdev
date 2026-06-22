@@ -93,7 +93,7 @@ export function PortfolioClient({ data }: { data: Portfolio[] }) {
                     <h3 className="text-lg font-extrabold text-slate-900 mb-1.5 group-hover:text-[#2563EB] transition-colors duration-200">
                       {project.title}
                     </h3>
-                    <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-3 flex-grow">
+                    <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-3 flex-grow line-clamp-3">
                       {project.description}
                     </p>
                     
