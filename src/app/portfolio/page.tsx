@@ -15,7 +15,11 @@ export const metadata = {
 };
 
 export default async function PortfolioPage() {
-  const allPortfolios = await db.select().from(portfolios).where(eq(portfolios.isActive, true)).orderBy(desc(portfolios.createdAt));
+  const allPortfoliosRaw = await db.select().from(portfolios).where(eq(portfolios.isActive, true)).orderBy(desc(portfolios.createdAt));
+  const allPortfolios = allPortfoliosRaw.map(p => ({
+    ...p,
+    category: p.category || "Uncategorized"
+  }));
 
   return (
     <>
