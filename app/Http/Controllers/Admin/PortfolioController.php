@@ -1,0 +1,132 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Portfolio;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+
+class PortfolioController extends Controller
+{
+    public function index()
+    {
+        $portfolios = Portfolio::orderBy('display_order')->get();
+        return view('admin.portfolios.index', compact('portfolios'));
+    }
+
+    public function create()
+    {
+        return view('admin.portfolios.create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'client' => 'nullable|string|max:255',
+            'category' => 'required|string|max:100',
+            'description' => 'nullable|string',
+            'image_file' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:5120',
+            'image_url' => 'nullable|string',
+            'live_url' => 'nullable|string',
+            'featured' => 'nullable|boolean',
+            'display_order' => 'nullable|integer',
+        ]);
+
+        $imageUrl = $request->image_url;
+        if ($request->hasFile('image_file')) {
+            $file = $request->file('image_file');
+            $filename = time() . '_' . Str::random(6) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads'), $filename);
+            $imageUrl = '/uploads/' . $filename;
+        }
+
+        $slug = Str::slug($request->title);
+        $originalSlug = $slug;
+        $count = 1;
+        while (Portfolio::where('slug', $slug)->exists()) {
+            $slug = "{$originalSlug}-{$count}";
+            $count++;
+        }
+
+        $techs = $request->technologies;
+        if (is_string($techs)) {
+            $techs = array_filter(array_map('trim', explode(',', $techs)));
+        } elseif (!is_array($techs)) {
+            $techs = [];
+        }
+
+        Portfolio::create([
+            'slug' => $slug,
+            'title' => $request->title,
+            'client' => $request->client,
+            'category' => $request->category,
+            'description' => $request->description,
+            'image_url' => $imageUrl,
+            'live_url' => $request->live_url,
+            'technologies' => array_values($techs),
+            'featured' => $request->has('featured'),
+            'display_order' => (int)($request->display_order ?? 0),
+        ]);
+
+        return redirect()->route('admin.portfolios.index')->with('success', 'Portfolio berhasil ditambahkan.');
+    }
+
+    public function edit(Portfolio $portfolio)
+    {
+        return view('admin.portfolios.edit', compact('portfolio'));
+    }
+
+    public function update(Request $request, Portfolio $portfolio)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'client' => 'nullable|string|max:255',
+            'category' => 'required|string|max:100',
+            'description' => 'nullable|string',
+            'image_file' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:5120',
+            'image_url' => 'nullable|string',
+            'live_url' => 'nullable|string',
+            'featured' => 'nullable|boolean',
+            'display_order' => 'nullable|integer',
+        ]);
+
+        $imageUrl = $portfolio->image_url;
+        if ($request->hasFile('image_file')) {
+            $file = $request->file('image_file');
+            $filename = time() . '_' . Str::random(6) . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads'), $filename);
+            $imageUrl = '/uploads/' . $filename;
+        } elseif ($request->filled('image_url')) {
+            $imageUrl = $request->image_url;
+        }
+
+        $techs = $request->technologies;
+        if (is_string($techs)) {
+            $techs = array_filter(array_map('trim', explode(',', $techs)));
+        } elseif (!is_array($techs)) {
+            $techs = [];
+        }
+
+        $portfolio->update([
+            'title' => $request->title,
+            'client' => $request->client,
+            'category' => $request->category,
+            'description' => $request->description,
+            'image_url' => $imageUrl,
+            'live_url' => $request->live_url,
+            'technologies' => array_values($techs),
+            'featured' => $request->has('featured'),
+            'display_order' => (int)($request->display_order ?? 0),
+        ]);
+
+        return redirect()->route('admin.portfolios.index')->with('success', 'Portfolio berhasil diperbarui.');
+    }
+
+    public function destroy(Portfolio $portfolio)
+    {
+        $portfolio->delete();
+        return back()->with('success', 'Portfolio berhasil dihapus.');
+    }
+}
