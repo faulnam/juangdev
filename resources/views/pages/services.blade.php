@@ -41,7 +41,7 @@
             'id' => 'e-commerce',
             'title' => 'E-Commerce',
             'desc' => 'Toko online modern dengan sistem belanja terstruktur, lengkap dengan katalog produk, keranjang belanja, dan integrasi checkout instan.',
-            'price' => 'Rp 399.000',
+            'price' => 'Rp 499.000',
             'items' => [
                 'Manajemen Produk & Stok Otomatis',
                 'Checkout WhatsApp & Payment Gateway',
@@ -55,7 +55,7 @@
             'id' => 'sistem-informasi',
             'title' => 'Sistem Informasi',
             'desc' => 'Sistem digitalisasi pendataan dan pelaporan untuk mempermudah operasional internal, inventaris, dan efisiensi alur kerja perusahaan Anda.',
-            'price' => 'Rp 499.000',
+            'price' => 'Rp 399.000',
             'items' => [
                 'Arsitektur Database Terpadu',
                 'Role & Hak Akses Multi-Level',
@@ -85,11 +85,13 @@
 @section('content')
     <!-- 1. Hero Section -->
     <section 
-        class="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden text-white"
-        style="background: linear-gradient(160deg, #0A1E5E 0%, #071542 100%);"
+        class="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden text-white bg-[#071542]"
+        style="background: linear-gradient(160deg, #071542 0%, #0A1E5E 50%, #122d78 100%);"
     >
-        <!-- Subtle Ambient Glow -->
-        <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[#2563EB]/20 rounded-full blur-[120px] pointer-events-none"></div>
+        <!-- Decorative subtle grid background & right glow lighting effect -->
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none"></div>
+        <div class="absolute -top-24 right-0 w-96 h-96 rounded-full bg-[#2563EB]/25 blur-3xl pointer-events-none"></div>
+        <div class="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-blue-500/15 blur-[120px] pointer-events-none"></div>
 
         <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8 text-center relative z-10">
             <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight max-w-4xl mx-auto leading-tight mb-4">

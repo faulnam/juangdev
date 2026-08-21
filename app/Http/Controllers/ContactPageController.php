@@ -6,6 +6,8 @@ use App\Models\Contact;
 use App\Models\Service;
 use App\Models\SiteSetting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class ContactPageController extends Controller
 {
@@ -30,15 +32,50 @@ class ContactPageController extends Controller
             'message' => 'required|string',
         ]);
 
+        // Save to Database for Admin Panel (/admin/contacts)
         Contact::create($validated);
+
+        $targetPhone = env('ADMIN_WA_NUMBER') ?? SiteSetting::where('key', 'whatsapp_number')->value('value') ?? '62859171681988';
+        $targetPhoneClean = preg_replace('/[^0-9]/', '', $targetPhone);
+        if (str_starts_with($targetPhoneClean, '0')) {
+            $targetPhoneClean = '62' . substr($targetPhoneClean, 1);
+        }
+
+        $waMessage = "📩 *PESAN BARU DARI WEBSITE JUANGDEV*\n\n"
+            . "👤 *Nama*: " . $validated['name'] . "\n"
+            . "📧 *Email*: " . $validated['email'] . "\n"
+            . "📱 *No. WA/HP*: " . ($validated['phone'] ?? '-') . "\n"
+            . "💼 *Layanan*: " . ($validated['service'] ?? '-') . "\n"
+            . "💰 *Budget*: " . ($validated['budget'] ?? '-') . "\n\n"
+            . "💬 *Pesan*:\n\"" . $validated['message'] . "\"\n\n"
+            . "--- \n_Pemberitahuan Otomatis Website JuangDev_";
+
+        // Send WhatsApp Notification to Admin via Fonnte API
+        $fonnteToken = config('services.fonnte.token') ?? env('FONNTE_TOKEN');
+
+        if (!empty($fonnteToken)) {
+            try {
+                Http::withoutVerifying()->withHeaders([
+                    'Authorization' => $fonnteToken,
+                ])->asForm()->post('https://api.fonnte.com/send', [
+                    'target' => $targetPhoneClean,
+                    'message' => $waMessage,
+                    'countryCode' => '62',
+                ]);
+            } catch (\Throwable $e) {
+                Log::error('Fonnte WA send error: ' . $e->getMessage());
+            }
+        }
+
+        $successMsg = 'Pesan Anda telah berhasil dikirim! Tim JuangDev akan segera menghubungi Anda.';
 
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Pesan Anda berhasil dikirim! Tim JuangDev akan segera menghubungi Anda.',
+                'message' => $successMsg,
             ]);
         }
 
-        return back()->with('success', 'Pesan Anda berhasil dikirim! Tim JuangDev akan segera menghubungi Anda.');
+        return back()->with('success', $successMsg);
     }
 }

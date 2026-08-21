@@ -3,6 +3,7 @@
     $whatsappMsg = urlencode("Halo JuangDev, saya ingin berkonsultasi mengenai pembuatan website/aplikasi.");
     $whatsappUrl = "https://wa.me/{$whatsappNumber}?text={$whatsappMsg}";
     $currentRoute = Route::currentRouteName();
+    $isLightHeaderPage = in_array($currentRoute, ['blog.show', 'portfolio.show']);
 @endphp
 
 <header 
@@ -22,16 +23,16 @@
     <div 
         :class="scrolled 
             ? 'max-w-[58rem] mt-4 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-xl shadow-black/5 h-14 md:h-16' 
-            : 'max-w-7xl mt-0 rounded-none bg-transparent border-transparent h-16 md:h-20'"
+            : '{{ $isLightHeaderPage ? 'max-w-7xl mt-0 rounded-none bg-white/90 backdrop-blur-md border-b border-slate-200/60 h-16 md:h-20 shadow-xs' : 'max-w-7xl mt-0 rounded-none bg-transparent border-transparent h-16 md:h-20' }}'"
         class="pointer-events-auto transition-all duration-500 ease-in-out w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between mx-auto"
     >
         <!-- Logo -->
         <a href="{{ route('home') }}" class="flex items-center group" aria-label="JuangDev — Beranda">
             <span 
-                :class="scrolled ? 'text-slate-900' : 'text-white'"
+                :class="scrolled ? 'text-slate-900' : '{{ $isLightHeaderPage ? 'text-slate-900' : 'text-white' }}'"
                 class="text-xl md:text-2xl font-serif font-bold tracking-tight transition-colors duration-300 flex items-center gap-1.5"
             >
-                <span>Juang</span><span class="text-[#C7F236]">Dev</span>
+                <span>Juang</span><span class="{{ $isLightHeaderPage ? 'text-[#2563EB]' : 'text-[#C7F236]' }}">Dev</span>
             </span>
         </a>
 
@@ -41,7 +42,7 @@
                 href="{{ route('home') }}"
                 :class="scrolled 
                     ? '{{ $currentRoute == 'home' ? 'text-white bg-[#0A1E5E]' : 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' }}' 
-                    : '{{ $currentRoute == 'home' ? 'text-[#0A1E5E] bg-[#C7F236]' : 'text-white/85 hover:text-white hover:bg-white/10 font-medium' }}'"
+                    : '{{ $currentRoute == 'home' ? 'text-[#0A1E5E] bg-[#C7F236]' : ($isLightHeaderPage ? 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' : 'text-white/85 hover:text-white hover:bg-white/10 font-medium') }}'"
                 class="px-3 lg:px-4 py-1.5 rounded-full text-sm font-bold transition-all duration-300"
             >
                 Beranda
@@ -51,7 +52,7 @@
                 href="{{ route('services') }}"
                 :class="scrolled 
                     ? '{{ $currentRoute == 'services' ? 'text-white bg-[#0A1E5E]' : 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' }}' 
-                    : '{{ $currentRoute == 'services' ? 'text-[#0A1E5E] bg-[#C7F236]' : 'text-white/85 hover:text-white hover:bg-white/10 font-medium' }}'"
+                    : '{{ $currentRoute == 'services' ? 'text-[#0A1E5E] bg-[#C7F236]' : ($isLightHeaderPage ? 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' : 'text-white/85 hover:text-white hover:bg-white/10 font-medium') }}'"
                 class="px-3 lg:px-4 py-1.5 rounded-full text-sm font-bold transition-all duration-300"
             >
                 Layanan
@@ -61,27 +62,27 @@
                 href="{{ route('portfolio') }}"
                 :class="scrolled 
                     ? '{{ $currentRoute == 'portfolio' ? 'text-white bg-[#0A1E5E]' : 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' }}' 
-                    : '{{ $currentRoute == 'portfolio' ? 'text-[#0A1E5E] bg-[#C7F236]' : 'text-white/85 hover:text-white hover:bg-white/10 font-medium' }}'"
+                    : '{{ $currentRoute == 'portfolio' ? 'text-[#0A1E5E] bg-[#C7F236]' : ($isLightHeaderPage ? ($currentRoute == 'portfolio' ? 'text-white bg-[#0A1E5E]' : 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium') : 'text-white/85 hover:text-white hover:bg-white/10 font-medium') }}'"
                 class="px-3 lg:px-4 py-1.5 rounded-full text-sm font-bold transition-all duration-300"
             >
                 Portofolio
             </a>
 
             <a 
-                href="{{ route('home') }}#pricing"
+                href="{{ route('blog') }}"
                 :class="scrolled 
-                    ? 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' 
-                    : 'text-white/85 hover:text-white hover:bg-white/10 font-medium'"
+                    ? '{{ str_starts_with($currentRoute ?? '', 'blog') ? 'text-white bg-[#0A1E5E]' : 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' }}' 
+                    : '{{ str_starts_with($currentRoute ?? '', 'blog') ? ($isLightHeaderPage ? 'text-white bg-[#0A1E5E]' : 'text-[#0A1E5E] bg-[#C7F236]') : ($isLightHeaderPage ? 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' : 'text-white/85 hover:text-white hover:bg-white/10 font-medium') }}'"
                 class="px-3 lg:px-4 py-1.5 rounded-full text-sm font-bold transition-all duration-300"
             >
-                Paket Harga
+                Blog
             </a>
 
             <a 
                 href="{{ route('contact') }}"
                 :class="scrolled 
                     ? '{{ $currentRoute == 'contact' ? 'text-white bg-[#0A1E5E]' : 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' }}' 
-                    : '{{ $currentRoute == 'contact' ? 'text-[#0A1E5E] bg-[#C7F236]' : 'text-white/85 hover:text-white hover:bg-white/10 font-medium' }}'"
+                    : '{{ $currentRoute == 'contact' ? 'text-[#0A1E5E] bg-[#C7F236]' : ($isLightHeaderPage ? 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' : 'text-white/85 hover:text-white hover:bg-white/10 font-medium') }}'"
                 class="px-3 lg:px-4 py-1.5 rounded-full text-sm font-bold transition-all duration-300"
             >
                 Kontak
@@ -96,7 +97,7 @@
                 rel="noopener noreferrer"
                 :class="scrolled
                     ? 'bg-[#2563EB] text-white border-2 border-[#2563EB] hover:bg-[#1a4fd4] hover:border-[#1a4fd4] shadow-md shadow-[#2563EB]/20'
-                    : 'bg-[#C7F236] text-[#0A1E5E] border-2 border-[#C7F236] hover:bg-[#b5dd2a] hover:border-[#b5dd2a] shadow-[0_0_20px_-5px_rgba(199,242,54,0.35)]'"
+                    : '{{ $isLightHeaderPage ? 'bg-[#2563EB] text-white border-2 border-[#2563EB] hover:bg-[#1a4fd4]' : 'bg-[#C7F236] text-[#0A1E5E] border-2 border-[#C7F236] hover:bg-[#b5dd2a] hover:border-[#b5dd2a] shadow-[0_0_20px_-5px_rgba(199,242,54,0.35)]' }}'"
                 class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-200 group"
             >
                 <span>Konsultasi Gratis</span>
@@ -107,7 +108,7 @@
         <!-- Mobile Toggle Button -->
         <button 
             @click="mobileOpen = !mobileOpen"
-            :class="scrolled ? 'text-slate-800 hover:bg-slate-100' : 'text-white hover:bg-white/10'"
+            :class="scrolled ? 'text-slate-800 hover:bg-slate-100' : '{{ $isLightHeaderPage ? 'text-slate-800 hover:bg-slate-100' : 'text-white hover:bg-white/10' }}'"
             class="md:hidden p-2 rounded-lg transition-colors focus:outline-none"
             aria-label="Toggle menu"
         >
@@ -151,11 +152,11 @@
                 Portofolio
             </a>
             <a 
-                href="{{ route('home') }}#pricing" 
+                href="{{ route('blog') }}" 
                 @click="mobileOpen = false"
-                class="px-4 py-3 rounded-xl text-lg font-bold text-white/80 hover:text-white hover:bg-white/10"
+                class="px-4 py-3 rounded-xl text-lg font-bold transition-all {{ str_starts_with($currentRoute ?? '', 'blog') ? 'text-[#0A1E5E] bg-[#C7F236]' : 'text-white/80 hover:text-white hover:bg-white/10' }}"
             >
-                Paket Harga
+                Blog
             </a>
             <a 
                 href="{{ route('contact') }}" 

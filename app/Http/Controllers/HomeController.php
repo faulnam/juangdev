@@ -20,7 +20,14 @@ class HomeController extends Controller
         $pricingPlans = PricingPlan::where('is_active', true)->orderBy('display_order')->get();
         $portfolios = Portfolio::orderBy('display_order')->get();
         $testimonials = Testimonial::orderBy('display_order')->get();
-        $blogs = Blog::where('is_published', true)->orderBy('published_at', 'desc')->take(3)->get();
+        $blogs = Blog::where('is_published', true)
+            ->where(function ($q) {
+                $q->whereNull('published_at')
+                  ->orWhere('published_at', '<=', now());
+            })
+            ->orderBy('published_at', 'desc')
+            ->take(3)
+            ->get();
         $serviceFeatures = ServiceFeature::where('is_active', true)->orderBy('display_order')->get();
         $designTiers = DesignTier::orderBy('display_order')->get();
         

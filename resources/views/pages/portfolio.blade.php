@@ -14,9 +14,14 @@
 @section('content')
     <!-- Portfolio Hero -->
     <section 
-        class="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden text-white text-center"
-        style="background: linear-gradient(160deg, #1a3fa0 0%, #122d78 45%, #0A1E5E 100%);"
+        class="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden text-white text-center bg-[#071542]"
+        style="background: linear-gradient(160deg, #071542 0%, #0A1E5E 50%, #122d78 100%);"
     >
+        <!-- Decorative subtle grid background & right glow lighting effect -->
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none"></div>
+        <div class="absolute -top-24 right-0 w-96 h-96 rounded-full bg-[#2563EB]/25 blur-3xl pointer-events-none"></div>
+        <div class="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-blue-500/15 blur-[120px] pointer-events-none"></div>
+
         <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8 relative z-10">
             <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight max-w-4xl mx-auto leading-tight mb-6">
                 Portofolio Proyek &amp; <span class="font-serif italic text-[#C7F236]">Studi Kasus</span>
@@ -42,13 +47,13 @@
         <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8">
             
             <!-- Category Filter Pills -->
-            <div class="flex flex-wrap items-center justify-center gap-3 mb-12">
+            <div class="flex items-center justify-center gap-2 mb-12 overflow-x-auto hide-scrollbar flex-nowrap py-1">
                 <button 
                     @click="selectedCategory = 'all'"
                     :class="selectedCategory === 'all' 
                         ? 'bg-[#2563EB] text-white border-2 border-[#2563EB] shadow-md shadow-[#2563EB]/25' 
                         : 'bg-white text-slate-700 border-2 border-slate-200 hover:border-slate-300'"
-                    class="px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-200"
+                    class="px-5 py-2 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-200 shrink-0"
                 >
                     Semua Proyek ({{ $portfolios->count() }})
                 </button>
@@ -59,7 +64,7 @@
                         :class="selectedCategory.toLowerCase() === '{{ strtolower($cat) }}' 
                             ? 'bg-[#2563EB] text-white border-2 border-[#2563EB] shadow-md shadow-[#2563EB]/25' 
                             : 'bg-white text-slate-700 border-2 border-slate-200 hover:border-slate-300'"
-                        class="px-6 py-2.5 rounded-full text-sm font-bold transition-all duration-200"
+                        class="px-5 py-2 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-200 shrink-0"
                     >
                         {{ $cat }}
                     </button>
@@ -96,10 +101,12 @@
                                 </span>
                             </div>
 
-                            <h3 class="text-xl font-extrabold text-slate-900 mb-2 group-hover:text-[#2563EB] transition-colors duration-200" x-text="project.title">
-                            </h3>
+                            <a :href="'/portfolio/' + project.slug" class="block">
+                                <h3 class="text-xl font-extrabold text-slate-900 mb-2 group-hover:text-[#2563EB] transition-colors duration-200" x-text="project.title">
+                                </h3>
+                            </a>
 
-                            <p class="text-slate-600 text-sm leading-relaxed mb-4 flex-grow" x-text="project.description">
+                            <p class="text-slate-600 text-sm leading-relaxed mb-4 flex-grow line-clamp-3" x-text="project.description">
                             </p>
 
                             <!-- Tech Stack Pills -->
@@ -112,13 +119,11 @@
 
                             <div class="border-t border-slate-100 pt-4 mt-auto">
                                 <a 
-                                    :href="project.live_url || '{{ $whatsappUrl }}'" 
-                                    target="_blank" 
-                                    rel="noopener noreferrer" 
+                                    :href="'/portfolio/' + project.slug" 
                                     class="inline-flex items-center gap-1.5 text-[#2563EB] text-sm font-extrabold hover:gap-2 transition-all duration-200 group/link"
                                 >
                                     <span>Lihat Detail Proyek</span>
-                                    <i data-lucide="arrow-up-right" class="w-4 h-4 transition-transform duration-200 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5"></i>
+                                    <i data-lucide="arrow-right" class="w-4 h-4 transition-transform duration-200 group-hover/link:translate-x-1"></i>
                                 </a>
                             </div>
                         </div>

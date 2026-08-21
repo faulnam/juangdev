@@ -95,13 +95,11 @@
 
                             <div class="border-t border-slate-100 pt-3 mt-auto flex items-center justify-between">
                                 <a 
-                                    href="{{ $project->live_url ?? '#' }}" 
-                                    target="_blank" 
-                                    rel="noopener noreferrer" 
+                                    href="{{ route('portfolio.show', $project->slug) }}" 
                                     class="inline-flex items-center gap-1.5 text-[#2563EB] text-sm font-extrabold hover:gap-2 transition-all duration-200 group/link"
                                 >
                                     <span>Lihat Detail Proyek</span>
-                                    <i data-lucide="arrow-up-right" class="w-4 h-4 transition-transform duration-200 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5"></i>
+                                    <i data-lucide="arrow-right" class="w-4 h-4 transition-transform duration-200 group-hover/link:translate-x-1"></i>
                                 </a>
                             </div>
                         </div>

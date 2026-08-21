@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Helpers\ImageCompressor;
 use App\Http\Controllers\Controller;
 use App\Models\Testimonial;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class TestimonialController extends Controller
 {
@@ -21,7 +21,7 @@ class TestimonialController extends Controller
             'name' => 'required|string|max:255',
             'role' => 'nullable|string|max:255',
             'company' => 'nullable|string|max:255',
-            'avatar_file' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:5120',
+            'avatar_file' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:10240',
             'avatar_url' => 'nullable|string',
             'content' => 'required|string',
             'rating' => 'required|integer|min:1|max:5',
@@ -31,10 +31,7 @@ class TestimonialController extends Controller
 
         $avatarUrl = $request->avatar_url;
         if ($request->hasFile('avatar_file')) {
-            $file = $request->file('avatar_file');
-            $filename = time() . '_' . Str::random(6) . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads'), $filename);
-            $avatarUrl = '/uploads/' . $filename;
+            $avatarUrl = ImageCompressor::uploadAndCompress($request->file('avatar_file'));
         }
 
         Testimonial::create([
@@ -57,7 +54,7 @@ class TestimonialController extends Controller
             'name' => 'required|string|max:255',
             'role' => 'nullable|string|max:255',
             'company' => 'nullable|string|max:255',
-            'avatar_file' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:5120',
+            'avatar_file' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:10240',
             'avatar_url' => 'nullable|string',
             'content' => 'required|string',
             'rating' => 'required|integer|min:1|max:5',
@@ -67,10 +64,7 @@ class TestimonialController extends Controller
 
         $avatarUrl = $testimonial->avatar_url;
         if ($request->hasFile('avatar_file')) {
-            $file = $request->file('avatar_file');
-            $filename = time() . '_' . Str::random(6) . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads'), $filename);
-            $avatarUrl = '/uploads/' . $filename;
+            $avatarUrl = ImageCompressor::uploadAndCompress($request->file('avatar_file'));
         } elseif ($request->filled('avatar_url')) {
             $avatarUrl = $request->avatar_url;
         }

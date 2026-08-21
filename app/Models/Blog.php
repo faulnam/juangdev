@@ -15,9 +15,12 @@ class Blog extends Model
         'excerpt',
         'content',
         'image_url',
+        'alt_image',
         'category',
         'author',
         'read_time',
+        'meta_title',
+        'meta_description',
         'published_at',
         'is_published',
     ];

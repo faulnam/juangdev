@@ -59,11 +59,15 @@
                                 <td class="py-4 px-6 text-xs text-slate-400 whitespace-nowrap">
                                     {{ $blog->created_at ? $blog->created_at->format('d M Y') : '-' }}
                                 </td>
-                                <td class="py-4 px-6">
-                                    @if($blog->is_published)
-                                        <span class="bg-emerald-100 text-emerald-700 text-[10px] font-black px-2.5 py-1 rounded-full uppercase">Published</span>
-                                    @else
+                                <td class="py-4 px-6 whitespace-nowrap">
+                                    @if(!$blog->is_published)
                                         <span class="bg-slate-100 text-slate-500 text-[10px] font-black px-2.5 py-1 rounded-full uppercase">Draft</span>
+                                    @elseif($blog->published_at && $blog->published_at->isFuture())
+                                        <span class="bg-amber-100 text-amber-800 text-[10px] font-black px-2.5 py-1 rounded-full uppercase inline-flex items-center gap-1" title="Akan rilis otomatis pada {{ $blog->published_at->format('d M Y H:i') }}">
+                                            ⏰ Terjadwal ({{ $blog->published_at->format('d M H:i') }})
+                                        </span>
+                                    @else
+                                        <span class="bg-emerald-100 text-emerald-700 text-[10px] font-black px-2.5 py-1 rounded-full uppercase">Published</span>
                                     @endif
                                 </td>
                                 <td class="py-4 px-6 text-right whitespace-nowrap">

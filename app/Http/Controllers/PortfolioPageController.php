@@ -15,4 +15,16 @@ class PortfolioPageController extends Controller
 
         return view('pages.portfolio', compact('portfolios', 'settings'));
     }
+
+    public function show($slug)
+    {
+        $portfolio = Portfolio::where('slug', $slug)->firstOrFail();
+        $relatedPortfolios = Portfolio::where('id', '!=', $portfolio->id)
+            ->orderBy('display_order')
+            ->take(3)
+            ->get();
+        $settings = SiteSetting::pluck('value', 'key')->toArray();
+
+        return view('pages.portfolio-detail', compact('portfolio', 'relatedPortfolios', 'settings'));
+    }
 }

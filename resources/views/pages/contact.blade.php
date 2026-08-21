@@ -16,9 +16,14 @@
 @section('content')
     <!-- Contact Hero -->
     <section 
-        class="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden text-white text-center"
-        style="background: linear-gradient(160deg, #1a3fa0 0%, #122d78 45%, #0A1E5E 100%);"
+        class="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden text-white text-center bg-[#071542]"
+        style="background: linear-gradient(160deg, #071542 0%, #0A1E5E 50%, #122d78 100%);"
     >
+        <!-- Decorative subtle grid background & right glow lighting effect -->
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none"></div>
+        <div class="absolute -top-24 right-0 w-96 h-96 rounded-full bg-[#2563EB]/25 blur-3xl pointer-events-none"></div>
+        <div class="absolute bottom-0 right-0 w-[500px] h-[500px] rounded-full bg-blue-500/15 blur-[120px] pointer-events-none"></div>
+
         <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8 relative z-10">
             <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight max-w-4xl mx-auto leading-tight mb-6">
                 Mari Bangun Sesuatu yang <span class="font-serif italic text-[#C7F236]">Luar Biasa Bersama</span>
@@ -113,10 +118,11 @@
                                 class="w-full px-5 py-3.5 rounded-xl border-2 border-slate-100 bg-[#f8f9fc] text-slate-800 font-medium focus:outline-none focus:border-[#2563EB] transition-colors"
                             >
                                 <option value="">-- Pilih Rentang Budget --</option>
-                                <option value="< 500 Ribu">&lt; Rp 500.000 (Landing Page Starter)</option>
-                                <option value="500 Ribu - 1.5 Juta">Rp 500.000 - Rp 1.500.000</option>
-                                <option value="1.5 Juta - 5 Juta">Rp 1.500.000 - Rp 5.000.000</option>
-                                <option value="> 5 Juta">&gt; Rp 5.000.000 (Custom Web App / ERP)</option>
+                                <option value="< Rp 150.000">&lt; Rp 150.000 (Landing Page Starter)</option>
+                                <option value="Rp 150.000 - Rp 350.000">Rp 150.000 - Rp 350.000 (Company Profile / Pro)</option>
+                                <option value="Rp 350.000 - Rp 600.000">Rp 350.000 - Rp 600.000 (Sistem Informasi / E-Commerce)</option>
+                                <option value="Rp 600.000 - Rp 1.000.000">Rp 600.000 - Rp 1.000.000 (Pro Store / Corporate)</option>
+                                <option value="Rp 1.000.000 - Rp 1.500.000+">Rp 1.000.000 - Rp 1.500.000+ (Custom Web App / Enterprise)</option>
                             </select>
                         </div>
 

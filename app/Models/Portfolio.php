@@ -13,8 +13,13 @@ class Portfolio extends Model
         'slug',
         'title',
         'client',
+        'client_industry',
+        'duration',
         'category',
         'description',
+        'overview',
+        'key_features',
+        'gallery',
         'image_url',
         'live_url',
         'technologies',
@@ -27,6 +32,8 @@ class Portfolio extends Model
         return [
             'featured' => 'boolean',
             'technologies' => 'array',
+            'key_features' => 'array',
+            'gallery' => 'array',
             'display_order' => 'integer',
         ];
     }

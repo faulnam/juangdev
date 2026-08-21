@@ -7,8 +7,10 @@
     class="py-20 md:py-28 bg-[#f8f9fc]"
     x-data="{
         services: {{ json_encode($services) }},
+        pricingPlans: {{ json_encode($pricingPlans ?? []) }},
         serviceFeatures: {{ json_encode($serviceFeatures) }},
         selectedServiceId: {{ $services->first()->id ?? 'null' }},
+        selectedPlanId: null,
         selectedFeatureIds: [],
         formData: {
             name: '',
@@ -16,6 +18,24 @@
             email: '',
             details: ''
         },
+        isSubmitting: false,
+        isSubmitted: false,
+
+        init() {
+            this.$watch('selectedServiceId', (val) => {
+                const plans = this.activePlans;
+                if (plans.length > 0) {
+                    this.selectedPlanId = plans[0].id;
+                } else {
+                    this.selectedPlanId = null;
+                }
+            });
+            const plans = this.activePlans;
+            if (plans.length > 0) {
+                this.selectedPlanId = plans[0].id;
+            }
+        },
+
         toggleFeature(id) {
             if (this.selectedFeatureIds.includes(id)) {
                 this.selectedFeatureIds = this.selectedFeatureIds.filter(fid => fid !== id);
@@ -26,9 +46,34 @@
         get selectedService() {
             return this.services.find(s => s.id === this.selectedServiceId);
         },
+        get activePlans() {
+            if (!this.selectedService) return [];
+            return this.pricingPlans.filter(p => p.category === this.selectedService.slug);
+        },
+        get selectedPlan() {
+            if (this.selectedPlanId) {
+                const found = this.pricingPlans.find(p => p.id === this.selectedPlanId);
+                if (found) return found;
+            }
+            const plans = this.activePlans;
+            return plans.length > 0 ? plans[0] : null;
+        },
+        parsePriceString(str) {
+            if (!str) return 0;
+            if (typeof str === 'number') return str;
+            let s = str.toString().toLowerCase();
+            if (s.includes('k')) {
+                let num = parseFloat(s.replace(/[^0-9\.]/g, ''));
+                return isNaN(num) ? 0 : Math.round(num * 1000);
+            }
+            let num = parseInt(s.replace(/[^0-9]/g, ''));
+            return isNaN(num) ? 0 : num;
+        },
         get totalPrice() {
             let total = 0;
-            if (this.selectedService) {
+            if (this.selectedPlan) {
+                total += this.parsePriceString(this.selectedPlan.price);
+            } else if (this.selectedService) {
                 total += parseInt(this.selectedService.base_price || 0);
             }
             this.selectedFeatureIds.forEach(fid => {
@@ -47,16 +92,43 @@
                 alert('Silakan lengkapi Nama dan Nomor WhatsApp Anda.');
                 return;
             }
+
+            this.isSubmitting = true;
             const sName = this.selectedService ? this.selectedService.name : '-';
+            const pName = this.selectedPlan ? this.selectedPlan.name + ' (' + this.selectedPlan.price + ')' : '-';
             const fNames = this.selectedFeatureIds.map(fid => {
                 const f = this.serviceFeatures.find(feat => feat.id === fid);
                 return f ? f.title : '';
             }).filter(Boolean).join(', ') || 'Tidak ada';
 
-            const msg = `Halo Tim JuangDev, saya ingin konsultasi estimasi proyek baru.\n\n*Rincian Pilihan:*\n- Layanan: ${sName}\n- Fitur Add-on: ${fNames}\n*Estimasi Biaya:* Rp ${this.formatRupiah(this.totalPrice)}\n\n*Nama:* ${this.formData.name}\n*WhatsApp:* ${this.formData.phone}\n*Email:* ${this.formData.email || '-'}\n\n*Kebutuhan Proyek:*\n${this.formData.details || '-'}`;
-            
-            const waUrl = `https://wa.me/{{ $whatsappNumber }}?text=${encodeURIComponent(msg)}`;
-            window.open(waUrl, '_blank');
+            const msg = `Halo Tim JuangDev, saya ingin konsultasi estimasi proyek baru.\n\n*Rincian Pilihan:*\n- Layanan: ${sName}\n- Paket Layanan: ${pName}\n- Fitur Add-on: ${fNames}\n*Estimasi Biaya:* Rp ${this.formatRupiah(this.totalPrice)}\n\n*Nama:* ${this.formData.name}\n*WhatsApp:* ${this.formData.phone}\n*Email:* ${this.formData.email || '-'}\n\n*Kebutuhan Proyek:*\n${this.formData.details || '-'}`;
+
+            fetch('/contact', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: this.formData.name,
+                    email: this.formData.email || (this.formData.phone + '@wa.user'),
+                    phone: this.formData.phone,
+                    service: sName + ' - Paket ' + (this.selectedPlan ? this.selectedPlan.name : ''),
+                    budget: 'Rp ' + this.formatRupiah(this.totalPrice),
+                    message: msg
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                this.isSubmitting = false;
+                this.isSubmitted = true;
+            })
+            .catch(e => {
+                console.log(e);
+                this.isSubmitting = false;
+                this.isSubmitted = true;
+            });
         }
     }"
 >
@@ -71,20 +143,18 @@
                 </h2>
                 
                 <p class="text-[#64748b] text-[0.95rem] md:text-base leading-relaxed mb-6 font-medium">
-                    Pilih jenis layanan utama dan fitur tambahan yang Anda butuhkan. Dapatkan perkiraan biaya pembuatan proyek digital Anda secara langsung.
+                    Pilih jenis layanan, opsi paket, dan fitur tambahan yang Anda butuhkan. Dapatkan perkiraan biaya pembuatan proyek digital Anda secara langsung.
                 </p>
 
                 <!-- Total Box -->
                 <div class="bg-white border-2 border-slate-100 rounded-[2rem] p-7 md:p-8 shadow-xl shadow-slate-200/50">
                     <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Total Estimasi Biaya</p>
                     <div class="text-3xl sm:text-4xl lg:text-5xl font-black text-[#1a1f3c]">
-                        Rp <span x-text="formatRupiah(totalPrice)"></span>
+                        <span class="text-xl font-bold text-slate-400">Rp</span> 
+                        <span x-text="formatRupiah(totalPrice)">0</span>
                     </div>
-                    <p class="text-xs text-slate-500 mt-3 font-medium leading-relaxed">
-                        * Harga ini merupakan estimasi awal dan dapat disesuaikan kembali tergantung rincian spesifik kebutuhan Anda.
-                    </p>
                 </div>
-                
+
                 <!-- Free Consultation Card -->
                 <div class="bg-[#0A1E5E] rounded-2xl p-6 md:p-7 mt-6 shadow-xl shadow-[#0A1E5E]/20 text-white">
                     <div class="flex items-start gap-4">
@@ -101,9 +171,31 @@
                 </div>
             </div>
 
-            <!-- Right Column: Interactive Step-by-Step Form -->
+            <!-- Right Column: Interactive Step-by-Step Form & Success Card -->
             <div class="bg-white rounded-[2rem] border-2 border-slate-100 shadow-xl shadow-slate-200/50 p-6 sm:p-8 md:p-10">
-                <form @submit.prevent="submitEstimate()" class="space-y-8">
+                
+                <!-- Success State Banner -->
+                <div x-show="isSubmitted" x-cloak class="text-center py-8 space-y-6">
+                    <div class="w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                        <i data-lucide="check-circle-2" class="w-10 h-10 stroke-[2.5]"></i>
+                    </div>
+                    <div class="space-y-2 max-w-md mx-auto">
+                        <h3 class="text-2xl font-black text-slate-900">Estimasi Berhasil Terkirim!</h3>
+                        <p class="text-slate-600 text-sm leading-relaxed font-medium">
+                            Terima kasih <span class="font-bold text-slate-900" x-text="formData.name"></span>. Rincian kebutuhan proyek Anda telah tersimpan di sistem kami. Tim JuangDev akan segera menghubungi nomor WhatsApp Anda (<span class="font-bold text-slate-900" x-text="formData.phone"></span>).
+                        </p>
+                    </div>
+                    <button 
+                        type="button" 
+                        @click="isSubmitted = false; formData.name = ''; formData.phone = ''; formData.details = '';"
+                        class="px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all"
+                    >
+                        Hitung Estimasi Lainnya
+                    </button>
+                </div>
+
+                <!-- Form Inputs -->
+                <form x-show="!isSubmitted" @submit.prevent="submitEstimate()" class="space-y-8">
                     
                     <!-- Step 1: Select Main Service -->
                     <div>
@@ -126,17 +218,48 @@
                                         class="font-bold text-sm"
                                         x-text="service.name"
                                     ></span>
-                                    <span class="text-xs text-slate-500 font-semibold mt-1" x-text="'+ Rp ' + formatRupiah(service.base_price)">
+                                    <span class="text-xs text-slate-500 font-semibold mt-1" x-text="'Mulai Rp ' + formatRupiah(service.base_price)">
                                     </span>
                                 </button>
                             </template>
                         </div>
                     </div>
 
-                    <!-- Step 2: Add-on Features -->
+                    <!-- Step 2: Select Package (3 Paket Per Layanan) -->
+                    <div x-show="activePlans.length > 0">
+                        <label class="flex items-center gap-2 text-[0.8rem] font-black text-[#1e2547] uppercase tracking-wider mb-4">
+                            <span class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs">2</span> 
+                            Pilih Paket Layanan <span class="text-red-500">*</span>
+                        </label>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <template x-for="plan in activePlans" :key="plan.id">
+                                <button 
+                                    type="button"
+                                    @click="selectedPlanId = plan.id"
+                                    :class="selectedPlanId === plan.id 
+                                        ? 'bg-blue-50 border-[#2563EB] ring-2 ring-[#2563EB]/20' 
+                                        : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50'"
+                                    class="flex flex-col text-left p-3.5 rounded-xl border-2 transition-all duration-200"
+                                >
+                                    <div class="flex items-center justify-between w-full mb-1">
+                                        <span 
+                                            :class="selectedPlanId === plan.id ? 'text-[#2563EB]' : 'text-slate-900'"
+                                            class="font-bold text-sm"
+                                            x-text="plan.name"
+                                        ></span>
+                                        <span x-show="plan.badge" class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-amber-100 text-amber-800" x-text="plan.badge"></span>
+                                    </div>
+                                    <span class="text-xs font-black text-slate-700" x-text="'Rp ' + formatRupiah(parsePriceString(plan.price))"></span>
+                                    <p class="text-[11px] text-slate-400 font-medium mt-1 line-clamp-2" x-text="plan.description"></p>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Add-on Features -->
                     <div>
                         <label class="flex items-center gap-2 text-[0.8rem] font-black text-[#1e2547] uppercase tracking-wider mb-4">
-                            <span class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs">2</span> 
+                            <span class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs">3</span> 
                             Fitur Tambahan / Add-on (Opsional)
                         </label>
                         <div class="space-y-2.5">
@@ -171,10 +294,10 @@
 
                     <hr class="border-slate-100">
 
-                    <!-- Step 3: Contact Details -->
+                    <!-- Step 4: Contact Details -->
                     <div>
                         <label class="flex items-center gap-2 text-[0.8rem] font-black text-[#1e2547] uppercase tracking-wider mb-4">
-                            <span class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs">3</span> 
+                            <span class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs">4</span> 
                             Informasi Kontak &amp; Kebutuhan
                         </label>
                         
@@ -204,9 +327,11 @@
                         
                         <button 
                             type="submit"
-                            class="w-full flex items-center justify-center gap-2 rounded-xl py-4 text-[0.95rem] font-bold transition-all duration-300 bg-[#2563EB] text-white hover:bg-[#1d4ed8] shadow-lg shadow-[#2563EB]/25"
+                            :disabled="isSubmitting"
+                            class="w-full flex items-center justify-center gap-2 rounded-xl py-4 text-[0.95rem] font-bold transition-all duration-300 bg-[#2563EB] text-white hover:bg-[#1d4ed8] shadow-lg shadow-[#2563EB]/25 disabled:opacity-50"
                         >
-                            <span>Kirim Estimasi via WhatsApp</span>
+                            <span x-show="!isSubmitting">Kirim Estimasi Pesan Sekarang</span>
+                            <span x-show="isSubmitting">Mengirimkan Pesan...</span>
                             <i data-lucide="send" class="w-4 h-4 stroke-[2.5]"></i>
                         </button>
                     </div>

@@ -24,11 +24,12 @@
         }
     }"
 >
-    <!-- Background Radial Glows -->
+    <!-- Background Radial Glows & Grid Pattern -->
     <div class="absolute inset-0 pointer-events-none select-none overflow-hidden" aria-hidden="true">
+        <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-[size:4rem_4rem] pointer-events-none"></div>
         <div class="absolute top-[-5%] left-[-15%] w-[900px] h-[900px] rounded-full blur-[180px]" style="background: radial-gradient(circle, rgba(37,99,235,0.40) 0%, transparent 70%);"></div>
         <div class="absolute bottom-[-10%] right-[-10%] w-[700px] h-[700px] rounded-full blur-[140px]" style="background: radial-gradient(circle, rgba(37,99,235,0.30) 0%, transparent 70%);"></div>
-        <div class="absolute top-[30%] right-[-5%] w-[500px] h-[500px] rounded-full bg-[#C7F236]/10 blur-[120px]"></div>
+        <div class="absolute top-[20%] right-0 w-[500px] h-[500px] rounded-full bg-[#2563EB]/25 blur-[120px]"></div>
     </div>
 
     <div class="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-8 lg:px-8 pt-28 sm:pt-32 lg:pt-36 pb-16 sm:pb-20">

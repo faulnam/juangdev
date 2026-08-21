@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\ServiceFeatureController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\BlogPageController;
 use App\Http\Controllers\ContactPageController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PortfolioPageController;
@@ -27,6 +28,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/services', [ServicePageController::class, 'index'])->name('services');
 Route::get('/portfolio', [PortfolioPageController::class, 'index'])->name('portfolio');
+Route::get('/portfolio/{slug}', [PortfolioPageController::class, 'show'])->name('portfolio.show');
+Route::get('/blog', [BlogPageController::class, 'index'])->name('blog');
+Route::get('/blog/{slug}', [BlogPageController::class, 'show'])->name('blog.show');
 Route::get('/contact', [ContactPageController::class, 'index'])->name('contact');
 Route::post('/contact', [ContactPageController::class, 'submit'])->name('contact.submit');
 

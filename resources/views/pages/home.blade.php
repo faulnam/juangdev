@@ -25,7 +25,10 @@
     <!-- 7. What Our Clients Say (Testimonials Continuous Loop) -->
     @include('partials.testimonials')
 
-    <!-- 8. Ada yang Ingin Ditanyakan? (FAQ) -->
+    <!-- 8. Wawasan & Artikel Terbaru (Blogs) -->
+    @include('partials.blogs')
+
+    <!-- 9. Ada yang Ingin Ditanyakan? (FAQ) -->
     @include('partials.faq')
 
     <!-- 9. Ready to Build Your Next Digital Product? (Final CTA) -->
