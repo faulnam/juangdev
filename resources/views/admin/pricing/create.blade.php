@@ -14,7 +14,7 @@
                     type="text" 
                     name="name" 
                     required 
-                    placeholder="Contoh: Starter, Pro, Enterprise" 
+                    placeholder="Contoh: Basic, Rekomendasi, Premium" 
                     class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm font-medium focus:outline-none focus:border-[#2563EB]"
                 >
             </div>

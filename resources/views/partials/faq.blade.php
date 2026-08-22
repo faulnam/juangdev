@@ -3,36 +3,27 @@
     $whatsappMsg = urlencode("Halo JuangDev, saya ingin bertanya mengenai layanan pembuatan website.");
     $whatsappUrl = "https://wa.me/{$whatsappNumber}?text={$whatsappMsg}";
 
-    $faqItems = [
-        [
-            'question' => 'Berapa lama waktu pengerjaan website?',
-            'answer' => 'Estimasi pengerjaan tergantung pada kompleksitas proyek. Landing page memerlukan waktu 2-3 hari, website company profile 3-7 hari, aplikasi web 2-4 minggu, dan sistem e-commerce/ERP 3-6 minggu. Kami akan memberikan lini masa yang jelas pada tahap awal.',
-        ],
-        [
-            'question' => 'Berapa biaya pembuatan website di JuangDev?',
-            'answer' => 'Biaya layanan kami sangat terjangkau mulai dari 99K untuk landing page dasar. Company profile berkisar dari 199K-499K, dan aplikasi web kustom mulai dari 999K+, tergantung pada fitur dan kompleksitas. Kami memberikan transparansi harga 100% tanpa biaya tersembunyi.',
-        ],
-        [
-            'question' => 'Apakah bisa melakukan redesain website yang sudah ada?',
-            'answer' => 'Tentu saja! Kami berpengalaman dalam melakukan redesain, perbaikan tampilan, dan modernisasi website. Kami akan menganalisis website Anda saat ini, meningkatkan kecepatan, pengalaman pengguna, serta kenyamanan di perangkat seluler dengan tetap mempertahankan identitas brand Anda.',
-        ],
-        [
-            'question' => 'Apakah JuangDev menyediakan garansi dan dukungan purna jual?',
-            'answer' => 'Ya! Seluruh layanan kami sudah mencakup dukungan purna jual (mulai dari 30 hari hingga perawatan berkala). Kami juga membantu pengaturan domain, hosting, pembaruan keamanan, dan penambahan fitur.',
-        ],
-        [
-            'question' => 'Teknologi apa saja yang digunakan?',
-            'answer' => 'Kami menggunakan teknologi modern dan andal: Laravel, Blade, Tailwind CSS, Alpine.js, MySQL untuk website render server yang super cepat, serta Next.js dan REST API untuk aplikasi web kustom yang kompleks.',
-        ],
-        [
-            'question' => 'Bagaimana sistem pembayarannya?',
-            'answer' => 'Kami menggunakan struktur pembayaran yang aman dan transparan: Down Payment (DP) sebesar 50% untuk memulai pengerjaan, dan pelunasan sisa 50% setelah proyek selesai diuji dan siap diserahterimakan.',
-        ],
-        [
-            'question' => 'Apakah bisa meminta fitur kustom atau integrasi khusus?',
-            'answer' => 'Tentu saja! Pengembangan fitur kustom adalah keahlian utama kami. Baik itu Payment Gateway (Midtrans/Xendit), notifikasi WhatsApp otomatis, dashboard analitik kustom, chatbot AI, atau logika bisnis unik — kami akan membangun sesuai kebutuhan Anda.',
-        ],
-    ];
+    $dbFaqs = \App\Models\Faq::where('is_active', true)->orderBy('display_order')->get();
+
+    if ($dbFaqs->count() > 0) {
+        $faqItems = $dbFaqs->map(function($item) {
+            return [
+                'question' => $item->question,
+                'answer' => $item->answer,
+            ];
+        })->toArray();
+    } else {
+        $faqItems = [
+            [
+                'question' => 'Berapa lama waktu pengerjaan website?',
+                'answer' => 'Estimasi pengerjaan tergantung pada kompleksitas proyek. Landing page memerlukan waktu 2-3 hari, website company profile 3-7 hari, aplikasi web 2-4 minggu, dan sistem e-commerce/ERP 3-6 minggu. Kami akan memberikan lini masa yang jelas pada tahap awal.',
+            ],
+            [
+                'question' => 'Berapa biaya pembuatan website di JuangDev?',
+                'answer' => 'Biaya layanan kami sangat terjangkau mulai dari 99K untuk landing page dasar. Company profile berkisar dari 199K-499K, dan aplikasi web kustom mulai dari 999K+, tergantung pada fitur dan kompleksitas. Kami memberikan transparansi harga 100% tanpa biaya tersembunyi.',
+            ],
+        ];
+    }
 @endphp
 
 <section 

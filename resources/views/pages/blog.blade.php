@@ -22,10 +22,10 @@
 
         <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8 relative z-10">
             <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight max-w-4xl mx-auto leading-tight mb-6">
-                Blog &amp; <span class="font-serif italic text-[#C7F236]">Wawasan Digital</span>
+                {{ $settings['hero_blog_title'] ?? 'Blog & Wawasan Digital' }}
             </h1>
             <p class="text-white/80 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed font-medium">
-                Temukan panduan praktis, tren teknologi terkini, strategi e-commerce, dan tips pengembangan aplikasi untuk mempercepat pertumbuhan bisnis Anda.
+                {{ $settings['hero_blog_desc'] ?? 'Temukan panduan praktis, tren teknologi terkini, strategi e-commerce, dan tips pengembangan aplikasi untuk mempercepat pertumbuhan bisnis Anda.' }}
             </p>
         </div>
     </section>

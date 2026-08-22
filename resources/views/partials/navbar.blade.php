@@ -3,7 +3,7 @@
     $whatsappMsg = urlencode("Halo JuangDev, saya ingin berkonsultasi mengenai pembuatan website/aplikasi.");
     $whatsappUrl = "https://wa.me/{$whatsappNumber}?text={$whatsappMsg}";
     $currentRoute = Route::currentRouteName();
-    $isLightHeaderPage = in_array($currentRoute, ['blog.show', 'portfolio.show']);
+    $isLightHeaderPage = in_array($currentRoute, ['blog.show']);
 @endphp
 
 <header 
@@ -48,18 +48,91 @@
                 Beranda
             </a>
             
-            <a 
-                href="{{ route('services') }}"
-                :class="scrolled 
-                    ? '{{ $currentRoute == 'services' ? 'text-white bg-[#0A1E5E]' : 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' }}' 
-                    : '{{ $currentRoute == 'services' ? 'text-[#0A1E5E] bg-[#C7F236]' : ($isLightHeaderPage ? 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' : 'text-white/85 hover:text-white hover:bg-white/10 font-medium') }}'"
-                class="px-3 lg:px-4 py-1.5 rounded-full text-sm font-bold transition-all duration-300"
+            <!-- Layanan Dropdown (Simple & Compact) -->
+            <div 
+                x-data="{ 
+                    open: false,
+                    timeout: null,
+                    show() { clearTimeout(this.timeout); this.open = true; },
+                    hide() { this.timeout = setTimeout(() => { this.open = false; }, 200); },
+                    scrollTo(id) {
+                        this.open = false;
+                        if (window.location.pathname === '/' || window.location.pathname === '') {
+                            const el = document.getElementById(id);
+                            if (el) {
+                                el.scrollIntoView({ behavior: 'smooth' });
+                            }
+                        }
+                    }
+                }"
+                @mouseenter="show()"
+                @mouseleave="hide()"
+                @click.away="open = false"
+                class="relative"
             >
-                Layanan
-            </a>
+                <button 
+                    type="button"
+                    @click="open = !open"
+                    :class="scrolled 
+                        ? '{{ in_array($currentRoute, ['services']) ? 'text-white bg-[#0A1E5E]' : 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' }}' 
+                        : '{{ in_array($currentRoute, ['services']) ? 'text-[#0A1E5E] bg-[#C7F236]' : ($isLightHeaderPage ? 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' : 'text-white/85 hover:text-white hover:bg-white/10 font-medium') }}'"
+                    class="px-3 lg:px-4 py-1.5 rounded-full text-sm font-bold transition-all duration-300 flex items-center gap-1.5 cursor-pointer focus:outline-none"
+                    aria-expanded="open"
+                >
+                    <span>Layanan</span>
+                    <svg class="w-3.5 h-3.5 transition-transform duration-200" :class="open ? 'rotate-180 text-[#2563EB]' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+
+                <!-- Compact Dropdown Popup (Clean, Formal & Minimalist) -->
+                <div 
+                    x-show="open"
+                    x-cloak
+                    x-transition:enter="transition ease-out duration-150"
+                    x-transition:enter-start="opacity-0 translate-y-1.5 scale-98"
+                    x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                    x-transition:leave="transition ease-in duration-100"
+                    x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                    x-transition:leave-end="opacity-0 translate-y-1 scale-98"
+                    class="absolute left-0 top-full pt-2 z-50 w-52"
+                >
+                    <div class="bg-white rounded-xl p-1.5 border border-slate-200/90 shadow-lg shadow-slate-900/5 space-y-0.5">
+                        <!-- Menu 1: Semua Layanan -->
+                        <a 
+                            href="{{ route('services') }}"
+                            @click="open = false"
+                            class="flex flex-col px-3 py-2 rounded-lg text-slate-700 hover:text-slate-950 hover:bg-slate-100/80 transition-colors"
+                        >
+                            <span class="text-xs font-semibold">Semua Layanan</span>
+                            <span class="text-[10px] text-slate-400 font-normal">Katalog &amp; Solusi Web</span>
+                        </a>
+
+                        <!-- Menu 2: Paket & Harga -->
+                        <a 
+                            href="{{ route('home') }}#pricing"
+                            @click="scrollTo('pricing')"
+                            class="flex flex-col px-3 py-2 rounded-lg text-slate-700 hover:text-slate-950 hover:bg-slate-100/80 transition-colors"
+                        >
+                            <span class="text-xs font-semibold">Paket &amp; Harga</span>
+                            <span class="text-[10px] text-slate-400 font-normal">Daftar Biaya &amp; Investasi</span>
+                        </a>
+
+                        <!-- Menu 3: Estimator Biaya -->
+                        <a 
+                            href="{{ route('home') }}#estimator"
+                            @click="scrollTo('estimator')"
+                            class="flex flex-col px-3 py-2 rounded-lg text-slate-700 hover:text-slate-950 hover:bg-slate-100/80 transition-colors"
+                        >
+                            <span class="text-xs font-semibold">Estimator Biaya</span>
+                            <span class="text-[10px] text-slate-400 font-normal">Simulasi Biaya Proyek</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
 
             <a 
-                href="{{ route('portfolio') }}"
+                href="{{ route('portfolio') }}" 
                 :class="scrolled 
                     ? '{{ $currentRoute == 'portfolio' ? 'text-white bg-[#0A1E5E]' : 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' }}' 
                     : '{{ $currentRoute == 'portfolio' ? 'text-[#0A1E5E] bg-[#C7F236]' : ($isLightHeaderPage ? ($currentRoute == 'portfolio' ? 'text-white bg-[#0A1E5E]' : 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium') : 'text-white/85 hover:text-white hover:bg-white/10 font-medium') }}'"
@@ -69,7 +142,7 @@
             </a>
 
             <a 
-                href="{{ route('blog') }}"
+                href="{{ route('blog') }}" 
                 :class="scrolled 
                     ? '{{ str_starts_with($currentRoute ?? '', 'blog') ? 'text-white bg-[#0A1E5E]' : 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' }}' 
                     : '{{ str_starts_with($currentRoute ?? '', 'blog') ? ($isLightHeaderPage ? 'text-white bg-[#0A1E5E]' : 'text-[#0A1E5E] bg-[#C7F236]') : ($isLightHeaderPage ? 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' : 'text-white/85 hover:text-white hover:bg-white/10 font-medium') }}'"
@@ -79,7 +152,7 @@
             </a>
 
             <a 
-                href="{{ route('contact') }}"
+                href="{{ route('contact') }}" 
                 :class="scrolled 
                     ? '{{ $currentRoute == 'contact' ? 'text-white bg-[#0A1E5E]' : 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' }}' 
                     : '{{ $currentRoute == 'contact' ? 'text-[#0A1E5E] bg-[#C7F236]' : ($isLightHeaderPage ? 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' : 'text-white/85 hover:text-white hover:bg-white/10 font-medium') }}'"
@@ -92,9 +165,7 @@
         <!-- Desktop CTA -->
         <div class="hidden md:block">
             <a 
-                href="{{ $whatsappUrl }}" 
-                target="_blank" 
-                rel="noopener noreferrer"
+                href="{{ route('contact') }}" 
                 :class="scrolled
                     ? 'bg-[#2563EB] text-white border-2 border-[#2563EB] hover:bg-[#1a4fd4] hover:border-[#1a4fd4] shadow-md shadow-[#2563EB]/20'
                     : '{{ $isLightHeaderPage ? 'bg-[#2563EB] text-white border-2 border-[#2563EB] hover:bg-[#1a4fd4]' : 'bg-[#C7F236] text-[#0A1E5E] border-2 border-[#C7F236] hover:bg-[#b5dd2a] hover:border-[#b5dd2a] shadow-[0_0_20px_-5px_rgba(199,242,54,0.35)]' }}'"
@@ -132,18 +203,49 @@
         <nav class="flex flex-col gap-2 p-6">
             <a 
                 href="{{ route('home') }}" 
-                @click="mobileOpen = false"
+                @click="mobileOpen = false" 
                 class="px-4 py-3 rounded-xl text-lg font-bold transition-all {{ $currentRoute == 'home' ? 'text-[#0A1E5E] bg-[#C7F236]' : 'text-white/80 hover:text-white hover:bg-white/10' }}"
             >
                 Beranda
             </a>
-            <a 
-                href="{{ route('services') }}" 
-                @click="mobileOpen = false"
-                class="px-4 py-3 rounded-xl text-lg font-bold transition-all {{ $currentRoute == 'services' ? 'text-[#0A1E5E] bg-[#C7F236]' : 'text-white/80 hover:text-white hover:bg-white/10' }}"
-            >
-                Layanan
-            </a>
+
+            <!-- Mobile Layanan Accordion -->
+            <div x-data="{ openServices: false }" class="flex flex-col">
+                <button 
+                    type="button" 
+                    @click="openServices = !openServices"
+                    class="px-4 py-3 rounded-xl text-lg font-bold transition-all flex items-center justify-between {{ $currentRoute == 'services' ? 'text-[#0A1E5E] bg-[#C7F236]' : 'text-white/80 hover:text-white hover:bg-white/10' }}"
+                >
+                    <span>Layanan</span>
+                    <svg class="w-5 h-5 transition-transform duration-200" :class="openServices ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                <div x-show="openServices" x-cloak class="pl-4 pr-2 py-1.5 flex flex-col gap-1 bg-black/20 rounded-xl mt-1">
+                    <a 
+                        href="{{ route('services') }}" 
+                        @click="mobileOpen = false" 
+                        class="px-3 py-2 text-sm font-semibold text-white/90 hover:text-[#C7F236]"
+                    >
+                        Semua Layanan
+                    </a>
+                    <a 
+                        href="{{ route('home') }}#pricing" 
+                        @click="mobileOpen = false" 
+                        class="px-3 py-2 text-sm font-semibold text-white/90 hover:text-[#C7F236]"
+                    >
+                        Paket &amp; Harga (Pricing)
+                    </a>
+                    <a 
+                        href="{{ route('home') }}#estimator" 
+                        @click="mobileOpen = false" 
+                        class="px-3 py-2 text-sm font-semibold text-white/90 hover:text-[#C7F236]"
+                    >
+                        Estimator Biaya
+                    </a>
+                </div>
+            </div>
+
             <a 
                 href="{{ route('portfolio') }}" 
                 @click="mobileOpen = false"
@@ -167,9 +269,8 @@
             </a>
             
             <a 
-                href="{{ $whatsappUrl }}" 
-                target="_blank" 
-                rel="noopener noreferrer"
+                href="{{ route('contact') }}" 
+                @click="mobileOpen = false"
                 class="mt-4 inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-base font-semibold bg-[#C7F236] text-[#0A1E5E] shadow-lg"
             >
                 <span>Konsultasi Gratis</span>

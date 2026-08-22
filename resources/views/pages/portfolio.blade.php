@@ -24,10 +24,10 @@
 
         <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8 relative z-10">
             <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight max-w-4xl mx-auto leading-tight mb-6">
-                Portofolio Proyek &amp; <span class="font-serif italic text-[#C7F236]">Studi Kasus</span>
+                {{ $settings['hero_portfolio_title'] ?? 'Portofolio Proyek & Studi Kasus' }}
             </h1>
             <p class="text-white/80 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed font-medium">
-                Jelajahi berbagai proyek nyata yang telah kami bangun untuk beragam industri — mulai dari bisnis berkembang hingga perusahaan besar.
+                {{ $settings['hero_portfolio_desc'] ?? 'Jelajahi berbagai proyek nyata yang telah kami bangun untuk beragam industri — mulai dari bisnis berkembang hingga perusahaan besar.' }}
             </p>
         </div>
     </section>
@@ -93,12 +93,24 @@
 
                         <!-- Card Content -->
                         <div class="p-6 flex flex-col flex-grow">
-                            <div class="mb-3">
+                            <div class="mb-3 flex flex-wrap items-center gap-2">
                                 <span 
                                     class="inline-block bg-[#C7F236] border border-[#b5dd2a] text-[#0A1E5E] text-[10px] font-extrabold rounded px-2.5 py-0.5 shadow-xs"
                                     x-text="project.category || 'Aplikasi Web'"
                                 >
                                 </span>
+                                <template x-if="project.package_tier">
+                                    <span 
+                                        class="inline-block bg-amber-400 border border-amber-500/30 text-slate-950 text-[10px] font-extrabold rounded px-2.5 py-0.5 shadow-xs"
+                                        x-text="'Paket ' + project.package_tier"
+                                    >
+                                    </span>
+                                </template>
+                                <template x-if="project.is_boilerplate">
+                                    <span class="inline-block bg-[#2563EB] text-white text-[10px] font-extrabold rounded px-2.5 py-0.5 shadow-xs">
+                                        Boilerplate
+                                    </span>
+                                </template>
                             </div>
 
                             <a :href="'/portfolio/' + project.slug" class="block">

@@ -35,13 +35,22 @@
 
             <!-- Title & Metadata Tag -->
             <div class="mb-8">
-                <div class="flex flex-wrap items-center gap-3 mb-3">
+                <div class="flex flex-wrap items-center gap-2.5 mb-3">
                     <span class="inline-block bg-[#C7F236] text-[#0A1E5E] text-xs font-bold rounded-full px-3.5 py-1 shadow-xs uppercase tracking-wide">
                         {{ $portfolio->category ?? 'Web Application' }}
                     </span>
+                    @if($portfolio->package_tier)
+                        <span class="inline-block bg-amber-400 text-slate-950 text-xs font-extrabold rounded-full px-3.5 py-1 shadow-xs uppercase tracking-wide">
+                            Paket {{ $portfolio->package_tier }}
+                        </span>
+                    @endif
+                    @if($portfolio->is_boilerplate)
+                        <span class="inline-block bg-[#2563EB] text-white text-xs font-bold rounded-full px-3.5 py-1 shadow-xs uppercase tracking-wide">
+                            Boilerplate
+                        </span>
+                    @endif
                     @if($portfolio->client)
-                        <span class="inline-flex items-center gap-1.5 text-xs font-normal text-slate-300 bg-white/10 backdrop-blur-md border border-white/15 px-3 py-1 rounded-full">
-                            <i data-lucide="building" class="w-3.5 h-3.5 text-[#C7F236]"></i>
+                        <span class="inline-block text-xs font-normal text-slate-300 bg-white/10 backdrop-blur-md border border-white/15 px-3.5 py-1 rounded-full">
                             {{ $portfolio->client }}
                         </span>
                     @endif
@@ -118,6 +127,9 @@
                                 </span>
                                 <p class="text-slate-800 font-normal leading-relaxed">
                                     {{ $portfolio->category ?? 'Web Application' }}
+                                    @if($portfolio->package_tier)
+                                        <span class="text-xs font-bold text-[#2563EB] ml-1">({{ $portfolio->package_tier }})</span>
+                                    @endif
                                 </p>
                             </div>
 
@@ -165,12 +177,10 @@
                             @endif
 
                             <a 
-                                href="{{ $whatsappUrl }}" 
-                                target="_blank" 
-                                rel="noopener noreferrer" 
+                                href="{{ route('home') }}?service={{ \Illuminate\Support\Str::slug($portfolio->category) }}#estimator" 
                                 class="w-full inline-flex items-center justify-center gap-2 bg-[#C7F236] hover:bg-[#b5dd2a] text-[#0A1E5E] font-bold text-sm py-3 px-5 rounded-xl transition-all duration-200 shadow-sm"
                             >
-                                <i data-lucide="message-square" class="w-4 h-4"></i>
+                                <i data-lucide="calculator" class="w-4 h-4"></i>
                                 <span>Buat Proyek Seperti Ini</span>
                             </a>
                         </div>

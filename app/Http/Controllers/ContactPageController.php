@@ -32,39 +32,70 @@ class ContactPageController extends Controller
             'message' => 'required|string',
         ]);
 
+        $successMsg = 'Pesan Anda telah berhasil dikirim! Tim JuangDev akan segera menghubungi Anda.';
+
+        // Prevent duplicate submissions & double WA notifications within 60 seconds (Cache + DB Guard)
+        $cleanPhone = preg_replace('/[^0-9]/', '', $validated['phone'] ?? '');
+        $cacheKey = 'wa_contact_lock_' . md5(($validated['email'] ?? '') . '_' . $cleanPhone . '_' . substr(md5($validated['message'] ?? ''), 0, 10));
+
+        if (\Illuminate\Support\Facades\Cache::has($cacheKey)) {
+            if ($request->expectsJson()) {
+                return response()->json(['success' => true, 'message' => $successMsg]);
+            }
+            return back()->with('success', $successMsg);
+        }
+
+        \Illuminate\Support\Facades\Cache::put($cacheKey, true, 60);
+
+        $isDuplicate = Contact::where(function($q) use ($validated, $cleanPhone) {
+                $q->where('email', $validated['email']);
+                if (!empty($cleanPhone)) {
+                    $q->orWhere('phone', 'like', "%{$cleanPhone}%");
+                }
+            })
+            ->where('created_at', '>=', now()->subSeconds(60))
+            ->exists();
+
+        if ($isDuplicate) {
+            if ($request->expectsJson()) {
+                return response()->json(['success' => true, 'message' => $successMsg]);
+            }
+            return back()->with('success', $successMsg);
+        }
+
         // Save to Database for Admin Panel (/admin/contacts)
         Contact::create($validated);
 
+        // 1. Send WA Notification to Admin
         $targetPhone = env('ADMIN_WA_NUMBER') ?? SiteSetting::where('key', 'whatsapp_number')->value('value') ?? '62859171681988';
-        $targetPhoneClean = preg_replace('/[^0-9]/', '', $targetPhone);
-        if (str_starts_with($targetPhoneClean, '0')) {
-            $targetPhoneClean = '62' . substr($targetPhoneClean, 1);
-        }
+        $waAdminMsg = "PEMBERITAHUAN PESAN MASUK REGULER\n"
+            . "JuangDev Digital Solutions\n\n"
+            . "Kepada Yth. Tim Admin JuangDev,\n\n"
+            . "Telah diterima pesan baru melalui formulir kontak situs web resmi JuangDev dengan rincian sebagai berikut:\n\n"
+            . "Nama Pengirim: " . $validated['name'] . "\n"
+            . "Alamat Email: " . $validated['email'] . "\n"
+            . "Nomor Telepon: " . ($validated['phone'] ?? '-') . "\n"
+            . "Layanan Kebutuhan: " . ($validated['service'] ?? '-') . "\n"
+            . "Estimasi Anggaran: " . ($validated['budget'] ?? '-') . "\n\n"
+            . "Isi Pesan:\n\"" . $validated['message'] . "\"\n\n"
+            . "Pesan ini disampaikan secara otomatis oleh sistem situs web resmi JuangDev.";
 
-        $waMessage = "📩 *PESAN BARU DARI WEBSITE JUANGDEV*\n\n"
-            . "👤 *Nama*: " . $validated['name'] . "\n"
-            . "📧 *Email*: " . $validated['email'] . "\n"
-            . "📱 *No. WA/HP*: " . ($validated['phone'] ?? '-') . "\n"
-            . "💼 *Layanan*: " . ($validated['service'] ?? '-') . "\n"
-            . "💰 *Budget*: " . ($validated['budget'] ?? '-') . "\n\n"
-            . "💬 *Pesan*:\n\"" . $validated['message'] . "\"\n\n"
-            . "--- \n_Pemberitahuan Otomatis Website JuangDev_";
+        \App\Services\PakasirService::sendWaNotification($targetPhone, $waAdminMsg);
 
-        // Send WhatsApp Notification to Admin via Fonnte API
-        $fonnteToken = config('services.fonnte.token') ?? env('FONNTE_TOKEN');
+        // 2. Send WA Confirmation to Customer (if phone provided)
+        if (!empty($validated['phone'])) {
+            $waCustomerMsg = "KONFIRMASI PENERIMAAN PESAN KONSULTASI\n"
+                . "JuangDev Digital Solutions\n\n"
+                . "Kepada Yth. Bapak/Ibu " . $validated['name'] . ",\n\n"
+                . "Terima kasih telah menghubungi JuangDev Digital Solutions. Pesan dan permohonan konsultasi Anda telah berhasil kami terima dan dicatat di sistem.\n\n"
+                . "Rincian Permohonan:\n"
+                . "Layanan Kebutuhan: " . ($validated['service'] ?? '-') . "\n"
+                . "Estimasi Anggaran: " . ($validated['budget'] ?? '-') . "\n\n"
+                . "Tim konsultan teknis JuangDev akan segera mempelajari kebutuhan Anda dan menghubungi Anda kembali melalui WhatsApp ini.\n\n"
+                . "Hormat kami,\n"
+                . "Tim Manajemen JuangDev";
 
-        if (!empty($fonnteToken)) {
-            try {
-                Http::withoutVerifying()->withHeaders([
-                    'Authorization' => $fonnteToken,
-                ])->asForm()->post('https://api.fonnte.com/send', [
-                    'target' => $targetPhoneClean,
-                    'message' => $waMessage,
-                    'countryCode' => '62',
-                ]);
-            } catch (\Throwable $e) {
-                Log::error('Fonnte WA send error: ' . $e->getMessage());
-            }
+            \App\Services\PakasirService::sendWaNotification($validated['phone'], $waCustomerMsg);
         }
 
         $successMsg = 'Pesan Anda telah berhasil dikirim! Tim JuangDev akan segera menghubungi Anda.';

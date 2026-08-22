@@ -5,8 +5,10 @@ namespace Database\Seeders;
 use App\Models\Admin;
 use App\Models\Blog;
 use App\Models\DesignTier;
+use App\Models\Faq;
 use App\Models\Portfolio;
 use App\Models\PricingPlan;
+use App\Models\ProcessStep;
 use App\Models\Service;
 use App\Models\ServiceFeature;
 use App\Models\SiteSetting;
@@ -48,6 +50,19 @@ class DatabaseSeeder extends Seeder
             'github_url' => 'https://github.com/juangdev',
             'linkedin_url' => 'https://linkedin.com/company/juangdev',
             'tiktok_url' => '',
+            'feature_showcase_badge' => 'Enterprise & Custom Build',
+            'feature_showcase_title' => 'Pengembangan Website & Sistem Modern',
+            'feature_showcase_desc' => 'Solusi website dan aplikasi web internal yang cepat, aman, responsif di seluruh perangkat, dan mudah dikelola.',
+            'feature_showcase_price' => 'Rp 999.000',
+            'feature_showcase_point1_title' => 'Antarmuka User-Friendly & Responsif',
+            'feature_showcase_point1_desc' => 'Desain UI/UX intuitif yang optimal di layar laptop maupun smartphone.',
+            'feature_showcase_point2_title' => 'Performa Cepat & Stabil',
+            'feature_showcase_point2_desc' => 'Arsitektur modern dan efisien untuk menjamin sistem berjalan mulus tanpa lag.',
+            'feature_showcase_point3_title' => 'Keamanan Data Terjamin',
+            'feature_showcase_point3_desc' => 'Enkripsi SSL dan proteksi data berlapis untuk menjaga transaksi bisnis Anda.',
+            'feature_showcase_point4_title' => 'Dashboard & Manajemen Terintegrasi',
+            'feature_showcase_point4_desc' => 'Kemudahan mengelola konten dan melihat laporan performa secara terpusat.',
+            'feature_showcase_image' => '/services-laptop.jpg',
         ];
         foreach ($settings as $k => $v) {
             SiteSetting::create(['key' => $k, 'value' => $v]);
@@ -127,9 +142,9 @@ class DatabaseSeeder extends Seeder
                 'tagline' => 'Aplikasi Sesuai Kebutuhan Spesifik',
                 'description' => 'Pengembangan aplikasi web khusus dengan fitur kompleks yang dirancang mengikuti alur bisnis unik Anda.',
                 'icon' => 'palette',
-                'base_price' => 999000,
-                'starting_price' => '999K',
-                'delivery_time' => '14-30 Hari',
+                'base_price' => 199000,
+                'starting_price' => '199K',
+                'delivery_time' => '7-21 Hari',
                 'popular' => false,
                 'features' => ['Desain UI/UX Custom Eksklusif', 'API Integration & Webhook', 'Sistem Login & Role Bertingkat', 'Skalabilitas Tinggi', 'Garansi & Maintenance'],
                 'technologies' => ['Laravel', 'Next.js', 'Node.js', 'PostgreSQL', 'Docker'],
@@ -227,7 +242,7 @@ class DatabaseSeeder extends Seeder
             [
                 'id' => 1,
                 'category' => 'landing-page',
-                'name' => 'Starter',
+                'name' => 'Basic',
                 'badge' => null,
                 'price' => '99k',
                 'period' => 'proyek',
@@ -236,14 +251,14 @@ class DatabaseSeeder extends Seeder
                 'not_included' => ['Custom Desain dari Nol', 'SEO Advanced', 'Multi Bahasa'],
                 'popular' => false,
                 'cta_text' => 'Pilih Paket',
-                'cta_href' => '/contact?plan=landing-starter',
+                'cta_href' => '/contact?plan=landing-basic',
                 'display_order' => 1,
                 'is_active' => true,
             ],
             [
                 'id' => 2,
                 'category' => 'landing-page',
-                'name' => 'Growth',
+                'name' => 'Rekomendasi',
                 'badge' => 'PALING POPULER',
                 'price' => '299k',
                 'period' => 'proyek',
@@ -252,14 +267,14 @@ class DatabaseSeeder extends Seeder
                 'not_included' => ['Multi Bahasa'],
                 'popular' => true,
                 'cta_text' => 'Pilih Paket',
-                'cta_href' => '/contact?plan=landing-growth',
+                'cta_href' => '/contact?plan=landing-rekomendasi',
                 'display_order' => 2,
                 'is_active' => true,
             ],
             [
                 'id' => 3,
                 'category' => 'landing-page',
-                'name' => 'Scale',
+                'name' => 'Premium',
                 'badge' => null,
                 'price' => '499k',
                 'period' => 'proyek',
@@ -268,7 +283,7 @@ class DatabaseSeeder extends Seeder
                 'not_included' => [],
                 'popular' => false,
                 'cta_text' => 'Pilih Paket',
-                'cta_href' => '/contact?plan=landing-scale',
+                'cta_href' => '/contact?plan=landing-premium',
                 'display_order' => 3,
                 'is_active' => true,
             ],
@@ -293,8 +308,8 @@ class DatabaseSeeder extends Seeder
             [
                 'id' => 5,
                 'category' => 'company-profile',
-                'name' => 'Professional',
-                'badge' => 'REKOMENDASI',
+                'name' => 'Rekomendasi',
+                'badge' => 'PALING POPULER',
                 'price' => '499k',
                 'period' => 'proyek',
                 'description' => 'Tampil meyakinkan di mata klien',
@@ -302,14 +317,14 @@ class DatabaseSeeder extends Seeder
                 'not_included' => ['Multi Bahasa'],
                 'popular' => true,
                 'cta_text' => 'Pilih Paket',
-                'cta_href' => '/contact?plan=company-professional',
+                'cta_href' => '/contact?plan=company-rekomendasi',
                 'display_order' => 5,
                 'is_active' => true,
             ],
             [
                 'id' => 6,
                 'category' => 'company-profile',
-                'name' => 'Corporate',
+                'name' => 'Premium',
                 'badge' => null,
                 'price' => '899k',
                 'period' => 'proyek',
@@ -318,7 +333,7 @@ class DatabaseSeeder extends Seeder
                 'not_included' => [],
                 'popular' => false,
                 'cta_text' => 'Pilih Paket',
-                'cta_href' => '/contact?plan=company-corporate',
+                'cta_href' => '/contact?plan=company-premium',
                 'display_order' => 6,
                 'is_active' => true,
             ],
@@ -327,7 +342,7 @@ class DatabaseSeeder extends Seeder
             [
                 'id' => 7,
                 'category' => 'ecommerce',
-                'name' => 'Basic Store',
+                'name' => 'Basic',
                 'badge' => null,
                 'price' => '499k',
                 'period' => 'proyek',
@@ -343,23 +358,23 @@ class DatabaseSeeder extends Seeder
             [
                 'id' => 8,
                 'category' => 'ecommerce',
-                'name' => 'Pro Store',
-                'badge' => 'BEST SELLER',
-                'price' => '799k',
+                'name' => 'Rekomendasi',
+                'badge' => 'PALING POPULER',
+                'price' => '899k',
                 'period' => 'proyek',
                 'description' => 'Toko online otomatis & scalable',
                 'features' => ['Produk Tak Terbatas', 'Payment Gateway Integrasi', 'Perhitungan Ongkir Otomatis', 'Manajemen Inventaris', 'Dashboard Analitik'],
                 'not_included' => ['Multi Vendor'],
                 'popular' => true,
                 'cta_text' => 'Pilih Paket',
-                'cta_href' => '/contact?plan=ecommerce-pro',
+                'cta_href' => '/contact?plan=ecommerce-rekomendasi',
                 'display_order' => 8,
                 'is_active' => true,
             ],
             [
                 'id' => 9,
                 'category' => 'ecommerce',
-                'name' => 'Marketplace',
+                'name' => 'Premium',
                 'badge' => null,
                 'price' => '999k',
                 'period' => 'proyek',
@@ -368,7 +383,7 @@ class DatabaseSeeder extends Seeder
                 'not_included' => [],
                 'popular' => false,
                 'cta_text' => 'Pilih Paket',
-                'cta_href' => '/contact?plan=ecommerce-marketplace',
+                'cta_href' => '/contact?plan=ecommerce-premium',
                 'display_order' => 9,
                 'is_active' => true,
             ],
@@ -377,7 +392,7 @@ class DatabaseSeeder extends Seeder
             [
                 'id' => 10,
                 'category' => 'sistem-informasi',
-                'name' => 'Basic App',
+                'name' => 'Basic',
                 'badge' => null,
                 'price' => '399k',
                 'period' => 'proyek',
@@ -393,32 +408,32 @@ class DatabaseSeeder extends Seeder
             [
                 'id' => 11,
                 'category' => 'sistem-informasi',
-                'name' => 'Pro App',
-                'badge' => 'POPULER',
-                'price' => '899k',
+                'name' => 'Rekomendasi',
+                'badge' => 'PALING POPULER',
+                'price' => '799k',
                 'period' => 'proyek',
                 'description' => 'Sistem operasional lengkap & aman',
                 'features' => ['Multi-role Akses (Admin/User)', 'Dashboard Analitik', 'Notifikasi Email/WA', 'API Integration', 'Setup Cloud Server'],
                 'not_included' => ['Microservices SLA'],
                 'popular' => true,
                 'cta_text' => 'Pilih Paket',
-                'cta_href' => '/contact?plan=sistem-pro',
+                'cta_href' => '/contact?plan=sistem-rekomendasi',
                 'display_order' => 11,
                 'is_active' => true,
             ],
             [
                 'id' => 12,
                 'category' => 'sistem-informasi',
-                'name' => 'Enterprise App',
+                'name' => 'Premium',
                 'badge' => null,
-                'price' => '999k+',
+                'price' => '999k',
                 'period' => 'proyek',
                 'description' => 'Sistem ERP/CRM skala perusahaan',
                 'features' => ['Modul Tak Terbatas', 'Arsitektur Microservices', 'Keamanan Tingkat Tinggi', 'SLA Guarantee 99.9%', 'Maintenance 6 Bulan'],
                 'not_included' => [],
                 'popular' => false,
                 'cta_text' => 'Pilih Paket',
-                'cta_href' => '/contact?plan=sistem-enterprise',
+                'cta_href' => '/contact?plan=sistem-premium',
                 'display_order' => 12,
                 'is_active' => true,
             ],
@@ -427,48 +442,48 @@ class DatabaseSeeder extends Seeder
             [
                 'id' => 13,
                 'category' => 'custom-app',
-                'name' => 'Starter',
+                'name' => 'Basic',
                 'badge' => null,
-                'price' => '999k',
+                'price' => '199k - 599k',
                 'period' => 'proyek',
-                'description' => 'Aplikasi web fungsional untuk bisnis',
-                'features' => ['Aplikasi React/Laravel', 'Desain UI/UX Custom', 'API Integration', 'Basic Admin Panel'],
+                'description' => 'Pilihan 1 layanan apa saja (Landing Page / Compro / Toko Online / Sistem) dengan kustomisasi modul dasar',
+                'features' => ['Bebas Pilih 1 Layanan Apapun', 'Kustomisasi 1-3 Modul Spesifik', 'Desain UI/UX Responsif & Modern', 'Integrasi WhatsApp & Form Kontak', 'Setup Domain & Hosting Standar'],
                 'not_included' => ['Realtime WebSockets', 'Dedicated Microservices'],
                 'popular' => false,
                 'cta_text' => 'Pilih Paket',
-                'cta_href' => '/contact?plan=custom-starter',
+                'cta_href' => '/contact?plan=custom-basic',
                 'display_order' => 13,
                 'is_active' => true,
             ],
             [
                 'id' => 14,
                 'category' => 'custom-app',
-                'name' => 'Pro',
-                'badge' => 'UNGGULAN',
-                'price' => '1.499k',
+                'name' => 'Rekomendasi',
+                'badge' => 'PALING POPULER',
+                'price' => '399k - 999k',
                 'period' => 'proyek',
-                'description' => 'Aplikasi kompleks dengan sistem canggih',
-                'features' => ['Sistem Autentikasi Kompleks', 'Realtime Features', 'Dashboard Analytics', 'Cloud Server Setup'],
+                'description' => 'Pilihan 1 layanan apa saja (Landing Page / Compro / Toko Online / Sistem) dengan fitur lengkap & admin CMS',
+                'features' => ['Bebas Pilih 1 Layanan Apapun', 'Integrasi Dashboard Admin & CMS Kustom', 'Kustomisasi Modul & Hak Akses Multi-Role', 'Fitur Notifikasi & API Integrasi', 'Garansi & Prioritas Support'],
                 'not_included' => [],
                 'popular' => true,
                 'cta_text' => 'Pilih Paket',
-                'cta_href' => '/contact?plan=custom-pro',
+                'cta_href' => '/contact?plan=custom-rekomendasi',
                 'display_order' => 14,
                 'is_active' => true,
             ],
             [
                 'id' => 15,
                 'category' => 'custom-app',
-                'name' => 'Enterprise',
+                'name' => 'Premium',
                 'badge' => null,
-                'price' => '2.999k',
+                'price' => '599k - 1.099k',
                 'period' => 'proyek',
-                'description' => 'Solusi enterprise berskala besar',
-                'features' => ['Arsitektur Skalabel', 'SLA Guarantee 99.9%', 'Prioritas Support', 'Maintenance Mingguan'],
+                'description' => 'Pilihan 1 layanan apa saja (Landing Page / Compro / Toko Online / Sistem) dengan arsitektur full-custom dari nol',
+                'features' => ['Bebas Pilih 1 Layanan Apapun (Full-Custom)', 'Kustomisasi Arsitektur Enterprise dari Nol', 'Arsitektur Skalabilitas Tinggi & Cloud Server', 'Payment Gateway, Webhook & Keamanan Enkripsi', 'Maintenance Berkala & Support Eksklusif 24/7'],
                 'not_included' => [],
                 'popular' => false,
                 'cta_text' => 'Pilih Paket',
-                'cta_href' => '/contact?plan=custom-enterprise',
+                'cta_href' => '/contact?plan=custom-premium',
                 'display_order' => 15,
                 'is_active' => true,
             ],
@@ -506,6 +521,8 @@ class DatabaseSeeder extends Seeder
                 'live_url' => 'https://demo.juangdev.com/property-app',
                 'technologies' => ['Laravel', 'MongoDB', 'Bootstrap', 'Tailwind CSS'],
                 'featured' => true,
+                'is_boilerplate' => true,
+                'package_tier' => 'Rekomendasi',
                 'display_order' => 1,
             ],
             [
@@ -534,6 +551,8 @@ class DatabaseSeeder extends Seeder
                 'live_url' => 'https://demo.juangdev.com/healthcare',
                 'technologies' => ['Laravel', 'Blade', 'MySQL', 'Tailwind CSS', 'Docker'],
                 'featured' => true,
+                'is_boilerplate' => false,
+                'package_tier' => 'Premium',
                 'display_order' => 2,
             ],
             [
@@ -562,6 +581,8 @@ class DatabaseSeeder extends Seeder
                 'live_url' => 'https://demo.juangdev.com/school',
                 'technologies' => ['Laravel', 'Vue.js', 'MySQL', 'Redis'],
                 'featured' => true,
+                'is_boilerplate' => false,
+                'package_tier' => 'Rekomendasi',
                 'display_order' => 3,
             ],
             [
@@ -590,6 +611,8 @@ class DatabaseSeeder extends Seeder
                 'live_url' => 'https://demo.juangdev.com/property',
                 'technologies' => ['Next.js', 'Laravel API', 'PostgreSQL', 'AWS'],
                 'featured' => true,
+                'is_boilerplate' => false,
+                'package_tier' => 'Premium',
                 'display_order' => 4,
             ],
             [
@@ -618,6 +641,8 @@ class DatabaseSeeder extends Seeder
                 'live_url' => 'https://demo.juangdev.com/pos',
                 'technologies' => ['Laravel', 'Alpine.js', 'MySQL', 'WebSockets'],
                 'featured' => false,
+                'is_boilerplate' => true,
+                'package_tier' => 'Basic',
                 'display_order' => 5,
             ],
             [
@@ -646,6 +671,8 @@ class DatabaseSeeder extends Seeder
                 'live_url' => 'https://demo.juangdev.com/construction',
                 'technologies' => ['Laravel', 'Tailwind CSS', 'Chart.js', 'Docker'],
                 'featured' => false,
+                'is_boilerplate' => false,
+                'package_tier' => 'Premium',
                 'display_order' => 6,
             ],
             [
@@ -674,6 +701,8 @@ class DatabaseSeeder extends Seeder
                 'live_url' => 'https://demo.juangdev.com/travel',
                 'technologies' => ['Laravel', 'MySQL', 'Midtrans', 'Tailwind CSS'],
                 'featured' => true,
+                'is_boilerplate' => false,
+                'package_tier' => 'Basic',
                 'display_order' => 7,
             ],
             [
@@ -693,15 +722,17 @@ class DatabaseSeeder extends Seeder
                     'Dashboard Admin Penjualan & Resi'
                 ],
                 'gallery' => [
-                    ['title' => 'Katalog Produk Fashion', 'image_url' => '/uploads/1781526941397-658466739-16.png'],
+                    ['title' => 'Katalog Produk Fashion', 'image_url' => '/uploads/1781526860110-978453413-15.png'],
                     ['title' => 'Keranjang & Checkout', 'image_url' => '/uploads/1781526786919-43514709-14.png'],
-                    ['title' => 'Cek Ongkir & Pembayaran', 'image_url' => '/uploads/1781526616429-46906960-12.png'],
-                    ['title' => 'Dashboard Pesanan Admin', 'image_url' => '/uploads/1781527358962-872605838-15.png'],
+                    ['title' => 'Integrasi Payment Gateway', 'image_url' => '/uploads/1781527358962-872605838-15.png'],
+                    ['title' => 'Laporan Penjualan Toko', 'image_url' => '/uploads/1781526251754-169158715-9.png'],
                 ],
                 'image_url' => '/uploads/1781526941397-658466739-16.png',
                 'live_url' => 'https://demo.juangdev.com/store',
                 'technologies' => ['Laravel', 'Blade', 'MySQL', 'Midtrans'],
                 'featured' => true,
+                'is_boilerplate' => false,
+                'package_tier' => 'Rekomendasi',
                 'display_order' => 8,
             ],
         ];
@@ -941,6 +972,96 @@ class DatabaseSeeder extends Seeder
         ];
         foreach ($blogs as $b) {
             Blog::create($b);
+        }
+
+        // 7. FAQs
+        Faq::truncate();
+        $faqItems = [
+            [
+                'question' => 'Berapa lama waktu pengerjaan website?',
+                'answer' => 'Estimasi pengerjaan tergantung pada kompleksitas proyek. Landing page memerlukan waktu 2-3 hari, website company profile 3-7 hari, aplikasi web 2-4 minggu, dan sistem e-commerce/ERP 3-6 minggu. Kami akan memberikan lini masa yang jelas pada tahap awal.',
+                'display_order' => 1,
+                'is_active' => true,
+            ],
+            [
+                'question' => 'Berapa biaya pembuatan website di JuangDev?',
+                'answer' => 'Biaya layanan kami sangat terjangkau mulai dari 99K untuk landing page dasar. Company profile berkisar dari 199K-499K, dan aplikasi web kustom mulai dari 999K+, tergantung pada fitur dan kompleksitas. Kami memberikan transparansi harga 100% tanpa biaya tersembunyi.',
+                'display_order' => 2,
+                'is_active' => true,
+            ],
+            [
+                'question' => 'Apakah bisa melakukan redesain website yang sudah ada?',
+                'answer' => 'Tentu saja! Kami berpengalaman dalam melakukan redesain, perbaikan tampilan, dan modernisasi website. Kami akan menganalisis website Anda saat ini, meningkatkan kecepatan, pengalaman pengguna, serta kenyamanan di perangkat seluler dengan tetap mempertahankan identitas brand Anda.',
+                'display_order' => 3,
+                'is_active' => true,
+            ],
+            [
+                'question' => 'Apakah JuangDev menyediakan garansi dan dukungan purna jual?',
+                'answer' => 'Ya! Seluruh layanan kami sudah mencakup dukungan purna jual (mulai dari 30 hari hingga perawatan berkala). Kami juga membantu pengaturan domain, hosting, pembaruan keamanan, dan penambahan fitur.',
+                'display_order' => 4,
+                'is_active' => true,
+            ],
+            [
+                'question' => 'Teknologi apa saja yang digunakan?',
+                'answer' => 'Kami menggunakan teknologi modern dan andal: Laravel, Blade, Tailwind CSS, Alpine.js, MySQL untuk website render server yang super cepat, serta Next.js dan REST API untuk aplikasi web kustom yang kompleks.',
+                'display_order' => 5,
+                'is_active' => true,
+            ],
+            [
+                'question' => 'Bagaimana sistem pembayarannya?',
+                'answer' => 'Kami menggunakan struktur pembayaran yang aman dan transparan: Down Payment (DP) sebesar 50% untuk memulai pengerjaan, dan pelunasan sisa 50% setelah proyek selesai diuji dan siap diserahterimakan.',
+                'display_order' => 6,
+                'is_active' => true,
+            ],
+            [
+                'question' => 'Apakah bisa meminta fitur kustom atau integrasi khusus?',
+                'answer' => 'Tentu saja! Pengembangan fitur kustom adalah keahlian utama kami. Baik itu Payment Gateway (Midtrans/Xendit), notifikasi WhatsApp otomatis, dashboard analitik kustom, chatbot AI, atau logika bisnis unik — kami akan membangun sesuai kebutuhan Anda.',
+                'display_order' => 7,
+                'is_active' => true,
+            ],
+        ];
+        foreach ($faqItems as $f) {
+            Faq::create($f);
+        }
+
+        // 8. Process Steps (Cara Pemesanan)
+        ProcessStep::truncate();
+        $steps = [
+            [
+                'step_number' => '01',
+                'icon' => 'monitor',
+                'title' => 'Konsultasi & Penentuan Kebutuhan',
+                'description' => 'Sampaikan kebutuhan bisnis Anda, mulai dari jenis platform yang ingin dibangun, fitur utama yang dibutuhkan, hingga target pengunjung yang ingin dicapai.',
+                'display_order' => 1,
+                'is_active' => true,
+            ],
+            [
+                'step_number' => '02',
+                'icon' => 'lightbulb',
+                'title' => 'Rekomendasi Solusi & Paket',
+                'description' => 'Tim kami akan menganalisis kebutuhan Anda dan menyarankan jenis website/aplikasi serta paket investasi yang paling efektif dan efisien untuk bisnis Anda.',
+                'display_order' => 2,
+                'is_active' => true,
+            ],
+            [
+                'step_number' => '03',
+                'icon' => 'handshake',
+                'title' => 'Kesepakatan & Pengumpulan Data',
+                'description' => 'Setelah menyetujui proposal, Anda melakukan Down Payment (DP) 50%. Selanjutnya, Anda memberikan informasi lengkap dan aset (logo, teks, foto) yang ingin ditampilkan.',
+                'display_order' => 3,
+                'is_active' => true,
+            ],
+            [
+                'step_number' => '04',
+                'icon' => 'rocket',
+                'title' => 'Pengerjaan & Serah Terima',
+                'description' => 'Kami memproses pengerjaan dengan pembaruan berkala. Setelah proyek selesai diuji dan disetujui, Anda melunasi sisa 50% sebelum website diserahterimakan secara penuh.',
+                'display_order' => 4,
+                'is_active' => true,
+            ],
+        ];
+        foreach ($steps as $s) {
+            ProcessStep::create($s);
         }
     }
 }

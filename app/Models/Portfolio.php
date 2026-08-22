@@ -16,6 +16,7 @@ class Portfolio extends Model
         'client_industry',
         'duration',
         'category',
+        'package_tier',
         'description',
         'overview',
         'key_features',
@@ -24,6 +25,7 @@ class Portfolio extends Model
         'live_url',
         'technologies',
         'featured',
+        'is_boilerplate',
         'display_order',
     ];
 
@@ -31,6 +33,7 @@ class Portfolio extends Model
     {
         return [
             'featured' => 'boolean',
+            'is_boilerplate' => 'boolean',
             'technologies' => 'array',
             'key_features' => 'array',
             'gallery' => 'array',

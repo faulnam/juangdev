@@ -57,9 +57,16 @@
                                     </div>
                                 </td>
                                 <td class="py-4 px-6">
-                                    <span class="bg-blue-50 text-[#2563EB] text-xs font-bold px-2.5 py-1 rounded-md">
-                                        {{ $project->category ?? 'Web Application' }}
-                                    </span>
+                                    <div class="flex flex-col items-start gap-1">
+                                        <span class="bg-blue-50 text-[#2563EB] text-xs font-bold px-2.5 py-1 rounded-md">
+                                            {{ $project->category ?? 'Web Application' }}
+                                        </span>
+                                        @if($project->package_tier)
+                                            <span class="bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                                                Paket {{ $project->package_tier }}
+                                            </span>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="py-4 px-6 text-xs text-slate-500 max-w-xs truncate">
                                     {{ $project->description }}
@@ -75,11 +82,17 @@
                                     @endif
                                 </td>
                                 <td class="py-4 px-6">
-                                    @if($project->featured)
-                                        <span class="bg-amber-100 text-amber-800 text-[10px] font-black px-2 py-0.5 rounded-full uppercase">Featured</span>
-                                    @else
-                                        <span class="text-slate-300 text-xs">-</span>
-                                    @endif
+                                    <div class="flex flex-wrap gap-1">
+                                        @if($project->is_boilerplate)
+                                            <span class="bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase">Boilerplate</span>
+                                        @endif
+                                        @if($project->featured)
+                                            <span class="bg-amber-100 text-amber-800 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">Featured</span>
+                                        @endif
+                                        @if(!$project->is_boilerplate && !$project->featured)
+                                            <span class="text-slate-300 text-xs">-</span>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="py-4 px-6 text-right whitespace-nowrap">
                                     <div class="flex items-center justify-end gap-2">

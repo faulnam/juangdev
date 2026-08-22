@@ -68,8 +68,8 @@
         [
             'id' => 'custom-web-app',
             'title' => 'Custom Web App',
-            'desc' => 'Pengembangan aplikasi web khusus dengan fitur kompleks yang dirancang mengikuti alur kerja dan kebutuhan spesifik bisnis unik Anda.',
-            'price' => 'Rp 999.000',
+            'desc' => 'Pengembangan aplikasi web kustom fleksibel yang dapat menggabungkan fitur dari seluruh layanan (Landing Page, Compro, E-Commerce, Sistem Informasi) sesuai kebutuhan unik bisnis Anda.',
+            'price' => 'Mulai Rp 199.000',
             'items' => [
                 'Desain UI/UX Custom Eksklusif',
                 'Custom Business Logic & Webhook',
@@ -108,7 +108,7 @@
         <div 
             class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8"
             x-data="{
-                activeTab: 'landing-page',
+                activeTab: (new URLSearchParams(window.location.search)).get('tab') || 'landing-page',
                 tabs: {{ json_encode($serviceTabs) }},
                 get currentTab() {
                     return this.tabs.find(t => t.id === this.activeTab) || this.tabs[0];
@@ -116,16 +116,23 @@
                 getWhatsappUrl(title) {
                     const msg = encodeURIComponent(`Halo Tim JuangDev, saya tertarik dengan paket ${title}. Boleh minta info detailnya?`);
                     return `https://wa.me/{{ $whatsappNumber }}?text=${msg}`;
+                },
+                selectEstimator(tabId) {
+                    window.dispatchEvent(new CustomEvent('select-estimate-plan', { 
+                        detail: { category: tabId } 
+                    }));
+                    const el = document.getElementById('estimator');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
                 }
             }"
         >
             <!-- Section Header -->
             <div class="max-w-3xl mb-10">
                 <h2 class="text-3xl md:text-4xl lg:text-[2.6rem] font-black text-[#1a1f3c] leading-tight tracking-tight mb-3">
-                    Pembuatan Website &amp; <span class="text-[#2563EB] font-serif italic">Sistem Informasi</span>
+                    {{ $settings['hero_services_title'] ?? 'Pembuatan Website & Sistem Informasi' }}
                 </h2>
                 <p class="text-slate-600 text-[0.95rem] md:text-base leading-relaxed font-medium">
-                    Tingkatkan kehadiran digital bisnis Anda dengan website responsif, cepat, dan profesional yang dirancang khusus untuk mendatangkan lebih banyak konversi.
+                    {{ $settings['hero_services_desc'] ?? 'Tingkatkan kehadiran digital bisnis Anda dengan website responsif, cepat, dan profesional yang dirancang khusus untuk mendatangkan lebih banyak konversi.' }}
                 </p>
             </div>
 
@@ -166,9 +173,7 @@
 
                         <div class="flex flex-wrap items-center gap-3.5">
                             <a 
-                                :href="getWhatsappUrl(currentTab.title)"
-                                target="_blank"
-                                rel="noopener noreferrer"
+                                :href="'{{ route('home') }}?category=' + currentTab.id + '#pricing'"
                                 class="inline-flex items-center justify-center gap-2 bg-[#C7F236] text-[#0A1E5E] font-bold text-sm px-6 py-3 rounded-xl hover:bg-[#b5dd2a] transition-all duration-200 shadow-lg"
                             >
                                 <span>Mulai Proyek Ini</span>
@@ -176,10 +181,11 @@
                             </a>
 
                             <a 
-                                href="{{ route('home') }}#pricing" 
+                                href="{{ route('portfolio') }}" 
                                 class="inline-flex items-center justify-center gap-2 bg-white/10 text-white hover:bg-white/20 border border-white/20 font-bold text-sm px-6 py-3 rounded-xl transition-all duration-200"
                             >
-                                <span>Lihat Paket</span>
+                                <span>Lihat Projectnya</span>
+                                <i data-lucide="arrow-up-right" class="w-4 h-4 stroke-[2.5]"></i>
                             </a>
                         </div>
                     </div>
@@ -208,36 +214,36 @@
         </div>
     </section>
 
-    <!-- 3. Feature Showcase Section: Pengembangan Website & Sistem Modern (Realistic Laptop Website Mockup) -->
+    <!-- 3. Feature Showcase Section (Dapat diatur penuh via Admin Settings) -->
     <section class="py-16 md:py-24 bg-[#f8f9fc] relative">
         <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8">
             
             <div class="rounded-[2rem] bg-[#0A1E5E] text-white p-7 sm:p-10 lg:p-12 shadow-2xl relative overflow-hidden border border-blue-900/50">
                 <div class="grid grid-cols-1 lg:grid-cols-[1.1fr_1.1fr] gap-10 lg:gap-14 items-center relative z-10">
                     
-                    <!-- Left: Header, 4 Concise Key Features, Pricing & Button -->
+                    <!-- Left: Header, 4 Value Points, Pricing & Button -->
                     <div>
                         <span class="text-[11px] uppercase font-bold tracking-wider text-[#C7F236] mb-2 inline-block">
-                            Enterprise &amp; Custom Build
+                            {{ $settings['feature_showcase_badge'] ?? 'Enterprise & Custom Build' }}
                         </span>
                         
                         <h2 class="text-2xl sm:text-3xl lg:text-4xl font-black text-white leading-tight mb-3">
-                            Pengembangan Website &amp; <span class="text-[#C7F236] font-serif italic">Sistem Modern</span>
+                            {{ $settings['feature_showcase_title'] ?? 'Pengembangan Website & Sistem Modern' }}
                         </h2>
                         
                         <p class="text-white/80 text-sm leading-relaxed mb-6 font-medium">
-                            Solusi website dan aplikasi web internal yang cepat, aman, responsif di seluruh perangkat, dan mudah dikelola.
+                            {{ $settings['feature_showcase_desc'] ?? 'Solusi website dan aplikasi web internal yang cepat, aman, responsif di seluruh perangkat, dan mudah dikelola.' }}
                         </p>
 
-                        <!-- 4 Clean & Concise Value Points -->
+                        <!-- 4 Clean Value Points -->
                         <div class="space-y-3.5 mb-8">
                             <div class="flex items-start gap-3">
                                 <div class="w-6 h-6 rounded-full bg-[#C7F236] text-[#0A1E5E] flex items-center justify-center shrink-0 mt-0.5 text-xs font-black">
                                     1
                                 </div>
                                 <div>
-                                    <h4 class="text-sm font-bold text-white mb-0.5">Antarmuka User-Friendly &amp; Responsif</h4>
-                                    <p class="text-xs text-white/70">Desain UI/UX intuitif yang optimal di layar laptop maupun smartphone.</p>
+                                    <h4 class="text-sm font-bold text-white mb-0.5">{{ $settings['feature_showcase_point1_title'] ?? 'Antarmuka User-Friendly & Responsif' }}</h4>
+                                    <p class="text-xs text-white/70">{{ $settings['feature_showcase_point1_desc'] ?? 'Desain UI/UX intuitif yang optimal di layar laptop maupun smartphone.' }}</p>
                                 </div>
                             </div>
 
@@ -246,8 +252,8 @@
                                     2
                                 </div>
                                 <div>
-                                    <h4 class="text-sm font-bold text-white mb-0.5">Performa Cepat &amp; Stabil</h4>
-                                    <p class="text-xs text-white/70">Arsitektur modern dan efisien untuk menjamin sistem berjalan mulus tanpa lag.</p>
+                                    <h4 class="text-sm font-bold text-white mb-0.5">{{ $settings['feature_showcase_point2_title'] ?? 'Performa Cepat & Stabil' }}</h4>
+                                    <p class="text-xs text-white/70">{{ $settings['feature_showcase_point2_desc'] ?? 'Arsitektur modern dan efisien untuk menjamin sistem berjalan mulus tanpa lag.' }}</p>
                                 </div>
                             </div>
 
@@ -256,8 +262,8 @@
                                     3
                                 </div>
                                 <div>
-                                    <h4 class="text-sm font-bold text-white mb-0.5">Keamanan Data Terjamin</h4>
-                                    <p class="text-xs text-white/70">Enkripsi SSL dan proteksi data berlapis untuk menjaga transaksi bisnis Anda.</p>
+                                    <h4 class="text-sm font-bold text-white mb-0.5">{{ $settings['feature_showcase_point3_title'] ?? 'Keamanan Data Terjamin' }}</h4>
+                                    <p class="text-xs text-white/70">{{ $settings['feature_showcase_point3_desc'] ?? 'Enkripsi SSL dan proteksi data berlapis untuk menjaga transaksi bisnis Anda.' }}</p>
                                 </div>
                             </div>
 
@@ -266,8 +272,8 @@
                                     4
                                 </div>
                                 <div>
-                                    <h4 class="text-sm font-bold text-white mb-0.5">Dashboard &amp; Manajemen Terintegrasi</h4>
-                                    <p class="text-xs text-white/70">Kemudahan mengelola konten dan melihat laporan performa secara terpusat.</p>
+                                    <h4 class="text-sm font-bold text-white mb-0.5">{{ $settings['feature_showcase_point4_title'] ?? 'Dashboard & Manajemen Terintegrasi' }}</h4>
+                                    <p class="text-xs text-white/70">{{ $settings['feature_showcase_point4_desc'] ?? 'Kemudahan mengelola konten dan melihat laporan performa secara terpusat.' }}</p>
                                 </div>
                             </div>
                         </div>
@@ -276,13 +282,11 @@
                         <div class="flex flex-wrap items-center justify-between gap-4 pt-5 border-t border-white/15">
                             <div>
                                 <p class="text-xs text-white/60 font-medium">Estimasi Biaya Mulai</p>
-                                <p class="text-2xl sm:text-3xl font-black text-[#C7F236]">Rp 999.000</p>
+                                <p class="text-2xl sm:text-3xl font-black text-[#C7F236]">{{ $settings['feature_showcase_price'] ?? 'Rp 999.000' }}</p>
                             </div>
 
                             <a 
-                                href="{{ $whatsappUrl }}" 
-                                target="_blank"
-                                rel="noopener noreferrer"
+                                href="{{ route('home') }}?category=custom-app#pricing" 
                                 class="inline-flex items-center justify-center gap-2 bg-[#C7F236] text-[#0A1E5E] font-bold text-sm px-6 py-3 rounded-xl hover:bg-[#b5dd2a] transition-all duration-200 shadow-lg"
                             >
                                 <span>Mulai Proyek Ini</span>
@@ -295,7 +299,7 @@
                     <div class="relative flex items-center justify-center">
                         <div class="relative w-full rounded-2xl overflow-hidden shadow-2xl border border-white/15 bg-black/40 group">
                             <img 
-                                src="/services-laptop.jpg" 
+                                src="{{ $settings['feature_showcase_image'] ?? '/services-laptop.jpg' }}" 
                                 alt="Modern Dashboard Website on Laptop Mockup" 
                                 class="w-full h-auto object-cover object-center transition-transform duration-500 group-hover:scale-105"
                             >
@@ -308,12 +312,9 @@
         </div>
     </section>
 
-    <!-- 4. Interactive Project Cost Planner (Estimator) -->
-    @include('partials.estimator')
-
-    <!-- 5. Siap Meluncurkan Proyek Impian Anda? (Final CTA Banner) -->
-    @include('partials.final-cta')
-
-    <!-- 6. Pertanyaan yang Sering Diajukan (FAQ Accordion) -->
+    <!-- 4. Pertanyaan yang Sering Diajukan (FAQ Accordion) -->
     @include('partials.faq')
+
+    <!-- 5. Siap Meluncurkan Proyek Impian Anda? (Final CTA Banner diletakkan di bawah FAQ) -->
+    @include('partials.final-cta')
 @endsection

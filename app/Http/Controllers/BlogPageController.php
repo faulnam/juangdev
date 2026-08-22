@@ -64,14 +64,19 @@ class BlogPageController extends Controller
             })
             ->firstOrFail();
 
+        // Increment view count on each visit
+        $blog->increment('views');
+
+        // Top articles ordered by views
         $relatedBlogs = Blog::where('id', '!=', $blog->id)
             ->where('is_published', true)
             ->where(function ($q) {
                 $q->whereNull('published_at')
                   ->orWhere('published_at', '<=', now());
             })
+            ->orderBy('views', 'desc')
             ->orderBy('published_at', 'desc')
-            ->take(3)
+            ->take(5)
             ->get();
 
         $settings = SiteSetting::pluck('value', 'key')->toArray();

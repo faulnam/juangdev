@@ -19,6 +19,7 @@ class Blog extends Model
         'category',
         'author',
         'read_time',
+        'views',
         'meta_title',
         'meta_description',
         'published_at',

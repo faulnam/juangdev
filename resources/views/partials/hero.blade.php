@@ -12,9 +12,9 @@
         pricingList: [
             { price: '99K', label: 'Landing Page' },
             { price: '199K', label: 'Company Profile' },
-            { price: '399K', label: 'Toko Online (E-Commerce)' },
-            { price: '499K', label: 'Sistem Informasi' },
-            { price: '999K', label: 'Aplikasi Web Kustom' }
+            { price: '399K', label: 'Sistem Informasi' },
+            { price: '499K', label: 'Toko Online (E-Commerce)' },
+            { price: '199K - 1.099K', label: 'Aplikasi Web Kustom' }
         ],
         currentIndex: 0,
         init() {
@@ -39,37 +39,37 @@
             <div class="w-full lg:w-[58%] flex flex-col items-start text-left">
                 <h1 class="max-w-2xl text-left">
                     <span class="block text-[2rem] sm:text-5xl lg:text-[3.5rem] xl:text-[4rem] font-black text-white leading-[1.12] tracking-tight">
-                        Bangun <span class="font-serif italic text-[#C7F236] text-[1.05em] font-medium tracking-normal">Website</span> &amp;
+                        {{ $settings['hero_home_title_1'] ?? 'Bangun' }} <span class="font-serif italic text-[#C7F236] text-[1.05em] font-medium tracking-normal">{{ $settings['hero_home_title_highlight_1'] ?? 'Website' }}</span> &amp;
                     </span>
                     <span class="block text-[2rem] sm:text-5xl lg:text-[3.5rem] xl:text-[4rem] font-black text-white leading-[1.12] tracking-tight mt-1 sm:mt-2">
-                        Aplikasi <span class="font-serif italic text-[#C7F236] text-[1.05em] font-medium tracking-normal">Web Kustom</span>
+                        {{ $settings['hero_home_title_2'] ?? 'Aplikasi' }} <span class="font-serif italic text-[#C7F236] text-[1.05em] font-medium tracking-normal">{{ $settings['hero_home_title_highlight_2'] ?? 'Web Kustom' }}</span>
                     </span>
                     <span class="block text-[2rem] sm:text-5xl lg:text-[3.5rem] xl:text-[4rem] font-black text-white leading-[1.12] tracking-tight mt-1 sm:mt-2">
-                        Yang Memajukan Bisnis Anda.
+                        {{ $settings['hero_home_title_3'] ?? 'Yang Memajukan Bisnis Anda.' }}
                     </span>
                 </h1>
 
                 <p class="text-[0.95rem] sm:text-[1.125rem] lg:text-[1.2rem] text-white/75 leading-relaxed max-w-xl mt-5 font-medium">
-                    JuangDev membantu bisnis, UMKM, dan perusahaan membangun website profesional, aplikasi web kustom, toko online, sistem informasi, dan solusi digital modern yang mempercepat pertumbuhan bisnis.
+                    {{ $settings['hero_home_desc'] ?? 'JuangDev membantu bisnis, UMKM, dan perusahaan membangun website profesional, aplikasi web kustom, toko online, sistem informasi, dan solusi digital modern yang mempercepat pertumbuhan bisnis.' }}
                 </p>
 
                 <!-- CTA Buttons -->
                 <div class="flex flex-col sm:flex-row gap-4 justify-start mt-8 w-full sm:w-auto">
                     <a 
-                        href="{{ $whatsappUrl }}" 
+                        href="{{ $settings['hero_home_cta_primary_url'] ?? $whatsappUrl }}" 
                         target="_blank" 
                         rel="noopener noreferrer"
                         class="inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 text-base font-bold bg-[#C7F236] text-[#0A1E5E] border-2 border-[#C7F236] hover:bg-[#b5dd2a] hover:border-[#b5dd2a] shadow-[0_0_30px_-5px_rgba(199,242,54,0.4)] hover:shadow-[0_0_40px_-5px_rgba(199,242,54,0.6)] transition-all duration-300 group"
                     >
-                        <span>Mulai Proyek Anda</span>
+                        <span>{{ $settings['hero_home_cta_primary_text'] ?? 'Mulai Proyek Anda' }}</span>
                         <i data-lucide="arrow-up-right" class="w-5 h-5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"></i>
                     </a>
                     
                     <a 
-                        href="{{ route('portfolio') }}" 
+                        href="{{ $settings['hero_home_cta_secondary_url'] ?? route('portfolio') }}" 
                         class="inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 text-base font-bold bg-transparent border-2 border-white/20 text-white hover:bg-white/10 hover:border-white/40 backdrop-blur-md transition-all duration-200"
                     >
-                        <span>Lihat Portofolio</span>
+                        <span>{{ $settings['hero_home_cta_secondary_text'] ?? 'Lihat Portofolio' }}</span>
                     </a>
                 </div>
 
@@ -78,32 +78,32 @@
                     <div class="flex items-center gap-2.5">
                         <i data-lucide="star" class="w-4 h-4 fill-[#C7F236] text-[#C7F236]"></i>
                         <div>
-                            <span class="text-white font-bold text-sm">5.0</span>
-                            <span class="text-white/60 text-xs ml-1 font-medium">Penilaian</span>
+                            <span class="text-white font-bold text-sm">{{ $settings['hero_home_stat_1_val'] ?? '5.0' }}</span>
+                            <span class="text-white/60 text-xs ml-1 font-medium">{{ $settings['hero_home_stat_1_label'] ?? 'Penilaian' }}</span>
                         </div>
                     </div>
 
                     <div class="flex items-center gap-2.5">
                         <i data-lucide="folder-open" class="w-4 h-4 text-[#C7F236]"></i>
                         <div>
-                            <span class="text-white font-bold text-sm">100+</span>
-                            <span class="text-white/60 text-xs ml-1 font-medium">Proyek Selesai</span>
+                            <span class="text-white font-bold text-sm">{{ $settings['hero_home_stat_2_val'] ?? '100+' }}</span>
+                            <span class="text-white/60 text-xs ml-1 font-medium">{{ $settings['hero_home_stat_2_label'] ?? 'Proyek Selesai' }}</span>
                         </div>
                     </div>
 
                     <div class="flex items-center gap-2.5">
                         <i data-lucide="users" class="w-4 h-4 text-[#C7F236]"></i>
                         <div>
-                            <span class="text-white font-bold text-sm">50+</span>
-                            <span class="text-white/60 text-xs ml-1 font-medium">Klien Puas</span>
+                            <span class="text-white font-bold text-sm">{{ $settings['hero_home_stat_3_val'] ?? '50+' }}</span>
+                            <span class="text-white/60 text-xs ml-1 font-medium">{{ $settings['hero_home_stat_3_label'] ?? 'Klien Puas' }}</span>
                         </div>
                     </div>
 
                     <div class="flex items-center gap-2.5">
                         <i data-lucide="calendar" class="w-4 h-4 text-[#C7F236]"></i>
                         <div>
-                            <span class="text-white font-bold text-sm">3+</span>
-                            <span class="text-white/60 text-xs ml-1 font-medium">Tahun Pengalaman</span>
+                            <span class="text-white font-bold text-sm">{{ $settings['hero_home_stat_4_val'] ?? '3+' }}</span>
+                            <span class="text-white/60 text-xs ml-1 font-medium">{{ $settings['hero_home_stat_4_label'] ?? 'Tahun Pengalaman' }}</span>
                         </div>
                     </div>
                 </div>
@@ -118,8 +118,8 @@
                 <div class="relative w-[280px] sm:w-[360px] h-[340px] sm:h-[460px] flex items-end justify-center">
                     <div class="absolute bottom-0 w-[85%] h-[75%] bg-[#c6f036] rounded-[2.5rem] sm:rounded-[3rem]"></div>
                     <img 
-                        src="/orang.png" 
-                        alt="JuangDev Client" 
+                        src="{{ !empty($settings['hero_home_image']) ? $settings['hero_home_image'] : '/orang.png' }}" 
+                        alt="JuangDev Hero Banner" 
                         class="relative z-10 w-[95%] h-auto object-contain drop-shadow-2xl"
                     >
                 </div>
@@ -131,32 +131,32 @@
                     <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#c6f036] text-[#0A1E5E] flex items-center justify-center shrink-0 mb-1 sm:mb-2 shadow-[0_4px_12px_rgba(199,242,54,0.35)]">
                         <i data-lucide="check" class="w-4 h-4 stroke-[3]"></i>
                     </div>
-                    <p class="text-base sm:text-lg font-black text-slate-900 leading-none mb-0.5">99%</p>
-                    <p class="text-[8px] sm:text-[10px] text-slate-600 font-bold uppercase tracking-wider">Kepuasan Klien</p>
+                    <p class="text-base sm:text-lg font-black text-slate-900 leading-none mb-0.5">{{ $settings['hero_home_badge_1_val'] ?? '99%' }}</p>
+                    <p class="text-[8px] sm:text-[10px] text-slate-600 font-bold uppercase tracking-wider">{{ $settings['hero_home_badge_1_label'] ?? 'Kepuasan Klien' }}</p>
                 </div>
 
                 <!-- Floating Card: 5.0 Rating -->
                 <div 
                     class="absolute right-[-2%] sm:right-[-8%] top-[10%] sm:top-[15%] z-20 bg-white border-2 border-slate-200 border-b-[5px] sm:border-b-[6px] border-b-slate-300 shadow-xl py-3 sm:py-4 px-4 sm:px-6 rounded-xl sm:rounded-2xl flex flex-col items-start text-left cursor-default animate-[float_3.5s_ease-in-out_infinite_0.5s]"
                 >
-                    <p class="text-sm sm:text-xl font-black text-slate-900 leading-none mb-1">⭐ 5.0 Penilaian</p>
-                    <p class="text-[8px] sm:text-[10px] text-slate-600 font-bold uppercase tracking-wider">100+ Proyek Selesai</p>
+                    <p class="text-sm sm:text-xl font-black text-slate-900 leading-none mb-1">⭐ {{ $settings['hero_home_badge_5_val'] ?? '5.0 Penilaian' }}</p>
+                    <p class="text-[8px] sm:text-[10px] text-slate-600 font-bold uppercase tracking-wider">{{ $settings['hero_home_badge_5_label'] ?? '100+ Proyek Selesai' }}</p>
                 </div>
 
                 <!-- Floating Card: 24/7 Support -->
                 <div 
                     class="absolute right-[-6%] sm:right-[-12%] top-[48%] z-20 bg-white border-2 border-slate-200 border-b-[5px] sm:border-b-[6px] border-b-slate-300 shadow-xl py-3 sm:py-4 px-4 sm:px-6 rounded-xl sm:rounded-2xl flex flex-col items-start text-left cursor-default animate-[float_4.2s_ease-in-out_infinite_1s]"
                 >
-                    <p class="text-sm sm:text-2xl font-black text-slate-900 leading-none mb-1">24/7</p>
-                    <p class="text-[8px] sm:text-[10px] text-slate-600 font-bold uppercase tracking-wider">Dukungan Siap Bantu</p>
+                    <p class="text-sm sm:text-2xl font-black text-slate-900 leading-none mb-1">{{ $settings['hero_home_badge_3_title'] ?? '24/7' }}</p>
+                    <p class="text-[8px] sm:text-[10px] text-slate-600 font-bold uppercase tracking-wider">{{ $settings['hero_home_badge_3_sub'] ?? 'Dukungan Siap Bantu' }}</p>
                 </div>
 
                 <!-- Floating Card: Fast Delivery -->
                 <div 
                     class="absolute left-[-2%] sm:left-[-8%] bottom-[12%] z-20 bg-white border-2 border-slate-200 border-b-[5px] sm:border-b-[6px] border-b-slate-300 shadow-xl py-3 sm:py-4 px-4 sm:px-6 rounded-xl sm:rounded-2xl flex flex-col items-start text-left cursor-default animate-[float_3.8s_ease-in-out_infinite_0.8s]"
                 >
-                    <p class="text-sm sm:text-lg font-black text-slate-900 leading-none mb-1">Pengerjaan Cepat</p>
-                    <p class="text-[8px] sm:text-[10px] text-slate-600 font-bold uppercase tracking-wider">Kualitas Premium</p>
+                    <p class="text-sm sm:text-lg font-black text-slate-900 leading-none mb-1">{{ $settings['hero_home_badge_2_title'] ?? 'Pengerjaan Cepat' }}</p>
+                    <p class="text-[8px] sm:text-[10px] text-slate-600 font-bold uppercase tracking-wider">{{ $settings['hero_home_badge_2_sub'] ?? 'Kualitas Premium' }}</p>
                 </div>
 
                 <!-- Floating Dynamic Pricing Carousel Card -->

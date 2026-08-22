@@ -20,10 +20,22 @@
     id="pricing" 
     class="py-16 md:py-24 lg:py-28 bg-[#f8f9fc]"
     x-data="{
-        activeCategory: 'landing-page',
+        activeCategory: (new URLSearchParams(window.location.search)).get('category') || 'landing-page',
         categories: {{ json_encode($categories) }},
         plans: {{ json_encode($plansByCategory) }},
-        whatsappBase: 'https://wa.me/{{ $whatsappNumber }}'
+        whatsappBase: 'https://wa.me/{{ $whatsappNumber }}',
+        selectPlan(plan) {
+            window.dispatchEvent(new CustomEvent('select-estimate-plan', { 
+                detail: { 
+                    category: plan.category, 
+                    planId: plan.id 
+                } 
+            }));
+            const estimatorEl = document.getElementById('estimator');
+            if (estimatorEl) {
+                estimatorEl.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
     }"
 >
     <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8">
@@ -39,7 +51,7 @@
         </div>
 
         <!-- Categories Filter / Tabs -->
-        <div class="flex overflow-x-auto gap-3 sm:gap-4 pb-8 mb-4 justify-start lg:justify-center snap-x snap-mandatory scroll-smooth hide-scrollbar px-1 pt-2">
+        <div class="flex overflow-x-auto gap-3 sm:gap-4 pb-4 mb-2 justify-start lg:justify-center snap-x snap-mandatory scroll-smooth hide-scrollbar px-1 pt-2">
             <template x-for="(label, key) in categories" :key="key">
                 <button 
                     @click="activeCategory = key"
@@ -51,6 +63,19 @@
                 >
                 </button>
             </template>
+        </div>
+
+        <!-- Custom App Information Banner (Clean & Formal) -->
+        <div 
+            x-show="activeCategory === 'custom-app'" 
+            x-cloak
+            class="max-w-3xl mx-auto mb-8 px-4.5 py-3 rounded-xl bg-slate-50 border border-slate-200 flex items-center gap-3 text-left"
+        >
+            <i data-lucide="info" class="w-4 h-4 text-slate-500 shrink-0"></i>
+            <p class="text-xs sm:text-[0.825rem] text-slate-600 leading-relaxed">
+                <span class="font-bold text-slate-800">Fleksibilitas Layanan:</span> 
+                Paket Custom Web App dapat menggabungkan fitur dari seluruh layanan (Landing Page, Company Profile, Toko Online, Sistem Informasi) sesuai kebutuhan proyek Anda.
+            </p>
         </div>
 
         <!-- Pricing Cards Grid -->
@@ -82,21 +107,24 @@
                             
                             <p 
                                 :class="plan.popular ? 'text-[#0A1E5E]/75' : 'text-[#4f5b7d]'"
-                                class="text-[0.85rem] leading-relaxed pr-8 font-medium min-h-[38px]"
+                                class="text-[0.85rem] leading-relaxed pr-8 font-medium min-h-[48px]"
                                 x-text="plan.description"
                             ></p>
 
-                            <div class="mt-6 flex items-baseline gap-1.5">
+                            <div class="mt-6 flex items-baseline gap-1.5 flex-wrap">
                                 <span 
-                                    :class="plan.popular ? 'text-[#0A1E5E]' : 'text-[#1a1f3c]'"
-                                    class="text-[2rem] sm:text-[2.5rem] font-black tracking-tight leading-none"
+                                    :class="[
+                                        plan.popular ? 'text-[#0A1E5E]' : 'text-[#1a1f3c]',
+                                        plan.price && plan.price.length > 7 ? 'text-[1.35rem] sm:text-[1.65rem] lg:text-[1.75rem]' : 'text-[1.85rem] sm:text-[2.25rem]'
+                                    ]"
+                                    class="font-black tracking-tight leading-none"
                                 >
-                                    <span class="text-xl font-bold mr-1">Rp</span><span x-text="plan.price"></span>
+                                    <span class="text-base sm:text-lg font-bold mr-1">Rp</span><span x-text="plan.price"></span>
                                 </span>
                                 <span 
                                     x-show="plan.period" 
                                     :class="plan.popular ? 'text-[#0A1E5E]/60' : 'text-slate-500'"
-                                    class="text-sm font-semibold"
+                                    class="text-xs sm:text-sm font-semibold"
                                     x-text="'/' + plan.period"
                                 ></span>
                             </div>
@@ -123,18 +151,17 @@
                             </ul>
 
                             <!-- Choose Button -->
-                            <a 
-                                :href="whatsappBase + '?text=' + encodeURIComponent('Halo JuangDev, saya tertarik memesan paket ' + plan.name + ' (' + plan.category + ') seharga Rp ' + plan.price + '.')"
-                                target="_blank"
-                                rel="noopener noreferrer"
+                            <button 
+                                type="button"
+                                @click="selectPlan(plan)"
                                 :class="plan.popular 
                                     ? 'bg-[#0A1E5E] text-white hover:bg-[#071542] shadow-xl shadow-[#0A1E5E]/20' 
                                     : 'bg-white border-2 border-slate-200 text-[#1a1f3c] hover:border-[#2563EB] hover:text-[#2563EB] shadow-md'"
-                                class="inline-flex items-center justify-center gap-2 rounded-full py-4 text-[0.9rem] font-bold transition-all duration-300 group w-full"
+                                class="inline-flex items-center justify-center gap-2 rounded-full py-4 text-[0.9rem] font-bold transition-all duration-300 group w-full cursor-pointer"
                             >
                                 <span>Pilih Paket Ini</span>
                                 <i data-lucide="arrow-up-right" class="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 stroke-[2.5]"></i>
-                            </a>
+                            </button>
                         </div>
 
                     </div>

@@ -90,6 +90,28 @@
                                     {{ $unreadCount }}
                                 </span>
                             @endif
+                        <a 
+                            href="{{ route('admin.orders.index') }}" 
+                            class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition-colors {{ request()->routeIs('admin.orders.*') ? 'bg-[#eef3fb] text-[#2563EB] font-bold shadow-xs' : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900' }}"
+                        >
+                            <div class="flex items-center gap-3">
+                                <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                                <span>Daftar Pesanan &amp; Invoice</span>
+                            </div>
+                            @php $unpaidOrders = \App\Models\Order::where('payment_status', 'unpaid')->count(); @endphp
+                            @if($unpaidOrders > 0)
+                                <span class="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                    {{ $unpaidOrders }}
+                                </span>
+                            @endif
+                        <a 
+                            href="{{ route('admin.customers.index') }}" 
+                            class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs transition-colors {{ request()->routeIs('admin.customers.*') ? 'bg-[#eef3fb] text-[#2563EB] font-bold shadow-xs' : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900' }}"
+                        >
+                            <div class="flex items-center gap-3">
+                                <i data-lucide="users" class="w-4 h-4"></i>
+                                <span>Data Pelanggan</span>
+                            </div>
                         </a>
                     </nav>
                 </div>
@@ -129,7 +151,22 @@
                     <div class="px-3 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                         KELOLA KONTEN
                     </div>
-                    <nav class="space-y-1">
+                        <a 
+                            href="{{ route('admin.hero-sections.index') }}" 
+                            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs transition-colors {{ request()->routeIs('admin.hero-sections.*') ? 'bg-[#eef3fb] text-[#2563EB] font-bold shadow-xs' : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900' }}"
+                        >
+                            <i data-lucide="sparkles" class="w-4 h-4"></i>
+                            <span>Hero Section Halaman</span>
+                        </a>
+
+                        <a 
+                            href="{{ route('admin.about-section.index') }}" 
+                            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs transition-colors {{ request()->routeIs('admin.about-section.*') ? 'bg-[#eef3fb] text-[#2563EB] font-bold shadow-xs' : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900' }}"
+                        >
+                            <i data-lucide="info" class="w-4 h-4"></i>
+                            <span>Tentang Kami (About)</span>
+                        </a>
+
                         <a 
                             href="{{ route('admin.portfolios.index') }}" 
                             class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs transition-colors {{ request()->routeIs('admin.portfolios.*') ? 'bg-[#eef3fb] text-[#2563EB] font-bold shadow-xs' : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900' }}"
@@ -152,6 +189,30 @@
                         >
                             <i data-lucide="file-text" class="w-4 h-4"></i>
                             <span>Artikel &amp; Blog</span>
+                        </a>
+
+                        <a 
+                            href="{{ route('admin.showcase.index') }}" 
+                            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs transition-colors {{ request()->routeIs('admin.showcase.*') ? 'bg-[#eef3fb] text-[#2563EB] font-bold shadow-xs' : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900' }}"
+                        >
+                            <i data-lucide="presentation" class="w-4 h-4"></i>
+                            <span>Showcase Layanan</span>
+                        </a>
+
+                        <a 
+                            href="{{ route('admin.faqs.index') }}" 
+                            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs transition-colors {{ request()->routeIs('admin.faqs.*') ? 'bg-[#eef3fb] text-[#2563EB] font-bold shadow-xs' : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900' }}"
+                        >
+                            <i data-lucide="help-circle" class="w-4 h-4"></i>
+                            <span>FAQ (Tanya Jawab)</span>
+                        </a>
+
+                        <a 
+                            href="{{ route('admin.process-steps.index') }}" 
+                            class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs transition-colors {{ request()->routeIs('admin.process-steps.*') ? 'bg-[#eef3fb] text-[#2563EB] font-bold shadow-xs' : 'text-slate-600 font-medium hover:bg-slate-50 hover:text-slate-900' }}"
+                        >
+                            <i data-lucide="list-ordered" class="w-4 h-4"></i>
+                            <span>Cara Pemesanan</span>
                         </a>
                     </nav>
                 </div>

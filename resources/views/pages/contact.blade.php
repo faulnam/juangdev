@@ -26,10 +26,10 @@
 
         <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8 relative z-10">
             <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight max-w-4xl mx-auto leading-tight mb-6">
-                Mari Bangun Sesuatu yang <span class="font-serif italic text-[#C7F236]">Luar Biasa Bersama</span>
+                {{ $settings['hero_contact_title'] ?? 'Mari Bangun Sesuatu yang Luar Biasa Bersama' }}
             </h1>
             <p class="text-white/80 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed font-medium">
-                Memiliki ide proyek atau ingin bertanya mengenai layanan kami? Kirimkan pesan kepada kami atau hubungi langsung via WhatsApp.
+                {{ $settings['hero_contact_desc'] ?? 'Memiliki ide proyek atau ingin bertanya mengenai layanan kami? Kirimkan pesan kepada kami atau hubungi langsung via WhatsApp.' }}
             </p>
         </div>
     </section>
@@ -57,7 +57,13 @@
                     <h3 class="text-2xl font-black text-slate-900 mb-2">Kirimkan Pesan Kepada Kami</h3>
                     <p class="text-slate-500 text-sm mb-8 font-medium">Isi formulir di bawah ini dan tim kami akan merespon dalam waktu 24 jam.</p>
 
-                    <form action="{{ route('contact.submit') }}" method="POST" class="space-y-6">
+                    <form 
+                        action="{{ route('contact.submit') }}" 
+                        method="POST" 
+                        x-data="{ submitting: false }"
+                        @submit="if(submitting) { $event.preventDefault(); return false; } submitting = true;"
+                        class="space-y-6"
+                    >
                         @csrf
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -111,19 +117,32 @@
                             </div>
                         </div>
 
-                        <div>
+                        <div x-data="{
+                            displayBudget: '',
+                            formatRupiah(val) {
+                                let number = val.replace(/[^0-9]/g, '');
+                                if (!number) return '';
+                                return new Intl.NumberFormat('id-ID').format(number);
+                            },
+                            onInput(e) {
+                                this.displayBudget = this.formatRupiah(e.target.value);
+                            }
+                        }">
                             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Estimasi Anggaran / Budget</label>
-                            <select 
-                                name="budget"
-                                class="w-full px-5 py-3.5 rounded-xl border-2 border-slate-100 bg-[#f8f9fc] text-slate-800 font-medium focus:outline-none focus:border-[#2563EB] transition-colors"
-                            >
-                                <option value="">-- Pilih Rentang Budget --</option>
-                                <option value="< Rp 150.000">&lt; Rp 150.000 (Landing Page Starter)</option>
-                                <option value="Rp 150.000 - Rp 350.000">Rp 150.000 - Rp 350.000 (Company Profile / Pro)</option>
-                                <option value="Rp 350.000 - Rp 600.000">Rp 350.000 - Rp 600.000 (Sistem Informasi / E-Commerce)</option>
-                                <option value="Rp 600.000 - Rp 1.000.000">Rp 600.000 - Rp 1.000.000 (Pro Store / Corporate)</option>
-                                <option value="Rp 1.000.000 - Rp 1.500.000+">Rp 1.000.000 - Rp 1.500.000+ (Custom Web App / Enterprise)</option>
-                            </select>
+                            <div class="flex items-center">
+                                <span class="px-4 py-3.5 bg-slate-100 border-2 border-r-0 border-slate-200 text-slate-700 font-black rounded-l-xl text-sm select-none">
+                                    Rp
+                                </span>
+                                <input 
+                                    type="text" 
+                                    inputmode="numeric"
+                                    x-model="displayBudget"
+                                    @input="onInput($event)"
+                                    placeholder="500.000"
+                                    class="w-full px-5 py-3.5 rounded-r-xl border-2 border-slate-100 bg-[#f8f9fc] text-slate-800 font-bold focus:outline-none focus:border-[#2563EB] transition-colors"
+                                >
+                                <input type="hidden" name="budget" :value="displayBudget ? 'Rp ' + displayBudget : ''">
+                            </div>
                         </div>
 
                         <div>
@@ -139,10 +158,14 @@
 
                         <button 
                             type="submit"
+                            :disabled="submitting"
+                            :class="submitting ? 'opacity-70 cursor-not-allowed' : ''"
                             class="w-full py-4 rounded-xl bg-[#2563EB] hover:bg-[#1d4ed8] text-white font-bold text-base shadow-lg shadow-[#2563EB]/25 transition-all flex items-center justify-center gap-2"
                         >
-                            <span>Kirim Pesan Sekarang</span>
-                            <i data-lucide="send" class="w-5 h-5"></i>
+                            <span x-show="!submitting">Kirim Pesan Sekarang</span>
+                            <span x-show="submitting">Mengirim Pesan...</span>
+                            <i x-show="!submitting" data-lucide="send" class="w-5 h-5"></i>
+                            <i x-show="submitting" data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>
                         </button>
                     </form>
                 </div>

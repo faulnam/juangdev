@@ -33,6 +33,7 @@
                             <th class="py-3.5 px-6">Judul Artikel</th>
                             <th class="py-3.5 px-6">Kategori</th>
                             <th class="py-3.5 px-6">Penulis</th>
+                            <th class="py-3.5 px-6 text-center">Views</th>
                             <th class="py-3.5 px-6">Tanggal</th>
                             <th class="py-3.5 px-6">Status</th>
                             <th class="py-3.5 px-6 text-right">Aksi</th>
@@ -55,6 +56,12 @@
                                 </td>
                                 <td class="py-4 px-6 text-xs text-slate-600 font-medium">
                                     {{ $blog->author ?? 'JuangDev Team' }}
+                                </td>
+                                <td class="py-4 px-6 text-center">
+                                    <span class="inline-flex items-center gap-1 text-xs font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-full">
+                                        <i data-lucide="eye" class="w-3.5 h-3.5 text-[#2563EB]"></i>
+                                        <span>{{ number_format($blog->views ?? 0) }}</span>
+                                    </span>
                                 </td>
                                 <td class="py-4 px-6 text-xs text-slate-400 whitespace-nowrap">
                                     {{ $blog->created_at ? $blog->created_at->format('d M Y') : '-' }}

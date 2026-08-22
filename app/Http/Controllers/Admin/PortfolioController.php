@@ -28,12 +28,14 @@ class PortfolioController extends Controller
             'client_industry' => 'nullable|string|max:255',
             'duration' => 'nullable|string|max:255',
             'category' => 'required|string|max:100',
+            'package_tier' => 'nullable|string|max:50',
             'description' => 'nullable|string',
             'overview' => 'nullable|string',
             'image_file' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:5120',
             'image_url' => 'nullable|string',
             'live_url' => 'nullable|string',
             'featured' => 'nullable|boolean',
+            'is_boilerplate' => 'nullable|boolean',
             'display_order' => 'nullable|integer',
             'pinned_image_index' => 'nullable|integer|min:0|max:4',
         ]);
@@ -105,6 +107,7 @@ class PortfolioController extends Controller
             'client_industry' => $request->client_industry,
             'duration' => $request->duration,
             'category' => $request->category,
+            'package_tier' => $request->package_tier,
             'description' => $request->description,
             'overview' => $request->overview,
             'key_features' => array_values($keyFeatures),
@@ -113,6 +116,7 @@ class PortfolioController extends Controller
             'live_url' => $request->live_url,
             'technologies' => array_values($techs),
             'featured' => $request->has('featured'),
+            'is_boilerplate' => $request->has('is_boilerplate'),
             'display_order' => (int)($request->display_order ?? 0),
         ]);
 
@@ -132,12 +136,14 @@ class PortfolioController extends Controller
             'client_industry' => 'nullable|string|max:255',
             'duration' => 'nullable|string|max:255',
             'category' => 'required|string|max:100',
+            'package_tier' => 'nullable|string|max:50',
             'description' => 'nullable|string',
             'overview' => 'nullable|string',
             'image_file' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:5120',
             'image_url' => 'nullable|string',
             'live_url' => 'nullable|string',
             'featured' => 'nullable|boolean',
+            'is_boilerplate' => 'nullable|boolean',
             'display_order' => 'nullable|integer',
             'pinned_image_index' => 'nullable|integer|min:0|max:4',
         ]);
@@ -204,6 +210,7 @@ class PortfolioController extends Controller
             'client_industry' => $request->client_industry,
             'duration' => $request->duration,
             'category' => $request->category,
+            'package_tier' => $request->package_tier,
             'description' => $request->description,
             'overview' => $request->overview,
             'key_features' => array_values($keyFeatures),
@@ -212,6 +219,7 @@ class PortfolioController extends Controller
             'live_url' => $request->live_url,
             'technologies' => array_values($techs),
             'featured' => $request->has('featured'),
+            'is_boilerplate' => $request->has('is_boilerplate'),
             'display_order' => (int)($request->display_order ?? 0),
         ]);
 

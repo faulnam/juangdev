@@ -69,10 +69,20 @@
 
                         <!-- Content -->
                         <div class="p-5 flex flex-col flex-grow">
-                            <div class="mb-2.5">
+                            <div class="mb-2.5 flex flex-wrap items-center gap-1.5">
                                 <span class="inline-block bg-[#C7F236] border border-[#b5dd2a] text-[#0A1E5E] text-[10px] font-extrabold rounded px-2.5 py-0.5 shadow-[1.5px_1.5px_0_rgba(0,0,0,0.08)]">
                                     {{ $project->category ?? 'Aplikasi Web' }}
                                 </span>
+                                @if($project->package_tier)
+                                    <span class="inline-block bg-amber-400 border border-amber-500/30 text-slate-950 text-[10px] font-extrabold rounded px-2.5 py-0.5 shadow-xs">
+                                        Paket {{ $project->package_tier }}
+                                    </span>
+                                @endif
+                                @if($project->is_boilerplate)
+                                    <span class="inline-block bg-[#2563EB] text-white text-[10px] font-extrabold rounded px-2.5 py-0.5 shadow-xs">
+                                        Boilerplate
+                                    </span>
+                                @endif
                             </div>
 
                             <h3 class="text-lg font-extrabold text-slate-900 mb-1.5 group-hover:text-[#2563EB] transition-colors duration-200">

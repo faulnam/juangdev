@@ -3,32 +3,33 @@
     $whatsappMsg = urlencode("Halo JuangDev, saya ingin berkonsultasi mengenai pembuatan website/aplikasi.");
     $whatsappUrl = "https://wa.me/{$whatsappNumber}?text={$whatsappMsg}";
 
-    $steps = [
-        [
-            'id' => '01',
-            'icon' => 'monitor',
-            'title' => 'Konsultasi & Penentuan Kebutuhan',
-            'description' => 'Sampaikan kebutuhan bisnis Anda, mulai dari jenis platform yang ingin dibangun, fitur utama yang dibutuhkan, hingga target pengunjung yang ingin dicapai.',
-        ],
-        [
-            'id' => '02',
-            'icon' => 'lightbulb',
-            'title' => 'Rekomendasi Solusi & Paket',
-            'description' => 'Tim kami akan menganalisis kebutuhan Anda dan menyarankan jenis website/aplikasi serta paket investasi yang paling efektif dan efisien untuk bisnis Anda.',
-        ],
-        [
-            'id' => '03',
-            'icon' => 'handshake',
-            'title' => 'Kesepakatan & Pengumpulan Data',
-            'description' => 'Setelah menyetujui proposal, Anda melakukan Down Payment (DP) 50%. Selanjutnya, Anda memberikan informasi lengkap dan aset (logo, teks, foto) yang ingin ditampilkan.',
-        ],
-        [
-            'id' => '04',
-            'icon' => 'rocket',
-            'title' => 'Pengerjaan & Serah Terima',
-            'description' => 'Kami memproses pengerjaan dengan pembaruan berkala. Setelah proyek selesai diuji dan disetujui, Anda melunasi sisa 50% sebelum website diserahterimakan secara penuh.',
-        ],
-    ];
+    $dbSteps = \App\Models\ProcessStep::where('is_active', true)->orderBy('display_order')->get();
+
+    if ($dbSteps->count() > 0) {
+        $steps = $dbSteps->map(function($s, $idx) {
+            return [
+                'id' => $s->step_number ?? sprintf('%02d', $idx + 1),
+                'icon' => $s->icon ?? 'monitor',
+                'title' => $s->title,
+                'description' => $s->description,
+            ];
+        })->toArray();
+    } else {
+        $steps = [
+            [
+                'id' => '01',
+                'icon' => 'monitor',
+                'title' => 'Konsultasi & Penentuan Kebutuhan',
+                'description' => 'Sampaikan kebutuhan bisnis Anda, mulai dari jenis platform yang ingin dibangun, fitur utama yang dibutuhkan, hingga target pengunjung yang ingin dicapai.',
+            ],
+            [
+                'id' => '02',
+                'icon' => 'lightbulb',
+                'title' => 'Rekomendasi Solusi & Paket',
+                'description' => 'Tim kami akan menganalisis kebutuhan Anda dan menyarankan jenis website/aplikasi serta paket investasi yang paling efektif dan efisien untuk bisnis Anda.',
+            ],
+        ];
+    }
 
     $bullets = [
         'Alur kerja adaptif & fleksibel',

@@ -48,6 +48,11 @@
                                 <span>{{ $blog->published_at ? $blog->published_at->format('d M Y') : $blog->created_at->format('d M Y') }}</span>
                                 <span>•</span>
                                 <span>{{ $blog->read_time ?? '5 min read' }}</span>
+                                <span>•</span>
+                                <span class="flex items-center gap-1 text-[#2563EB] font-bold">
+                                    <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                                    <span>{{ number_format($blog->views ?? 0) }} views</span>
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -190,11 +195,11 @@
                     
                     <div class="sticky top-28 space-y-8">
                         
-                        <!-- Widget 1: Artikel Terkait (Compact List with Image Thumbnails) -->
+                        <!-- Widget 1: Artikel Teratas (Compact List with Image Thumbnails) -->
                         @if(isset($relatedBlogs) && count($relatedBlogs) > 0)
                             <div class="bg-white border-2 border-slate-200 rounded-2xl p-6 shadow-sm">
                                 <h3 class="text-lg font-bold text-slate-900 mb-4 pb-3 border-b border-slate-100 flex items-center justify-between">
-                                    <span>Artikel Terkait</span>
+                                    <span>Artikel Teratas</span>
                                     <i data-lucide="sparkles" class="w-4 h-4 text-[#2563EB]"></i>
                                 </h3>
 
@@ -220,8 +225,12 @@
                                                 <h4 class="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-[#2563EB] transition-colors leading-snug line-clamp-2">
                                                     {{ $rel->title }}
                                                 </h4>
-                                                <p class="text-[11px] text-slate-400 mt-1 font-normal">
-                                                    {{ $rel->published_at ? $rel->published_at->format('d M Y') : $rel->created_at->format('d M Y') }}
+                                                <p class="text-[11px] text-slate-400 mt-1 font-normal flex items-center justify-between">
+                                                    <span>{{ $rel->published_at ? $rel->published_at->format('d M Y') : $rel->created_at->format('d M Y') }}</span>
+                                                    <span class="text-[#2563EB] font-bold flex items-center gap-1">
+                                                        <i data-lucide="eye" class="w-3 h-3"></i>
+                                                        <span>{{ number_format($rel->views ?? 0) }}</span>
+                                                    </span>
                                                 </p>
                                             </div>
                                         </a>
@@ -241,7 +250,7 @@
 
                             <div class="relative z-10">
                                 <span class="inline-block bg-[#C7F236] text-[#0A1E5E] text-[10px] font-extrabold rounded-full px-3 py-1 mb-3 uppercase tracking-wider">
-                                    💡 Solusi Bisnis Digital
+                                    Solusi Bisnis Digital
                                 </span>
                                 
                                 <h4 class="text-xl font-black text-white leading-tight mb-2">
@@ -253,9 +262,7 @@
                                 </p>
 
                                 <a 
-                                    href="{{ $whatsappUrl }}" 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
+                                    href="{{ route('contact') }}" 
                                     class="w-full inline-flex items-center justify-center gap-2 rounded-full py-3 px-5 text-xs font-bold bg-[#C7F236] text-[#0A1E5E] hover:bg-[#b5dd2a] transition-all shadow-md shadow-[#C7F236]/20 group"
                                 >
                                     <span>Konsultasi Gratis</span>
@@ -295,9 +302,10 @@
                     </a>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Single Row Horizontal Scroll Container -->
+                <div class="flex gap-6 overflow-x-auto pb-6 scroll-smooth snap-x snap-mandatory text-left">
                     @foreach($relatedBlogs as $rel)
-                        <div class="group bg-white border-2 border-slate-200 border-b-[6px] border-b-slate-300 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-2 shadow-lg flex flex-col h-full">
+                        <div class="w-[85vw] sm:w-[340px] md:w-[calc((100%-3rem)/3)] shrink-0 snap-start group bg-white border-2 border-slate-200 border-b-[6px] border-b-slate-300 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 shadow-lg flex flex-col h-full">
                             <div class="aspect-[16/10] bg-gradient-to-br from-[#0A1E5E] to-[#2563EB] overflow-hidden relative border-b-2 border-slate-200">
                                 @if($rel->image_url)
                                     <img 
@@ -315,19 +323,25 @@
                                 <span class="inline-block bg-[#C7F236] border border-[#b5dd2a] text-[#0A1E5E] text-[10px] font-bold rounded px-2.5 py-0.5 self-start mb-2">
                                     {{ $rel->category ?? 'Technology' }}
                                 </span>
-                                <h4 class="text-base font-bold text-slate-900 mb-2 group-hover:text-[#2563EB] transition-colors leading-snug">
+                                <h4 class="text-base font-bold text-slate-900 mb-2 group-hover:text-[#2563EB] transition-colors leading-snug line-clamp-2">
                                     {{ $rel->title }}
                                 </h4>
                                 <p class="text-slate-600 text-xs font-normal line-clamp-2 mb-4 flex-grow">
                                     {{ $rel->excerpt }}
                                 </p>
-                                <a 
-                                    href="{{ route('blog.show', $rel->slug) }}" 
-                                    class="inline-flex items-center gap-1.5 text-[#2563EB] text-xs font-bold hover:gap-2 transition-all"
-                                >
-                                    <span>Baca Artikel</span>
-                                    <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-                                </a>
+                                <div class="flex items-center justify-between pt-3 border-t border-slate-100 mt-auto">
+                                    <a 
+                                        href="{{ route('blog.show', $rel->slug) }}" 
+                                        class="inline-flex items-center gap-1.5 text-[#2563EB] text-xs font-bold hover:gap-2 transition-all"
+                                    >
+                                        <span>Baca Artikel</span>
+                                        <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                                    </a>
+                                    <span class="text-[11px] text-slate-400 font-medium flex items-center gap-1">
+                                        <i data-lucide="eye" class="w-3 h-3 text-[#2563EB]"></i>
+                                        <span>{{ number_format($rel->views ?? 0) }}</span>
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     @endforeach

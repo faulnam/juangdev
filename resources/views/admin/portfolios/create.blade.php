@@ -27,7 +27,7 @@
                         >
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Kategori Proyek *</label>
                             <select 
@@ -42,6 +42,19 @@
                                 <option value="Custom Web App">Custom Web App</option>
                                 <option value="Landing Page">Landing Page</option>
                                 <option value="Company Profile">Company Profile</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Kategori Paket</label>
+                            <select 
+                                name="package_tier" 
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm font-medium focus:outline-none focus:border-[#2563EB] bg-white cursor-pointer"
+                            >
+                                <option value="">-- Tanpa Paket --</option>
+                                <option value="Basic" {{ old('package_tier') == 'Basic' ? 'selected' : '' }}>Basic</option>
+                                <option value="Rekomendasi" {{ old('package_tier') == 'Rekomendasi' ? 'selected' : '' }}>Rekomendasi</option>
+                                <option value="Premium" {{ old('package_tier') == 'Premium' ? 'selected' : '' }}>Premium</option>
                             </select>
                         </div>
 
@@ -196,6 +209,56 @@
                             <span>{{ $tech }}</span>
                         </label>
                     @endforeach
+                </div>
+            </div>
+
+            <!-- Pengaturan Status & Boilerplate -->
+            <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-4">
+                <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="sliders" class="w-4 h-4 text-[#2563EB]"></i>
+                    <span>Opsi &amp; Status Portofolio</span>
+                </h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Checkbox Boilerplate -->
+                    <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 bg-white hover:border-[#2563EB]/60 cursor-pointer transition-colors shadow-2xs">
+                        <input 
+                            type="checkbox" 
+                            name="is_boilerplate" 
+                            value="1" 
+                            {{ old('is_boilerplate') ? 'checked' : '' }}
+                            class="mt-1 rounded text-[#2563EB] focus:ring-0 w-4 h-4"
+                        >
+                        <div>
+                            <span class="block text-xs font-bold text-slate-800">Tandai sebagai Boilerplate</span>
+                            <span class="block text-[11px] text-slate-500 mt-0.5 leading-snug">Menampilkan badge tag khusus <strong class="text-blue-700 font-semibold">"Boilerplate"</strong> pada kartu portofolio di halaman utama dan katalog.</span>
+                        </div>
+                    </label>
+
+                    <!-- Checkbox Featured -->
+                    <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 bg-white hover:border-[#2563EB]/60 cursor-pointer transition-colors shadow-2xs">
+                        <input 
+                            type="checkbox" 
+                            name="featured" 
+                            value="1" 
+                            {{ old('featured') ? 'checked' : '' }}
+                            class="mt-1 rounded text-[#2563EB] focus:ring-0 w-4 h-4"
+                        >
+                        <div>
+                            <span class="block text-xs font-bold text-slate-800">Proyek Unggulan (Featured)</span>
+                            <span class="block text-[11px] text-slate-500 mt-0.5 leading-snug">Prioritaskan tampil pada bagian depan etalase proyek.</span>
+                        </div>
+                    </label>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Urutan Tampil (Display Order)</label>
+                    <input 
+                        type="number" 
+                        name="display_order" 
+                        value="{{ old('display_order', 0) }}" 
+                        class="w-36 px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-[#2563EB] bg-white"
+                    >
                 </div>
             </div>
 

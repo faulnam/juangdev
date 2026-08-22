@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\FaqController;
+use App\Http\Controllers\Admin\ProcessStepController;
+use App\Http\Controllers\Admin\ShowcaseController;
 use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\ContactController;
@@ -19,6 +22,12 @@ use App\Http\Controllers\ServicePageController;
 use App\Http\Controllers\UploadController;
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\Admin\HeroSectionController;
+use App\Http\Controllers\Admin\AboutSectionController;
+use App\Http\Controllers\Admin\CustomerController as AdminCustomerController;
+use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+
 /*
 |--------------------------------------------------------------------------
 | Public Routes
@@ -33,6 +42,12 @@ Route::get('/blog', [BlogPageController::class, 'index'])->name('blog');
 Route::get('/blog/{slug}', [BlogPageController::class, 'show'])->name('blog.show');
 Route::get('/contact', [ContactPageController::class, 'index'])->name('contact');
 Route::post('/contact', [ContactPageController::class, 'submit'])->name('contact.submit');
+
+// Public Invoice & Pakasir Order Routes
+Route::post('/orders', [InvoiceController::class, 'store'])->name('orders.store');
+Route::get('/invoice/{invoiceNumber}', [InvoiceController::class, 'show'])->name('invoice.show');
+Route::post('/invoice/{invoiceNumber}/pay', [InvoiceController::class, 'pay'])->name('invoice.pay');
+Route::post('/webhook/pakasir', [InvoiceController::class, 'webhook'])->name('webhook.pakasir');
 
 // API Routes
 Route::prefix('api')->group(function () {
@@ -60,6 +75,17 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('admin.auth')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
+        // Orders & Invoices Management
+        Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
+        Route::put('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.update-status');
+        Route::post('/orders/{order}/send-wa', [AdminOrderController::class, 'sendWaReminder'])->name('orders.send-wa');
+        Route::delete('/orders/{order}', [AdminOrderController::class, 'destroy'])->name('orders.destroy');
+
+        // Customers Management
+        Route::get('/customers', [AdminCustomerController::class, 'index'])->name('customers.index');
+        Route::get('/customers/{phone}', [AdminCustomerController::class, 'show'])->name('customers.show');
+
         // Contacts Management
         Route::get('/contacts', [ContactController::class, 'index'])->name('contacts.index');
         Route::patch('/contacts/{contact}', [ContactController::class, 'updateStatus'])->name('contacts.status');
@@ -80,6 +106,24 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         // Blogs
         Route::resource('blogs', BlogController::class);
+
+        // Showcase Layanan
+        Route::get('/showcase', [ShowcaseController::class, 'index'])->name('showcase.index');
+        Route::post('/showcase', [ShowcaseController::class, 'update'])->name('showcase.update');
+
+        // FAQ Management
+        Route::resource('faqs', FaqController::class)->except(['show']);
+
+        // Cara Pemesanan (Process Steps)
+        Route::resource('process-steps', ProcessStepController::class)->except(['show']);
+
+        // Hero Sections Management (All Pages)
+        Route::get('/hero-sections', [HeroSectionController::class, 'index'])->name('hero-sections.index');
+        Route::post('/hero-sections', [HeroSectionController::class, 'update'])->name('hero-sections.update');
+
+        // About Section Management (Tentang Kami Bento Grid)
+        Route::get('/about-section', [AboutSectionController::class, 'index'])->name('about-section.index');
+        Route::post('/about-section', [AboutSectionController::class, 'update'])->name('about-section.update');
 
         // Site Settings
         Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');

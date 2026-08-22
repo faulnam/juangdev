@@ -101,7 +101,7 @@
                         </div>
                         
                         <a 
-                            href="{{ route('contact', ['service' => $service->slug]) }}" 
+                            href="{{ route('services', ['tab' => $service->slug]) }}" 
                             class="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-200 text-sm bg-transparent border-2 w-fit py-1.5 px-4 rounded-xl group {{ $style['btn'] }}"
                         >
                             <span>Lihat Detail</span>
