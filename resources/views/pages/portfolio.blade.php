@@ -32,48 +32,200 @@
         </div>
     </section>
 
-    <!-- Portfolio Grid with Alpine.js Category Filter -->
+    <!-- Portfolio Grid with Alpine.js Category, Tier, Boilerplate & Search Filters + Pagination -->
     <section 
         class="py-16 md:py-24 bg-[#f8f9fc]"
         x-data="{
+            searchQuery: '',
             selectedCategory: 'all',
+            selectedTier: 'all',
+            selectedBoilerplate: 'all',
+            currentPage: 1,
+            perPage: 12,
             projects: {{ json_encode($portfolios) }},
+            init() {
+                this.$watch('searchQuery', () => { this.currentPage = 1; });
+                this.$watch('selectedCategory', () => { this.currentPage = 1; });
+                this.$watch('selectedTier', () => { this.currentPage = 1; });
+                this.$watch('selectedBoilerplate', () => { this.currentPage = 1; });
+                this.$nextTick(() => {
+                    if (typeof lucide !== 'undefined') { lucide.createIcons(); }
+                });
+            },
+            get isFiltered() {
+                return this.selectedCategory !== 'all' || 
+                       this.selectedTier !== 'all' || 
+                       this.selectedBoilerplate !== 'all' || 
+                       this.searchQuery.trim() !== '';
+            },
+            resetFilters() {
+                this.searchQuery = '';
+                this.selectedCategory = 'all';
+                this.selectedTier = 'all';
+                this.selectedBoilerplate = 'all';
+                this.currentPage = 1;
+            },
             get filteredProjects() {
-                if (this.selectedCategory === 'all') return this.projects;
-                return this.projects.filter(p => (p.category || '').toLowerCase() === this.selectedCategory.toLowerCase());
+                return this.projects.filter(p => {
+                    // Category filter
+                    if (this.selectedCategory !== 'all') {
+                        if ((p.category || '').toLowerCase() !== this.selectedCategory.toLowerCase()) {
+                            return false;
+                        }
+                    }
+                    // Tier filter
+                    if (this.selectedTier !== 'all') {
+                        if ((p.package_tier || '').toLowerCase() !== this.selectedTier.toLowerCase()) {
+                            return false;
+                        }
+                    }
+                    // Boilerplate filter
+                    if (this.selectedBoilerplate === 'boilerplate' && !p.is_boilerplate) {
+                        return false;
+                    }
+                    if (this.selectedBoilerplate === 'custom' && p.is_boilerplate) {
+                        return false;
+                    }
+                    // Search query
+                    if (this.searchQuery.trim() !== '') {
+                        const q = this.searchQuery.toLowerCase().trim();
+                        const title = (p.title || '').toLowerCase();
+                        const desc = (p.description || '').toLowerCase();
+                        const client = (p.client || '').toLowerCase();
+                        const cat = (p.category || '').toLowerCase();
+                        const tier = (p.package_tier || '').toLowerCase();
+                        const techs = Array.isArray(p.technologies) ? p.technologies.join(' ').toLowerCase() : (p.technologies || '').toLowerCase();
+
+                        const match = title.includes(q) || desc.includes(q) || client.includes(q) || cat.includes(q) || tier.includes(q) || techs.includes(q);
+                        if (!match) return false;
+                    }
+                    return true;
+                });
+            },
+            get totalPages() {
+                return Math.ceil(this.filteredProjects.length / this.perPage) || 1;
+            },
+            get paginatedProjects() {
+                const start = (this.currentPage - 1) * this.perPage;
+                return this.filteredProjects.slice(start, start + this.perPage);
+            },
+            setPage(p) {
+                if (p < 1 || p > this.totalPages) return;
+                this.currentPage = p;
+                const gridElem = document.getElementById('portfolio-grid-anchor');
+                if (gridElem) {
+                    gridElem.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+                this.$nextTick(() => {
+                    if (typeof lucide !== 'undefined') { lucide.createIcons(); }
+                });
             }
         }"
     >
         <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8">
             
-            <!-- Category Filter Pills -->
-            <div class="flex items-center justify-center gap-2 mb-12 overflow-x-auto hide-scrollbar flex-nowrap py-1">
-                <button 
-                    @click="selectedCategory = 'all'"
-                    :class="selectedCategory === 'all' 
-                        ? 'bg-[#2563EB] text-white border-2 border-[#2563EB] shadow-md shadow-[#2563EB]/25' 
-                        : 'bg-white text-slate-700 border-2 border-slate-200 hover:border-slate-300'"
-                    class="px-5 py-2 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-200 shrink-0"
-                >
-                    Semua Proyek ({{ $portfolios->count() }})
-                </button>
+            <!-- Filter & Search Toolbar (Clean, Formal, Modern) -->
+            <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-5 mb-10">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 sm:gap-4 items-center">
+                    
+                    <!-- Search Input -->
+                    <div class="lg:col-span-4 relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i data-lucide="search" class="w-4 h-4"></i>
+                        </div>
+                        <input 
+                            type="text" 
+                            x-model="searchQuery"
+                            placeholder="Cari judul, tech stack, klien..."
+                            class="w-full pl-10 pr-9 py-2.5 rounded-xl border border-slate-200 bg-slate-50/60 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#2563EB] focus:bg-white transition-all"
+                        >
+                        <button 
+                            x-show="searchQuery.length > 0" 
+                            @click="searchQuery = ''; currentPage = 1;" 
+                            type="button" 
+                            class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+                        >
+                            <i data-lucide="x" class="w-4 h-4"></i>
+                        </button>
+                    </div>
 
-                @foreach($allCategories as $cat)
-                    <button 
-                        @click="selectedCategory = '{{ $cat }}'"
-                        :class="selectedCategory.toLowerCase() === '{{ strtolower($cat) }}' 
-                            ? 'bg-[#2563EB] text-white border-2 border-[#2563EB] shadow-md shadow-[#2563EB]/25' 
-                            : 'bg-white text-slate-700 border-2 border-slate-200 hover:border-slate-300'"
-                        class="px-5 py-2 rounded-full text-xs sm:text-sm font-bold whitespace-nowrap transition-all duration-200 shrink-0"
-                    >
-                        {{ $cat }}
-                    </button>
-                @endforeach
+                    <!-- Dropdown Kategori Layanan -->
+                    <div class="lg:col-span-3 relative">
+                        <select 
+                            x-model="selectedCategory"
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/60 text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:border-[#2563EB] focus:bg-white cursor-pointer transition-all"
+                        >
+                            <option value="all">Semua Layanan</option>
+                            @foreach($allCategories as $cat)
+                                <option value="{{ $cat }}">{{ $cat }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Dropdown Kategori Paket -->
+                    <div class="lg:col-span-2 relative">
+                        <select 
+                            x-model="selectedTier"
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/60 text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:border-[#2563EB] focus:bg-white cursor-pointer transition-all"
+                        >
+                            <option value="all">Semua Paket</option>
+                            <option value="Basic">Paket Basic</option>
+                            <option value="Rekomendasi">Paket Rekomendasi</option>
+                            <option value="Premium">Paket Premium</option>
+                        </select>
+                    </div>
+
+                    <!-- Dropdown Boilerplate -->
+                    <div class="lg:col-span-2 relative">
+                        <select 
+                            x-model="selectedBoilerplate"
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/60 text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:border-[#2563EB] focus:bg-white cursor-pointer transition-all"
+                        >
+                            <option value="all">Semua Tipe</option>
+                            <option value="boilerplate">Hanya Boilerplate</option>
+                            <option value="custom">Proyek Klien</option>
+                        </select>
+                    </div>
+
+                    <!-- Reset Button -->
+                    <div class="lg:col-span-1 flex justify-end">
+                        <button 
+                            type="button" 
+                            @click="resetFilters()"
+                            :disabled="!isFiltered"
+                            :class="isFiltered ? 'bg-slate-100 text-slate-700 hover:bg-slate-200 hover:text-slate-900 border-slate-300 shadow-2xs cursor-pointer' : 'bg-slate-50 text-slate-300 border-slate-200 cursor-not-allowed opacity-50'"
+                            class="w-full py-2.5 px-3 rounded-xl border text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+                            title="Reset Filter"
+                        >
+                            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                            <span class="lg:hidden">Reset</span>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div x-show="filteredProjects.length === 0" x-cloak class="text-center py-16 px-4 bg-white rounded-2xl border-2 border-dashed border-slate-200 mb-8">
+                <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 mx-auto flex items-center justify-center mb-3">
+                    <i data-lucide="folder-search" class="w-6 h-6"></i>
+                </div>
+                <h3 class="text-base font-bold text-slate-800 mb-1">Tidak Ada Portofolio Ditemukan</h3>
+                <p class="text-xs text-slate-500 max-w-sm mx-auto mb-4 font-normal">
+                    Tidak ada proyek yang sesuai dengan kombinasi filter atau kata kunci pencarian Anda.
+                </p>
+                <button 
+                    type="button" 
+                    @click="resetFilters()"
+                    class="px-4 py-2 rounded-xl bg-[#0A1E5E] text-[#C7F236] font-bold text-xs hover:bg-[#122d78] transition-all shadow-xs cursor-pointer"
+                >
+                    Reset Semua Filter
+                </button>
             </div>
 
             <!-- Projects Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <template x-for="project in filteredProjects" :key="project.id">
+            <div id="portfolio-grid-anchor" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" x-show="filteredProjects.length > 0">
+                <template x-for="project in paginatedProjects" :key="project.id">
                     <div class="group bg-white border-2 border-slate-200 border-b-[6px] border-b-slate-300 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-2 shadow-lg flex flex-col h-full">
                         
                         <!-- Thumbnail Image -->
@@ -142,6 +294,49 @@
 
                     </div>
                 </template>
+            </div>
+
+            <!-- Pagination Controls (Only shown if more than 12 items) -->
+            <div x-show="totalPages > 1" x-cloak class="mt-12 sm:mt-16 flex items-center justify-center gap-2">
+                <!-- Prev Button -->
+                <button 
+                    type="button"
+                    @click="setPage(currentPage - 1)"
+                    :disabled="currentPage === 1"
+                    :class="currentPage === 1 ? 'opacity-40 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200' : 'bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 border-slate-200 shadow-xs cursor-pointer'"
+                    class="px-3.5 py-2 rounded-xl border text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5"
+                >
+                    <i data-lucide="chevron-left" class="w-4 h-4"></i>
+                    <span>Sebelumnya</span>
+                </button>
+
+                <!-- Page Numbers -->
+                <div class="flex items-center gap-1.5">
+                    <template x-for="p in totalPages" :key="p">
+                        <button 
+                            type="button"
+                            @click="setPage(p)"
+                            :class="currentPage === p 
+                                ? 'bg-[#0A1E5E] text-[#C7F236] border-[#0A1E5E] font-black shadow-md' 
+                                : 'bg-white text-slate-700 hover:bg-slate-100 border-slate-200 font-bold'"
+                            class="w-10 h-10 rounded-xl border text-xs sm:text-sm transition-all flex items-center justify-center cursor-pointer"
+                            x-text="p"
+                        >
+                        </button>
+                    </template>
+                </div>
+
+                <!-- Next Button -->
+                <button 
+                    type="button"
+                    @click="setPage(currentPage + 1)"
+                    :disabled="currentPage === totalPages"
+                    :class="currentPage === totalPages ? 'opacity-40 cursor-not-allowed bg-slate-100 text-slate-400 border-slate-200' : 'bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 border-slate-200 shadow-xs cursor-pointer'"
+                    class="px-3.5 py-2 rounded-xl border text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5"
+                >
+                    <span>Selanjutnya</span>
+                    <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                </button>
             </div>
 
         </div>
