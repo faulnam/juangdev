@@ -12,24 +12,25 @@
         </div>
 
         <!-- Bento Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-[1.25fr_1fr_1fr] gap-6 items-stretch">
+        <!-- Bento Grid (3 Symmetrical Cards) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
 
-            <!-- LEFT COLUMN – Unified Seamless Card (Laptop Top + Stats Bottom) -->
+            <!-- CARD 1 (LEFT) – Navy Unified Card (Laptop Image Top + Stats Bottom) -->
             <div class="rounded-[2rem] bg-[#1a3a8f] shadow-[0_20px_50px_-15px_rgba(26,58,143,0.4)] flex flex-col justify-between overflow-hidden h-full border border-blue-900/40">
-                <!-- Laptop Mockup Top Section (Full Uncut Image, Hidden on Mobile) -->
-                <div class="hidden lg:flex relative bg-[#05111f] p-5 sm:p-6 flex-1 items-center justify-center min-h-[220px] overflow-hidden">
+                <!-- Laptop Mockup (Edge-to-Edge Cover) -->
+                <div class="relative h-56 xl:h-64 overflow-hidden w-full shrink-0 bg-[#05111f]">
                     <img 
                         src="{{ $settings['about_card1_image'] ?? '/about-laptop.png' }}" 
                         alt="JuangDev laptop mockup" 
                         loading="lazy"
                         decoding="async"
-                        class="w-full h-full max-h-[210px] object-contain object-center opacity-95 transition-transform duration-500 hover:scale-105"
+                        class="w-full h-full object-cover object-center transition-transform duration-500 hover:scale-105"
                     >
-                    <div class="absolute inset-0 bg-gradient-to-t from-[#05111f]/70 via-transparent to-transparent pointer-events-none"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-[#1a3a8f] via-transparent to-transparent opacity-60"></div>
                 </div>
 
-                <!-- Stats Section Connected Directly at Bottom (Nyambung) -->
-                <div class="p-7 sm:p-8 lg:p-6 bg-[#1a3a8f] lg:border-t lg:border-white/15 flex flex-row items-center justify-center gap-6 shrink-0">
+                <!-- Stats Section -->
+                <div class="p-6 xl:p-8 bg-[#1a3a8f] border-t border-white/10 flex-1 flex flex-row items-center justify-center gap-6 shrink-0">
                     <div class="text-center flex-1">
                         <p class="text-3xl sm:text-4xl font-black text-[#C7F236] leading-none mb-1.5 tracking-tighter">
                             {{ $settings['about_card1_stat1_val'] ?? '100%' }}
@@ -52,9 +53,10 @@
                 </div>
             </div>
 
-            <!-- MIDDLE COLUMN – Lime Card -->
+            <!-- CARD 2 (MIDDLE) – Lime Card (Text Top + Tablet Image Bottom) -->
             <div class="rounded-[2rem] bg-[#c8f135] shadow-[0_20px_50px_-15px_rgba(200,241,53,0.35)] flex flex-col justify-between overflow-hidden h-full">
-                <div class="p-7 sm:p-8 lg:pb-3">
+                <!-- Text Content -->
+                <div class="p-6 xl:p-8 flex-1 flex flex-col justify-center">
                     <h3 class="text-2xl sm:text-3xl font-black text-[#0f1f5c] mb-2.5 leading-snug tracking-tight">
                         {{ $settings['about_card2_title'] ?? 'Solusi Digital Untuk Bisnis Anda' }}
                     </h3>
@@ -63,22 +65,22 @@
                     </p>
                 </div>
 
-                <!-- Tablet Image Flush to Bottom (Hidden on Mobile) -->
-                <div class="hidden lg:block mt-4 relative h-44 sm:h-48 overflow-hidden w-full shrink-0">
+                <!-- Tablet Image (Edge-to-Edge Cover Flush to Bottom) -->
+                <div class="relative h-56 xl:h-64 overflow-hidden w-full shrink-0">
                     <img 
                         src="{{ $settings['about_card2_image'] ?? '/about-tablet.png' }}" 
                         alt="Dashboard analytics on tablet" 
                         loading="lazy"
                         decoding="async"
-                        class="w-full h-full object-cover object-top transition-transform duration-500 hover:scale-105"
+                        class="w-full h-full object-cover object-center transition-transform duration-500 hover:scale-105"
                     >
                 </div>
             </div>
 
-            <!-- RIGHT COLUMN – Navy Card -->
-            <div class="rounded-[2rem] bg-[#1a3a8f] shadow-[0_20px_50px_-15px_rgba(26,58,143,0.4)] flex flex-col justify-between overflow-hidden h-full">
-                <!-- Team Image Flush to Top (Hidden on Mobile) -->
-                <div class="hidden lg:block relative h-44 sm:h-48 overflow-hidden w-full shrink-0 bg-slate-100">
+            <!-- CARD 3 (RIGHT) – Navy Card (Team Image Top + Text Bottom) -->
+            <div class="rounded-[2rem] bg-[#1a3a8f] shadow-[0_20px_50px_-15px_rgba(26,58,143,0.4)] flex flex-col justify-between overflow-hidden h-full border border-blue-900/40">
+                <!-- Team Image (Edge-to-Edge Cover Flush to Top) -->
+                <div class="relative h-56 xl:h-64 overflow-hidden w-full shrink-0 bg-slate-100">
                     <img 
                         src="{{ $settings['about_card3_image'] ?? '/about-team.png' }}" 
                         alt="JuangDev team collaboration" 
@@ -88,7 +90,8 @@
                     >
                 </div>
 
-                <div class="p-7 sm:p-8 lg:pt-4 flex-1 flex flex-col justify-center lg:justify-end">
+                <!-- Text Content -->
+                <div class="p-6 xl:p-8 flex-1 flex flex-col justify-center bg-[#1a3a8f]">
                     <h3 class="text-2xl sm:text-3xl font-black text-white mb-2.5 leading-snug tracking-tight">
                         {{ $settings['about_card3_title'] ?? 'Transparansi & Dukungan Berkelanjutan' }}
                     </h3>
