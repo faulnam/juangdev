@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Admin — JuangDev</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('logo3.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('logo3.png') }}">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
