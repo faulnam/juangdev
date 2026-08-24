@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
 @section('title', 'Invoice #' . $order->invoice_number . ' — JuangDev')
+@section('meta_robots', 'noindex, nofollow')
+@section('meta_description', 'Detail tagihan resmi transaksi pemesanan layanan di JuangDev.')
 
 @php
     $whatsappNumber = $settings['whatsapp_number'] ?? '62859171681988';

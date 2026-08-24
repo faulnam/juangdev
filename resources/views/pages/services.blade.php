@@ -301,6 +301,8 @@
                             <img 
                                 src="{{ $settings['feature_showcase_image'] ?? '/services-laptop.jpg' }}" 
                                 alt="Modern Dashboard Website on Laptop Mockup" 
+                                loading="lazy"
+                                decoding="async"
                                 class="w-full h-auto object-cover object-center transition-transform duration-500 group-hover:scale-105"
                             >
                         </div>

@@ -1,7 +1,11 @@
 @extends('layouts.app')
 
-@section('title', $blog->title . ' — Blog JuangDev')
-@section('meta_description', Str::limit(strip_tags($blog->excerpt ?? $blog->content), 160))
+@section('title', ($blog->meta_title ?: $blog->title) . ' — Blog JuangDev')
+@section('meta_description', $blog->meta_description ?: Str::limit(strip_tags($blog->excerpt ?? $blog->content), 155))
+@section('og_type', 'article')
+@section('og_title', ($blog->meta_title ?: $blog->title) . ' — JuangDev')
+@section('og_description', $blog->meta_description ?: Str::limit(strip_tags($blog->excerpt ?? $blog->content), 155))
+@section('og_image', $blog->image_url ? (str_starts_with($blog->image_url, 'http') ? $blog->image_url : url($blog->image_url)) : asset('logo4.png'))
 
 @php
     $whatsappNumber = $settings['whatsapp_number'] ?? '6283852174877';
@@ -131,7 +135,7 @@
                     <!-- Featured Cover Image Banner -->
                     @if($blog->image_url)
                         <div class="mb-8 rounded-2xl overflow-hidden shadow-lg border border-slate-200 bg-slate-900 aspect-[16/9] relative">
-                            <img src="{{ $blog->image_url }}" alt="{{ $blog->title }}" class="w-full h-full object-cover">
+                            <img src="{{ $blog->image_url }}" alt="{{ $blog->title }}" loading="lazy" decoding="async" class="w-full h-full object-cover">
                             <div class="absolute bottom-2 right-3 text-[10px] text-white/70 bg-black/50 backdrop-blur-xs px-2 py-0.5 rounded">
                                 Foto: JuangDev Archive
                             </div>
@@ -311,6 +315,8 @@
                                     <img 
                                         src="{{ $rel->image_url }}" 
                                         alt="{{ $rel->title }}" 
+                                        loading="lazy"
+                                        decoding="async"
                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                     >
                                 @else

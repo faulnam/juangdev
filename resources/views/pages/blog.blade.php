@@ -115,6 +115,8 @@
                                     <img 
                                         src="{{ $featuredBlog->image_url }}" 
                                         alt="{{ $featuredBlog->title }}" 
+                                        loading="lazy"
+                                        decoding="async"
                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                                     >
                                 @else
@@ -188,6 +190,8 @@
                                     <img 
                                         src="{{ $blog->image_url }}" 
                                         alt="{{ $blog->title }}" 
+                                        loading="lazy"
+                                        decoding="async"
                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                     >
                                 @else

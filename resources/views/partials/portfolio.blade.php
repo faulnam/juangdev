@@ -59,6 +59,8 @@
                                 <img 
                                     src="{{ $project->image_url }}" 
                                     alt="{{ $project->title }}" 
+                                    loading="lazy"
+                                    decoding="async"
                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                 >
                             @else

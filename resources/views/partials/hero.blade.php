@@ -109,8 +109,8 @@
                 </div>
             </div>
 
-            <!-- Right Mockup & Interactive Floating Badges -->
-            <div class="w-full lg:w-[40%] relative h-[340px] sm:h-[420px] lg:h-[480px] flex items-center justify-center lg:-translate-y-6">
+            <!-- Right Mockup & Interactive Floating Badges (Hidden on Mobile, Displayed on Large Screens) -->
+            <div class="hidden lg:flex w-full lg:w-[40%] relative h-[480px] items-center justify-center lg:-translate-y-6">
                 <!-- Center Glow -->
                 <div class="absolute inset-0 bg-gradient-to-tr from-[#2563EB]/25 to-transparent rounded-full blur-3xl pointer-events-none"></div>
 

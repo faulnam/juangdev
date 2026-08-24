@@ -1,4 +1,4 @@
-<section id="about" class="py-14 md:py-20 lg:py-24 bg-white relative overflow-hidden">
+<section id="about" class="hidden lg:block py-14 md:py-20 lg:py-24 bg-white relative overflow-hidden">
     <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8 relative">
 
         <!-- Section Header -->
@@ -16,18 +16,20 @@
 
             <!-- LEFT COLUMN – Unified Seamless Card (Laptop Top + Stats Bottom) -->
             <div class="rounded-[2rem] bg-[#1a3a8f] shadow-[0_20px_50px_-15px_rgba(26,58,143,0.4)] flex flex-col justify-between overflow-hidden h-full border border-blue-900/40">
-                <!-- Laptop Mockup Top Section (Full Uncut Image) -->
-                <div class="relative bg-[#05111f] p-5 sm:p-6 flex-1 flex items-center justify-center min-h-[220px] overflow-hidden">
+                <!-- Laptop Mockup Top Section (Full Uncut Image, Hidden on Mobile) -->
+                <div class="hidden lg:flex relative bg-[#05111f] p-5 sm:p-6 flex-1 items-center justify-center min-h-[220px] overflow-hidden">
                     <img 
                         src="{{ $settings['about_card1_image'] ?? '/about-laptop.png' }}" 
                         alt="JuangDev laptop mockup" 
+                        loading="lazy"
+                        decoding="async"
                         class="w-full h-full max-h-[210px] object-contain object-center opacity-95 transition-transform duration-500 hover:scale-105"
                     >
                     <div class="absolute inset-0 bg-gradient-to-t from-[#05111f]/70 via-transparent to-transparent pointer-events-none"></div>
                 </div>
 
                 <!-- Stats Section Connected Directly at Bottom (Nyambung) -->
-                <div class="p-6 bg-[#1a3a8f] border-t border-white/15 flex flex-row items-center justify-center gap-6 shrink-0">
+                <div class="p-7 sm:p-8 lg:p-6 bg-[#1a3a8f] lg:border-t lg:border-white/15 flex flex-row items-center justify-center gap-6 shrink-0">
                     <div class="text-center flex-1">
                         <p class="text-3xl sm:text-4xl font-black text-[#C7F236] leading-none mb-1.5 tracking-tighter">
                             {{ $settings['about_card1_stat1_val'] ?? '100%' }}
@@ -52,7 +54,7 @@
 
             <!-- MIDDLE COLUMN – Lime Card -->
             <div class="rounded-[2rem] bg-[#c8f135] shadow-[0_20px_50px_-15px_rgba(200,241,53,0.35)] flex flex-col justify-between overflow-hidden h-full">
-                <div class="p-7 sm:p-8 pb-3">
+                <div class="p-7 sm:p-8 lg:pb-3">
                     <h3 class="text-2xl sm:text-3xl font-black text-[#0f1f5c] mb-2.5 leading-snug tracking-tight">
                         {{ $settings['about_card2_title'] ?? 'Solusi Digital Untuk Bisnis Anda' }}
                     </h3>
@@ -61,11 +63,13 @@
                     </p>
                 </div>
 
-                <!-- Tablet Image Flush to Bottom -->
-                <div class="mt-4 relative h-44 sm:h-48 overflow-hidden w-full shrink-0">
+                <!-- Tablet Image Flush to Bottom (Hidden on Mobile) -->
+                <div class="hidden lg:block mt-4 relative h-44 sm:h-48 overflow-hidden w-full shrink-0">
                     <img 
                         src="{{ $settings['about_card2_image'] ?? '/about-tablet.png' }}" 
                         alt="Dashboard analytics on tablet" 
+                        loading="lazy"
+                        decoding="async"
                         class="w-full h-full object-cover object-top transition-transform duration-500 hover:scale-105"
                     >
                 </div>
@@ -73,16 +77,18 @@
 
             <!-- RIGHT COLUMN – Navy Card -->
             <div class="rounded-[2rem] bg-[#1a3a8f] shadow-[0_20px_50px_-15px_rgba(26,58,143,0.4)] flex flex-col justify-between overflow-hidden h-full">
-                <!-- Team Image Flush to Top -->
-                <div class="relative h-44 sm:h-48 overflow-hidden w-full shrink-0 bg-slate-100">
+                <!-- Team Image Flush to Top (Hidden on Mobile) -->
+                <div class="hidden lg:block relative h-44 sm:h-48 overflow-hidden w-full shrink-0 bg-slate-100">
                     <img 
                         src="{{ $settings['about_card3_image'] ?? '/about-team.png' }}" 
                         alt="JuangDev team collaboration" 
+                        loading="lazy"
+                        decoding="async"
                         class="w-full h-full object-cover object-center transition-transform duration-500 hover:scale-105"
                     >
                 </div>
 
-                <div class="p-7 sm:p-8 pt-4 flex-1 flex flex-col justify-end">
+                <div class="p-7 sm:p-8 lg:pt-4 flex-1 flex flex-col justify-center lg:justify-end">
                     <h3 class="text-2xl sm:text-3xl font-black text-white mb-2.5 leading-snug tracking-tight">
                         {{ $settings['about_card3_title'] ?? 'Transparansi & Dukungan Berkelanjutan' }}
                     </h3>

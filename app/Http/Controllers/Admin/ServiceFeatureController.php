@@ -40,8 +40,10 @@ class ServiceFeatureController extends Controller
         return back()->with('success', 'Fitur Add-on berhasil ditambahkan.');
     }
 
-    public function update(Request $request, ServiceFeature $feature)
+    public function update(Request $request, $id)
     {
+        $feature = ServiceFeature::findOrFail($id);
+
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -63,8 +65,9 @@ class ServiceFeatureController extends Controller
         return back()->with('success', 'Fitur Add-on berhasil diperbarui.');
     }
 
-    public function destroy(ServiceFeature $feature)
+    public function destroy($id)
     {
+        $feature = ServiceFeature::findOrFail($id);
         $feature->delete();
         return back()->with('success', 'Fitur Add-on berhasil dihapus.');
     }

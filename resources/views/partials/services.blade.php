@@ -136,6 +136,8 @@
                 <img 
                     src="/orang.png" 
                     alt="JuangDev Person" 
+                    loading="lazy"
+                    decoding="async"
                     class="w-full h-full max-h-[400px] object-contain object-bottom transition-transform duration-500 group-hover:scale-105"
                 >
             </div>

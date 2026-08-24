@@ -1,7 +1,11 @@
 @extends('layouts.app')
 
-@section('title', $portfolio->title . ' — Detail Portofolio JuangDev')
-@section('meta_description', Str::limit(strip_tags($portfolio->overview ?? $portfolio->description), 160))
+@section('title', $portfolio->title . ' — Studi Kasus Portofolio JuangDev')
+@section('meta_description', Str::limit(strip_tags($portfolio->overview ?? $portfolio->description), 155))
+@section('og_type', 'article')
+@section('og_title', $portfolio->title . ' — Studi Kasus JuangDev')
+@section('og_description', Str::limit(strip_tags($portfolio->overview ?? $portfolio->description), 155))
+@section('og_image', $portfolio->image_url ? (str_starts_with($portfolio->image_url, 'http') ? $portfolio->image_url : url($portfolio->image_url)) : asset('logo4.png'))
 
 @php
     $whatsappNumber = $settings['whatsapp_number'] ?? '6283852174877';
@@ -242,6 +246,8 @@
                                             <img 
                                                 src="{{ $gImg }}" 
                                                 alt="{{ $gTitle }}" 
+                                                loading="lazy"
+                                                decoding="async"
                                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                             >
                                             <div class="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
@@ -341,6 +347,8 @@
                                     <img 
                                         src="{{ $rel->image_url }}" 
                                         alt="{{ $rel->title }}" 
+                                        loading="lazy"
+                                        decoding="async"
                                         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                                     >
                                 @else

@@ -5,18 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
+    <!-- Core SEO Meta Tags -->
     <title>@yield('title', 'JuangDev — Jasa Pembuatan Website & Custom Software')</title>
     <meta name="description" content="@yield('meta_description', 'JuangDev membantu bisnis, startup, dan UMKM membangun website profesional, aplikasi web, toko online, dan sistem kustom berkualitas tinggi dengan harga transparan.')">
+    <meta name="keywords" content="@yield('meta_keywords', 'jasa pembuatan website, buat website murah, bikin web toko online, company profile profesional, aplikasi web kustom, sistem informasi bisnis, web developer indonesia, juangdev')">
+    <meta name="robots" content="@yield('meta_robots', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1')">
+    <meta name="author" content="JuangDev">
+    <link rel="canonical" href="@yield('canonical_url', url()->current())">
     
-    <!-- Favicon -->
+    <!-- Open Graph / Facebook -->
+    <meta property="og:site_name" content="JuangDev">
+    <meta property="og:type" content="@yield('og_type', 'website')">
+    <meta property="og:title" content="@yield('og_title', View::getSection('title', 'JuangDev — Jasa Pembuatan Website & Custom Software'))">
+    <meta property="og:description" content="@yield('og_description', View::getSection('meta_description', 'JuangDev membantu bisnis, startup, dan UMKM membangun website profesional, aplikasi web, toko online, dan sistem kustom berkualitas tinggi.'))">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="@yield('og_image', asset('logo4.png'))">
+    <meta property="og:locale" content="id_ID">
+
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="@yield('og_title', View::getSection('title', 'JuangDev — Jasa Pembuatan Website & Custom Software'))">
+    <meta name="twitter:description" content="@yield('og_description', View::getSection('meta_description', 'JuangDev membantu bisnis, startup, dan UMKM membangun website profesional, aplikasi web, toko online, dan sistem kustom berkualitas tinggi.'))">
+    <meta name="twitter:image" content="@yield('og_image', asset('logo4.png'))">
+    
+    <!-- Favicon & Touch Icons -->
     <link rel="icon" type="image/png" href="{{ asset('logo2.png') }}?v={{ filemtime(public_path('logo2.png')) }}">
     <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v={{ filemtime(public_path('favicon.ico')) }}">
     <link rel="apple-touch-icon" href="{{ asset('logo2.png') }}?v={{ filemtime(public_path('logo2.png')) }}">
     
-    <!-- Google Fonts -->
+    <!-- Performance DNS Prefetch & Preconnect -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link rel="dns-prefetch" href="//cdn.tailwindcss.com">
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="//unpkg.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@1,400;1,600;1,700&display=swap" rel="stylesheet">
+    
+    <!-- Structured JSON-LD Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ProfessionalService",
+      "name": "JuangDev",
+      "url": "{{ url('/') }}",
+      "logo": "{{ asset('logo4.png') }}",
+      "image": "{{ asset('logo4.png') }}",
+      "description": "Studio teknologi pembuatan website profesional, aplikasi web kustom, toko online, dan sistem informasi digital.",
+      "telephone": "{{ $settings['phone'] ?? '+6283852174877' }}",
+      "email": "{{ $settings['email'] ?? 'hello@juangdev.com' }}",
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "ID",
+        "addressLocality": "Jakarta"
+      },
+      "priceRange": "Rp 99.000 - Rp 5.000.000+"
+    }
+    </script>
     
     <!-- Tailwind CSS Standalone CDN (No npm run dev needed!) -->
     <script src="https://cdn.tailwindcss.com"></script>

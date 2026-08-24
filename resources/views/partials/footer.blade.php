@@ -17,14 +17,16 @@
 
 <footer class="bg-[#0A1E5E] text-white pt-16 pb-12 border-t border-white/10">
     <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8 pb-12 border-b border-white/10">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 sm:gap-8 lg:gap-8 pb-12 border-b border-white/10">
             
             <!-- Col 1: Brand & Bio -->
-            <div class="lg:col-span-2 flex flex-col items-start">
+            <div class="sm:col-span-2 lg:col-span-2 flex flex-col items-start">
                 <a href="{{ route('home') }}" class="inline-block mb-5 group" aria-label="JuangDev — Beranda">
                     <img 
                         src="{{ asset('logo4.png') }}?v={{ filemtime(public_path('logo4.png')) }}" 
                         alt="JuangDev" 
+                        loading="lazy"
+                        decoding="async"
                         class="h-20 sm:h-24 md:h-28 lg:h-32 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
                     >
                 </a>
