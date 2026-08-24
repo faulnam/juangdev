@@ -26,30 +26,24 @@
             : '{{ $isLightHeaderPage ? 'max-w-7xl mt-0 rounded-none bg-white/90 backdrop-blur-md border-b border-slate-200/60 h-16 md:h-20 shadow-xs' : 'max-w-7xl mt-0 rounded-none bg-transparent border-transparent h-16 md:h-20' }}'"
         class="pointer-events-auto transition-all duration-500 ease-in-out w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between mx-auto"
     >
-        <!-- Logo -->
-        <a href="{{ route('home') }}" class="flex items-center gap-2.5 group" aria-label="JuangDev — Beranda">
-            <div class="relative w-8 h-8 md:w-9 md:h-9 flex items-center justify-center shrink-0">
+        <!-- Logo (Only Icon, Enlarged & Dynamic) -->
+        <a href="{{ route('home') }}" class="flex items-center group py-0.5" aria-label="JuangDev — Beranda">
+            <div class="relative h-11 sm:h-12 md:h-13 w-11 sm:w-12 md:w-13 flex items-center justify-center shrink-0">
                 <!-- Logo 3 (Belum di-scroll) -->
                 <img 
-                    src="{{ asset('logo3.png') }}" 
+                    src="{{ asset('logo3.png') }}?v={{ filemtime(public_path('logo3.png')) }}" 
                     alt="JuangDev Logo" 
                     class="w-full h-full object-contain transition-all duration-300 transform group-hover:scale-105"
                     :class="scrolled ? 'opacity-0 scale-90 absolute pointer-events-none' : 'opacity-100 scale-100 relative'"
                 >
                 <!-- Logo 2 (Saat di-scroll) -->
                 <img 
-                    src="{{ asset('logo2.png') }}" 
+                    src="{{ asset('logo2.png') }}?v={{ filemtime(public_path('logo2.png')) }}" 
                     alt="JuangDev Logo" 
                     class="w-full h-full object-contain transition-all duration-300 transform group-hover:scale-105"
                     :class="scrolled ? 'opacity-100 scale-100 relative' : 'opacity-0 scale-90 absolute pointer-events-none'"
                 >
             </div>
-            <span 
-                :class="scrolled ? 'text-slate-900' : '{{ $isLightHeaderPage ? 'text-slate-900' : 'text-white' }}'"
-                class="text-xl md:text-2xl font-serif font-bold tracking-tight transition-colors duration-300 flex items-center gap-1"
-            >
-                <span>Juang</span><span :class="scrolled ? 'text-[#2563EB]' : '{{ $isLightHeaderPage ? 'text-[#2563EB]' : 'text-[#C7F236]' }}'">Dev</span>
-            </span>
         </a>
 
         <!-- Desktop Navigation -->

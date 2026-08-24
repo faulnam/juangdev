@@ -21,17 +21,12 @@
             
             <!-- Col 1: Brand & Bio -->
             <div class="lg:col-span-2 flex flex-col items-start">
-                <a href="{{ route('home') }}" class="flex items-center gap-2.5 mb-4 group" aria-label="JuangDev — Beranda">
-                    <div class="w-8 h-8 md:w-9 md:h-9 flex items-center justify-center shrink-0">
-                        <img 
-                            src="{{ asset('logo1.png') }}" 
-                            alt="JuangDev Logo" 
-                            class="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
-                        >
-                    </div>
-                    <span class="text-2xl font-serif font-bold tracking-tight text-white flex items-center gap-1">
-                        <span>Juang</span><span class="text-[#C7F236]">Dev</span>
-                    </span>
+                <a href="{{ route('home') }}" class="inline-block mb-5 group" aria-label="JuangDev — Beranda">
+                    <img 
+                        src="{{ asset('logo4.png') }}?v={{ filemtime(public_path('logo4.png')) }}" 
+                        alt="JuangDev" 
+                        class="h-20 sm:h-24 md:h-28 lg:h-32 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                    >
                 </a>
                 
                 <p class="text-white/70 text-sm leading-relaxed max-w-sm mb-6 font-medium">

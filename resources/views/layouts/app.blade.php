@@ -9,8 +9,9 @@
     <meta name="description" content="@yield('meta_description', 'JuangDev membantu bisnis, startup, dan UMKM membangun website profesional, aplikasi web, toko online, dan sistem kustom berkualitas tinggi dengan harga transparan.')">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ asset('logo3.png') }}">
-    <link rel="apple-touch-icon" href="{{ asset('logo3.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('logo2.png') }}?v={{ filemtime(public_path('logo2.png')) }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v={{ filemtime(public_path('favicon.ico')) }}">
+    <link rel="apple-touch-icon" href="{{ asset('logo2.png') }}?v={{ filemtime(public_path('logo2.png')) }}">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
