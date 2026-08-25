@@ -71,20 +71,18 @@
 
             <!-- Featured Main Image Showcase Mockup -->
             <div class="mt-8 relative group">
-                <div class="rounded-2xl overflow-hidden shadow-2xl bg-slate-900 border border-white/10">
-                    <div class="aspect-[16/9] sm:aspect-[21/9] w-full overflow-hidden relative">
-                        @if($portfolio->image_url)
-                            <img 
-                                src="{{ $portfolio->image_url }}" 
-                                alt="{{ $portfolio->title }}" 
-                                class="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-[1.01]"
-                            >
-                        @else
-                            <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#0A1E5E] to-[#2563EB]">
-                                <span class="text-white/20 text-8xl font-black">{{ substr($portfolio->title, 0, 1) }}</span>
-                            </div>
-                        @endif
-                    </div>
+                <div class="rounded-2xl overflow-hidden shadow-2xl bg-slate-900/80 border border-white/10 flex items-center justify-center">
+                    @if($portfolio->image_url)
+                        <img 
+                            src="{{ $portfolio->image_url }}" 
+                            alt="{{ $portfolio->title }}" 
+                            class="w-full h-auto object-contain mx-auto transition-transform duration-500 group-hover:scale-[1.005]"
+                        >
+                    @else
+                        <div class="w-full aspect-[16/9] flex items-center justify-center bg-gradient-to-br from-[#0A1E5E] to-[#2563EB]">
+                            <span class="text-white/20 text-8xl font-black">{{ substr($portfolio->title, 0, 1) }}</span>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -197,13 +195,21 @@
                     
                     <!-- Overview Section -->
                     <div class="mb-10">
-                        <h2 class="text-2xl font-bold text-slate-900 mb-3 tracking-tight">
+                        <h2 class="text-2xl font-bold text-slate-900 mb-4 tracking-tight">
                             Overview
                         </h2>
-                        <div class="text-slate-600 text-base leading-relaxed space-y-4 font-normal">
-                            <p>
-                                {{ $portfolio->overview ?? $portfolio->description }}
-                            </p>
+                        @php
+                            $overviewText = trim($portfolio->overview ?? $portfolio->description ?? '');
+                            $paragraphs = preg_split('/(?:\r\n|\r|\n){2,}/', $overviewText);
+                        @endphp
+                        <div class="text-slate-700 text-base leading-relaxed space-y-4 font-normal">
+                            @foreach($paragraphs as $paragraph)
+                                @if(trim($paragraph))
+                                    <p class="leading-relaxed">
+                                        {!! nl2br(e(trim($paragraph))) !!}
+                                    </p>
+                                @endif
+                            @endforeach
                         </div>
                     </div>
 

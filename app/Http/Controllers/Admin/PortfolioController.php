@@ -38,6 +38,7 @@ class PortfolioController extends Controller
             'is_boilerplate' => 'nullable|boolean',
             'display_order' => 'nullable|integer',
             'pinned_image_index' => 'nullable|integer|min:0|max:4',
+            'custom_technologies' => 'nullable|string',
         ]);
 
         $slug = Str::slug($request->title);
@@ -54,6 +55,13 @@ class PortfolioController extends Controller
         } elseif (!is_array($techs)) {
             $techs = [];
         }
+
+        if ($request->filled('custom_technologies')) {
+            $customArr = array_filter(array_map('trim', explode(',', $request->custom_technologies)));
+            $techs = array_merge($techs, $customArr);
+        }
+
+        $techs = array_values(array_unique($techs));
 
         $keyFeatures = $request->key_features;
         if (is_string($keyFeatures)) {
@@ -146,6 +154,7 @@ class PortfolioController extends Controller
             'is_boilerplate' => 'nullable|boolean',
             'display_order' => 'nullable|integer',
             'pinned_image_index' => 'nullable|integer|min:0|max:4',
+            'custom_technologies' => 'nullable|string',
         ]);
 
         $techs = $request->technologies;
@@ -154,6 +163,13 @@ class PortfolioController extends Controller
         } elseif (!is_array($techs)) {
             $techs = [];
         }
+
+        if ($request->filled('custom_technologies')) {
+            $customArr = array_filter(array_map('trim', explode(',', $request->custom_technologies)));
+            $techs = array_merge($techs, $customArr);
+        }
+
+        $techs = array_values(array_unique($techs));
 
         $keyFeatures = $request->key_features;
         if (is_string($keyFeatures)) {

@@ -198,8 +198,10 @@
 
             <!-- Tech Stack Selection -->
             <div>
-                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Pilih Teknologi (Tech Stack)</label>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 bg-slate-50/70 p-4 rounded-xl border border-slate-200/80">
+                <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Pilih &amp; Tambah Teknologi (Tech Stack)</label>
+                
+                <!-- Preset Tech Stack Checkboxes -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 bg-slate-50/70 p-4 rounded-xl border border-slate-200/80 mb-3">
                     @php
                         $techOptions = ['Laravel', 'Blade', 'Tailwind CSS', 'Alpine.js', 'MySQL', 'MongoDB', 'Bootstrap', 'Vue.js', 'React', 'Next.js', 'Node.js', 'PostgreSQL', 'Docker', 'WebSockets', 'Midtrans', 'Python', 'Redis', 'AWS'];
                     @endphp
@@ -209,6 +211,23 @@
                             <span>{{ $tech }}</span>
                         </label>
                     @endforeach
+                </div>
+
+                <!-- Custom Typed Technologies -->
+                <div class="bg-slate-50/60 p-3.5 rounded-xl border border-slate-200">
+                    <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                        Ketik Teknologi Kustom / Tambahan (Pisahkan dengan tanda koma)
+                    </label>
+                    <input 
+                        type="text" 
+                        name="custom_technologies" 
+                        value="{{ old('custom_technologies') }}"
+                        placeholder="Contoh: TypeScript, Flutter, Supabase, Inertia.js, Express.js" 
+                        class="w-full px-3.5 py-2.5 rounded-lg border border-slate-200 text-xs font-medium focus:outline-none focus:border-[#2563EB] bg-white"
+                    >
+                    <p class="text-[11px] text-slate-500 mt-1 font-normal">
+                        Teknologi yang diketik di sini akan otomatis digabungkan ke dalam daftar tech stack proyek.
+                    </p>
                 </div>
             </div>
 
