@@ -5,7 +5,7 @@
 @section('og_type', 'article')
 @section('og_title', ($blog->meta_title ?: $blog->title) . ' — JuangDev')
 @section('og_description', $blog->meta_description ?: Str::limit(strip_tags($blog->excerpt ?? $blog->content), 155))
-@section('og_image', $blog->image_url ? (str_starts_with($blog->image_url, 'http') ? $blog->image_url : url($blog->image_url)) : asset('logo4.png'))
+@section('og_image', $blog->image_url ? (str_starts_with($blog->image_url, 'http') ? $blog->image_url : url($blog->image_url)) : asset('logo1.png'))
 
 @php
     $whatsappNumber = $settings['whatsapp_number'] ?? '6283852174877';

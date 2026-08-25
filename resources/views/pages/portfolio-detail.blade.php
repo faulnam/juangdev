@@ -5,7 +5,7 @@
 @section('og_type', 'article')
 @section('og_title', $portfolio->title . ' — Studi Kasus JuangDev')
 @section('og_description', Str::limit(strip_tags($portfolio->overview ?? $portfolio->description), 155))
-@section('og_image', $portfolio->image_url ? (str_starts_with($portfolio->image_url, 'http') ? $portfolio->image_url : url($portfolio->image_url)) : asset('logo4.png'))
+@section('og_image', $portfolio->image_url ? (str_starts_with($portfolio->image_url, 'http') ? $portfolio->image_url : url($portfolio->image_url)) : asset('logo1.png'))
 
 @php
     $whatsappNumber = $settings['whatsapp_number'] ?? '6283852174877';

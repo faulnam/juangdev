@@ -22,14 +22,17 @@
     <meta property="og:title" content="@yield('og_title', View::getSection('title', 'JuangDev — Jasa Pembuatan Website & Custom Software'))">
     <meta property="og:description" content="@yield('og_description', View::getSection('meta_description', 'JuangDev membantu bisnis, startup, dan UMKM membangun website profesional, aplikasi web, toko online, dan sistem kustom berkualitas tinggi.'))">
     <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:image" content="@yield('og_image', asset('logo4.png'))">
+    <meta property="og:image" content="@yield('og_image', asset('logo1.png'))">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/png">
     <meta property="og:locale" content="id_ID">
 
     <!-- Twitter Cards -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="@yield('og_title', View::getSection('title', 'JuangDev — Jasa Pembuatan Website & Custom Software'))">
     <meta name="twitter:description" content="@yield('og_description', View::getSection('meta_description', 'JuangDev membantu bisnis, startup, dan UMKM membangun website profesional, aplikasi web, toko online, dan sistem kustom berkualitas tinggi.'))">
-    <meta name="twitter:image" content="@yield('og_image', asset('logo4.png'))">
+    <meta name="twitter:image" content="@yield('og_image', asset('logo1.png'))">
     
     <!-- Favicon & Touch Icons -->
     <link rel="icon" type="image/png" href="{{ asset('logo2.png') }}?v={{ filemtime(public_path('logo2.png')) }}">
@@ -56,8 +59,8 @@
       "@type": "ProfessionalService",
       "name": "JuangDev",
       "url": "{{ url('/') }}",
-      "logo": "{{ asset('logo4.png') }}",
-      "image": "{{ asset('logo4.png') }}",
+      "logo": "{{ asset('logo1.png') }}",
+      "image": "{{ asset('logo1.png') }}",
       "description": "Studio teknologi pembuatan website profesional, aplikasi web kustom, toko online, dan sistem informasi digital.",
       "telephone": "{{ $settings['phone'] ?? '+6283852174877' }}",
       "email": "{{ $settings['email'] ?? 'hello@juangdev.com' }}",
