@@ -26,6 +26,7 @@ class Portfolio extends Model
         'technologies',
         'featured',
         'is_boilerplate',
+        'sold_count',
         'display_order',
     ];
 
@@ -34,6 +35,7 @@ class Portfolio extends Model
         return [
             'featured' => 'boolean',
             'is_boilerplate' => 'boolean',
+            'sold_count' => 'integer',
             'technologies' => 'array',
             'key_features' => 'array',
             'gallery' => 'array',

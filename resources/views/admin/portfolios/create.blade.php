@@ -270,14 +270,34 @@
                     </label>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Urutan Tampil (Display Order)</label>
-                    <input 
-                        type="number" 
-                        name="display_order" 
-                        value="{{ old('display_order', 0) }}" 
-                        class="w-36 px-3 py-2 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-[#2563EB] bg-white"
-                    >
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Jumlah Terjual (Khusus Boilerplate)</label>
+                        <div class="relative">
+                            <input 
+                                type="number" 
+                                name="sold_count" 
+                                min="0"
+                                value="{{ old('sold_count', 0) }}" 
+                                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-[#2563EB] bg-white"
+                                placeholder="0"
+                            >
+                            <span class="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">x Terjual</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-1 font-normal">
+                            Menampilkan label icon clean "Terjual Xx" pada kartu portofolio.
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Urutan Tampil (Display Order)</label>
+                        <input 
+                            type="number" 
+                            name="display_order" 
+                            value="{{ old('display_order', 0) }}" 
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold focus:outline-none focus:border-[#2563EB] bg-white"
+                        >
+                    </div>
                 </div>
             </div>
 

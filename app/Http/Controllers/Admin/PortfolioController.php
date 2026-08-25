@@ -36,6 +36,7 @@ class PortfolioController extends Controller
             'live_url' => 'nullable|string',
             'featured' => 'nullable|boolean',
             'is_boilerplate' => 'nullable|boolean',
+            'sold_count' => 'nullable|integer|min:0',
             'display_order' => 'nullable|integer',
             'pinned_image_index' => 'nullable|integer|min:0|max:4',
             'custom_technologies' => 'nullable|string',
@@ -125,6 +126,7 @@ class PortfolioController extends Controller
             'technologies' => array_values($techs),
             'featured' => $request->has('featured'),
             'is_boilerplate' => $request->has('is_boilerplate'),
+            'sold_count' => (int)($request->sold_count ?? 0),
             'display_order' => (int)($request->display_order ?? 0),
         ]);
 
@@ -152,6 +154,7 @@ class PortfolioController extends Controller
             'live_url' => 'nullable|string',
             'featured' => 'nullable|boolean',
             'is_boilerplate' => 'nullable|boolean',
+            'sold_count' => 'nullable|integer|min:0',
             'display_order' => 'nullable|integer',
             'pinned_image_index' => 'nullable|integer|min:0|max:4',
             'custom_technologies' => 'nullable|string',
@@ -236,6 +239,7 @@ class PortfolioController extends Controller
             'technologies' => array_values($techs),
             'featured' => $request->has('featured'),
             'is_boilerplate' => $request->has('is_boilerplate'),
+            'sold_count' => (int)($request->sold_count ?? 0),
             'display_order' => (int)($request->display_order ?? 0),
         ]);
 

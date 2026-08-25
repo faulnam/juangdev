@@ -84,7 +84,9 @@
                                 <td class="py-4 px-6">
                                     <div class="flex flex-wrap gap-1">
                                         @if($project->is_boilerplate)
-                                            <span class="bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase">Boilerplate</span>
+                                            <span class="bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] font-bold px-2 py-0.5 rounded-md uppercase">
+                                                Boilerplate @if($project->sold_count > 0) • {{ $project->sold_count }}x Terjual @endif
+                                            </span>
                                         @endif
                                         @if($project->featured)
                                             <span class="bg-amber-100 text-amber-800 text-[10px] font-black px-2 py-0.5 rounded-md uppercase">Featured</span>
