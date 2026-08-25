@@ -29,6 +29,7 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\LlmsTxtController;
 
 /*
 |--------------------------------------------------------------------------
@@ -45,6 +46,8 @@ Route::get('/blog/{slug}', [BlogPageController::class, 'show'])->name('blog.show
 Route::get('/contact', [ContactPageController::class, 'index'])->name('contact');
 Route::post('/contact', [ContactPageController::class, 'submit'])->name('contact.submit');
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/llms.txt', [LlmsTxtController::class, 'index'])->name('llms');
+Route::get('/llms-full.txt', [LlmsTxtController::class, 'full'])->name('llms.full');
 
 // Public Invoice & Pakasir Order Routes
 Route::post('/orders', [InvoiceController::class, 'store'])->name('orders.store');

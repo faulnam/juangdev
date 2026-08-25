@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
+    <!-- Google Search Console Verification -->
+    <meta name="google-site-verification" content="vX9QufAoSYunJ7w_SR7QIQ5WwaxXkZoLA_kNq7tv-Ns" />
+    
     <!-- Core SEO Meta Tags -->
     <title>@yield('title', 'JuangDev — Jasa Pembuatan Website & Custom Software')</title>
     <meta name="description" content="@yield('meta_description', 'JuangDev membantu bisnis, startup, dan UMKM membangun website profesional, aplikasi web, toko online, dan sistem kustom berkualitas tinggi dengan harga transparan.')">
@@ -32,6 +35,9 @@
     <link rel="icon" type="image/png" href="{{ asset('logo2.png') }}?v={{ filemtime(public_path('logo2.png')) }}">
     <link rel="shortcut icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v={{ filemtime(public_path('favicon.ico')) }}">
     <link rel="apple-touch-icon" href="{{ asset('logo2.png') }}?v={{ filemtime(public_path('logo2.png')) }}">
+    
+    <!-- SEO Discovery Links -->
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="{{ url('/sitemap.xml') }}">
     
     <!-- Performance DNS Prefetch & Preconnect -->
     <link rel="dns-prefetch" href="//fonts.googleapis.com">

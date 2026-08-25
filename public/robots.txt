@@ -1,8 +1,75 @@
+# ============================================
+# JuangDev — robots.txt
+# https://juangdev.my.id
+# ============================================
+
+# --- Default Search Engine Crawlers ---
+User-agent: Googlebot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /invoice/
+Disallow: /webhook/
+Disallow: /orders
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /invoice/
+Disallow: /webhook/
+Disallow: /orders
+Crawl-delay: 2
+
+# --- All Other Crawlers ---
 User-agent: *
 Allow: /
 Disallow: /admin/
-Disallow: /invoice/
 Disallow: /api/
+Disallow: /invoice/
 Disallow: /webhook/
+Disallow: /orders
+Disallow: /storage/
 
-Sitemap: https://juangdev.com/sitemap.xml
+# --- AI / LLM Crawlers (Allow) ---
+User-agent: GPTBot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /invoice/
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /invoice/
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /invoice/
+
+User-agent: Anthropic-ai
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /invoice/
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /invoice/
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+# --- Sitemap & LLMs ---
+Sitemap: https://juangdev.my.id/sitemap.xml
+
+# LLMs-txt: https://juangdev.my.id/llms.txt
