@@ -59,11 +59,11 @@ class ServiceController extends Controller
             'base_price' => (int)$request->base_price,
             'starting_price' => $request->starting_price ?? ($request->base_price / 1000) . 'K',
             'delivery_time' => $request->delivery_time,
-            'popular' => $request->has('popular'),
+            'popular' => $request->boolean('popular'),
             'features' => array_values($features),
             'technologies' => ['HTML5', 'Tailwind CSS', 'Alpine.js', 'Laravel'],
             'display_order' => (int)($request->display_order ?? 0),
-            'is_active' => $request->has('is_active'),
+            'is_active' => $request->has('is_active') ? $request->boolean('is_active') : true,
         ]);
 
         return redirect()->route('admin.services.index')->with('success', 'Layanan berhasil ditambahkan.');
@@ -104,10 +104,10 @@ class ServiceController extends Controller
             'base_price' => (int)$request->base_price,
             'starting_price' => $request->starting_price ?? ($request->base_price / 1000) . 'K',
             'delivery_time' => $request->delivery_time,
-            'popular' => $request->has('popular'),
+            'popular' => $request->boolean('popular'),
             'features' => array_values($features),
             'display_order' => (int)($request->display_order ?? 0),
-            'is_active' => $request->has('is_active'),
+            'is_active' => $request->has('is_active') ? $request->boolean('is_active') : true,
         ]);
 
         return redirect()->route('admin.services.index')->with('success', 'Layanan berhasil diperbarui.');

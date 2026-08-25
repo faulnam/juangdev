@@ -50,11 +50,12 @@ class PricingController extends Controller
             'period' => 'nullable|string|max:100',
             'description' => 'nullable|string',
             'badge' => 'nullable|string|max:50',
-            'popular' => 'nullable|boolean',
+            'popular' => 'nullable',
             'cta_text' => 'nullable|string|max:100',
             'cta_href' => 'nullable|string|max:255',
             'display_order' => 'nullable|integer',
-            'is_active' => 'nullable|boolean',
+            'is_active' => 'nullable',
+            'custom_features' => 'nullable|string',
         ]);
 
         $features = $request->features;
@@ -64,6 +65,14 @@ class PricingController extends Controller
             $features = [];
         }
 
+        if ($request->filled('custom_features')) {
+            $custom = array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', $request->custom_features)));
+            $features = array_merge($features, $custom);
+        }
+
+        $isActive = $request->has('is_active') ? $request->boolean('is_active') : true;
+        $isPopular = $request->boolean('popular');
+
         PricingPlan::create([
             'category' => $request->category,
             'name' => $request->name,
@@ -71,13 +80,13 @@ class PricingController extends Controller
             'period' => $request->period ?? 'proyek',
             'description' => $request->description,
             'badge' => $request->badge,
-            'features' => array_values($features),
+            'features' => array_values(array_unique($features)),
             'not_included' => [],
-            'popular' => $request->has('popular'),
+            'popular' => $isPopular,
             'cta_text' => $request->cta_text ?? 'Pilih Paket',
             'cta_href' => $request->cta_href ?? '/contact',
             'display_order' => (int)($request->display_order ?? 0),
-            'is_active' => $request->has('is_active'),
+            'is_active' => $isActive,
         ]);
 
         return redirect()->route('admin.pricing.index', ['category' => $request->category])->with('success', 'Paket Harga berhasil ditambahkan.');
@@ -104,11 +113,12 @@ class PricingController extends Controller
             'period' => 'nullable|string|max:100',
             'description' => 'nullable|string',
             'badge' => 'nullable|string|max:50',
-            'popular' => 'nullable|boolean',
+            'popular' => 'nullable',
             'cta_text' => 'nullable|string|max:100',
             'cta_href' => 'nullable|string|max:255',
             'display_order' => 'nullable|integer',
-            'is_active' => 'nullable|boolean',
+            'is_active' => 'nullable',
+            'custom_features' => 'nullable|string',
         ]);
 
         $features = $request->features;
@@ -118,6 +128,14 @@ class PricingController extends Controller
             $features = [];
         }
 
+        if ($request->filled('custom_features')) {
+            $custom = array_filter(array_map('trim', preg_split('/\r\n|\r|\n/', $request->custom_features)));
+            $features = array_merge($features, $custom);
+        }
+
+        $isActive = $request->has('is_active') ? $request->boolean('is_active') : true;
+        $isPopular = $request->boolean('popular');
+
         $pricing->update([
             'category' => $request->category,
             'name' => $request->name,
@@ -125,12 +143,12 @@ class PricingController extends Controller
             'period' => $request->period ?? 'proyek',
             'description' => $request->description,
             'badge' => $request->badge,
-            'features' => array_values($features),
-            'popular' => $request->has('popular'),
+            'features' => array_values(array_unique($features)),
+            'popular' => $isPopular,
             'cta_text' => $request->cta_text ?? 'Pilih Paket',
             'cta_href' => $request->cta_href ?? '/contact',
             'display_order' => (int)($request->display_order ?? 0),
-            'is_active' => $request->has('is_active'),
+            'is_active' => $isActive,
         ]);
 
         return redirect()->route('admin.pricing.index', ['category' => $pricing->category])->with('success', 'Paket Harga berhasil diperbarui.');

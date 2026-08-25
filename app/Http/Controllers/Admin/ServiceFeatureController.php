@@ -22,19 +22,22 @@ class ServiceFeatureController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric',
-            'popular' => 'nullable|boolean',
+            'popular' => 'nullable',
             'display_order' => 'nullable|integer',
-            'is_active' => 'nullable|boolean',
+            'is_active' => 'nullable',
         ]);
+
+        $isActive = $request->has('is_active') ? $request->boolean('is_active') : true;
+        $isPopular = $request->boolean('popular');
 
         ServiceFeature::create([
             'title' => $request->title,
             'description' => $request->description,
             'category' => 'addon',
             'price' => (int)$request->price,
-            'popular' => $request->has('popular'),
+            'popular' => $isPopular,
             'display_order' => (int)($request->display_order ?? 0),
-            'is_active' => $request->has('is_active'),
+            'is_active' => $isActive,
         ]);
 
         return back()->with('success', 'Fitur Add-on berhasil ditambahkan.');
@@ -48,18 +51,21 @@ class ServiceFeatureController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'price' => 'required|numeric',
-            'popular' => 'nullable|boolean',
+            'popular' => 'nullable',
             'display_order' => 'nullable|integer',
-            'is_active' => 'nullable|boolean',
+            'is_active' => 'nullable',
         ]);
+
+        $isActive = $request->has('is_active') ? $request->boolean('is_active') : true;
+        $isPopular = $request->boolean('popular');
 
         $feature->update([
             'title' => $request->title,
             'description' => $request->description,
             'price' => (int)$request->price,
-            'popular' => $request->has('popular'),
+            'popular' => $isPopular,
             'display_order' => (int)($request->display_order ?? 0),
-            'is_active' => $request->has('is_active'),
+            'is_active' => $isActive,
         ]);
 
         return back()->with('success', 'Fitur Add-on berhasil diperbarui.');
