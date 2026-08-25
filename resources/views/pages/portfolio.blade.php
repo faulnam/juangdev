@@ -265,12 +265,6 @@
                                         Boilerplate
                                     </span>
                                 </template>
-                                <template x-if="project.is_boilerplate && project.sold_count > 0">
-                                    <span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-300 text-[10px] font-extrabold rounded px-2 py-0.5 shadow-2xs">
-                                        <svg class="w-3 h-3 text-emerald-600 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-                                        <span x-text="'Terjual ' + project.sold_count + 'x'"></span>
-                                    </span>
-                                </template>
                             </div>
 
                             <a :href="'/portfolio/' + project.slug" class="block">
@@ -289,7 +283,7 @@
                                 </template>
                             </div>
 
-                            <div class="border-t border-slate-100 pt-4 mt-auto">
+                            <div class="border-t border-slate-100 pt-4 mt-auto flex items-center justify-between">
                                 <a 
                                     :href="'/portfolio/' + project.slug" 
                                     class="inline-flex items-center gap-1.5 text-[#2563EB] text-sm font-extrabold hover:gap-2 transition-all duration-200 group/link"
@@ -297,6 +291,9 @@
                                     <span>Lihat Detail Proyek</span>
                                     <i data-lucide="arrow-right" class="w-4 h-4 transition-transform duration-200 group-hover/link:translate-x-1"></i>
                                 </a>
+                                <template x-if="project.is_boilerplate && project.sold_count > 0">
+                                    <span class="text-xs font-semibold text-slate-400" x-text="'Terjual ' + project.sold_count + 'x'"></span>
+                                </template>
                             </div>
                         </div>
 
