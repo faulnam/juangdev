@@ -246,12 +246,13 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
 <script>
-    // Initialize Firebase client
     const firebaseConfig = {
-        apiKey: "{{ config('services.firebase.api_key', 'AIzaSyDocuqBal2567JuangDevClientDemo') }}",
-        authDomain: "{{ config('services.firebase.auth_domain', 'juangdev-auth.firebaseapp.com') }}",
-        projectId: "{{ config('services.firebase.project_id', 'juangdev-auth') }}",
-        appId: "{{ config('services.firebase.app_id', '1:123456789:web:abcdef') }}"
+        apiKey: "{{ config('services.firebase.api_key', '') }}",
+        authDomain: "{{ config('services.firebase.auth_domain', '') }}",
+        projectId: "{{ config('services.firebase.project_id', '') }}",
+        storageBucket: "{{ config('services.firebase.storage_bucket', '') }}",
+        messagingSenderId: "{{ config('services.firebase.messaging_sender_id', '') }}",
+        appId: "{{ config('services.firebase.app_id', '') }}"
     };
     
     if (!firebase.apps.length) {
