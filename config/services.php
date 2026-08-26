@@ -36,9 +36,9 @@ return [
     ],
 
     'pakasir' => [
-        'api_key' => env('PAKASIR_API_KEY', 'Jrx0GWTdS80OOCUQ82MpwWPbDR2xnL11'),
-        'slug' => env('PAKASIR_SLUG', 'juangdev'),
-        'url' => env('PAKASIR_URL', 'https://app.pakasir.com'),
+        'api_key' => env('PAKASIR_API_KEY'),
+        'slug' => env('PAKASIR_SLUG'),
+        'url' => env('PAKASIR_URL'),
     ],
 
     'firebase' => [

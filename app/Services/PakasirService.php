@@ -15,9 +15,9 @@ class PakasirService
     public static function getCredentials(): array
     {
         return [
-            'slug' => config('services.pakasir.slug') ?? env('PAKASIR_SLUG', 'juangdev'),
-            'api_key' => config('services.pakasir.api_key') ?? env('PAKASIR_API_KEY', 'Jrx0GWTdS80OOCUQ82MpwWPbDR2xnL11'),
-            'url' => config('services.pakasir.url') ?? env('PAKASIR_URL', 'https://app.pakasir.com'),
+            'slug' => config('services.pakasir.slug') ?? env('PAKASIR_SLUG'),
+            'api_key' => config('services.pakasir.api_key') ?? env('PAKASIR_API_KEY'),
+            'url' => config('services.pakasir.url') ?? env('PAKASIR_URL'),
         ];
     }
 
