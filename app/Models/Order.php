@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Order extends Model
 {
     protected $fillable = [
+        'user_id',
         'invoice_number',
         'token',
         'customer_name',
@@ -25,6 +26,11 @@ class Order extends Model
         'pakasir_trx_id',
         'notes',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     protected $casts = [
         'addons' => 'array',

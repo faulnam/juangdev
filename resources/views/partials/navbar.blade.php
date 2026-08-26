@@ -3,16 +3,21 @@
     $whatsappMsg = urlencode("Halo JuangDev, saya ingin berkonsultasi mengenai pembuatan website/aplikasi.");
     $whatsappUrl = "https://wa.me/{$whatsappNumber}?text={$whatsappMsg}";
     $currentRoute = Route::currentRouteName();
-    $isLightHeaderPage = in_array($currentRoute, ['blog.show']);
+    $isLightHeaderPage = in_array($currentRoute, ['blog.show', 'customer.dashboard', 'customer.orders', 'customer.profile']) || request()->is('customer*');
 @endphp
 
 <header 
     x-data="{ 
-        scrolled: false, 
-        mobileOpen: false 
+        scrolled: {{ (request()->is('customer*') || in_array($currentRoute, ['customer.dashboard', 'customer.orders', 'customer.profile', 'blog.show'])) ? 'true' : 'false' }}, 
+        mobileOpen: false,
+        isFixedLightPage: {{ (request()->is('customer*') || in_array($currentRoute, ['customer.dashboard', 'customer.orders', 'customer.profile'])) ? 'true' : 'false' }}
     }" 
     x-init="
-        window.addEventListener('scroll', () => { scrolled = window.scrollY > 40 });
+        if (!isFixedLightPage) {
+            window.addEventListener('scroll', () => { scrolled = window.scrollY > 40 });
+        } else {
+            scrolled = true;
+        }
         $watch('mobileOpen', value => {
             if (value) { 
                 document.body.style.overflow = 'hidden'; 
@@ -31,10 +36,10 @@
         :class="scrolled 
             ? 'w-[calc(100%-2rem)] max-w-[58rem] mt-4 rounded-2xl bg-white/95 backdrop-blur-xl border border-slate-200/80 shadow-xl shadow-black/5 h-16' 
             : '{{ $isLightHeaderPage ? 'max-w-7xl mt-0 rounded-none bg-white/90 backdrop-blur-md border-b border-slate-200/60 h-20 shadow-xs' : 'max-w-7xl mt-0 rounded-none bg-transparent border-transparent h-20' }}'"
-        class="hidden md:flex pointer-events-auto transition-all duration-500 ease-in-out w-full px-6 lg:px-8 items-center justify-between mx-auto"
+        class="relative hidden md:flex pointer-events-auto transition-all duration-500 ease-in-out w-full px-6 lg:px-8 items-center justify-between mx-auto"
     >
         <!-- Logo (Desktop: Dynamic swap unscrolled logo3 <-> scrolled logo2) -->
-        <a href="{{ route('home') }}" class="flex items-center group py-0.5" aria-label="JuangDev — Beranda">
+        <a href="{{ route('home') }}" class="flex items-center group py-0.5 z-10" aria-label="JuangDev — Beranda">
             <div class="relative h-12 md:h-13 w-12 md:w-13 flex items-center justify-center shrink-0">
                 <!-- Logo 3 (Belum di-scroll / Dark Hero) -->
                 <img 
@@ -53,14 +58,14 @@
             </div>
         </a>
 
-        <!-- Desktop Navigation Links -->
-        <nav class="flex items-center gap-1" aria-label="Main navigation">
+        <!-- Desktop Navigation Links (Absolute Centered) -->
+        <nav class="md:absolute md:left-1/2 md:-translate-x-1/2 flex items-center justify-center gap-1 z-10" aria-label="Main navigation">
             <a 
                 href="{{ route('home') }}"
                 :class="scrolled 
                     ? '{{ $currentRoute == 'home' ? 'text-white bg-[#0A1E5E]' : 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' }}' 
                     : '{{ $currentRoute == 'home' ? 'text-[#0A1E5E] bg-[#C7F236]' : ($isLightHeaderPage ? 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' : 'text-white/85 hover:text-white hover:bg-white/10 font-medium') }}'"
-                class="px-3.5 lg:px-4 py-1.5 rounded-full text-sm font-bold transition-all duration-300"
+                class="px-3.5 lg:px-4 py-2 rounded-full text-sm font-bold transition-all duration-300 flex items-center justify-center leading-none"
             >
                 Beranda
             </a>
@@ -93,7 +98,7 @@
                     :class="scrolled 
                         ? '{{ in_array($currentRoute, ['services']) ? 'text-white bg-[#0A1E5E]' : 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' }}' 
                         : '{{ in_array($currentRoute, ['services']) ? 'text-[#0A1E5E] bg-[#C7F236]' : ($isLightHeaderPage ? 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' : 'text-white/85 hover:text-white hover:bg-white/10 font-medium') }}'"
-                    class="px-3.5 lg:px-4 py-1.5 rounded-full text-sm font-bold transition-all duration-300 flex items-center gap-1.5 cursor-pointer focus:outline-none"
+                    class="px-3.5 lg:px-4 py-2 rounded-full text-sm font-bold transition-all duration-300 flex items-center justify-center gap-1.5 cursor-pointer focus:outline-none leading-none"
                     aria-expanded="open"
                 >
                     <span>Layanan</span>
@@ -150,7 +155,7 @@
                 :class="scrolled 
                     ? '{{ $currentRoute == 'portfolio' ? 'text-white bg-[#0A1E5E]' : 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' }}' 
                     : '{{ $currentRoute == 'portfolio' ? 'text-[#0A1E5E] bg-[#C7F236]' : ($isLightHeaderPage ? ($currentRoute == 'portfolio' ? 'text-white bg-[#0A1E5E]' : 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium') : 'text-white/85 hover:text-white hover:bg-white/10 font-medium') }}'"
-                class="px-3.5 lg:px-4 py-1.5 rounded-full text-sm font-bold transition-all duration-300"
+                class="px-3.5 lg:px-4 py-2 rounded-full text-sm font-bold transition-all duration-300 flex items-center justify-center leading-none"
             >
                 Portofolio
             </a>
@@ -160,7 +165,7 @@
                 :class="scrolled 
                     ? '{{ str_starts_with($currentRoute ?? '', 'blog') ? 'text-white bg-[#0A1E5E]' : 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' }}' 
                     : '{{ str_starts_with($currentRoute ?? '', 'blog') ? ($isLightHeaderPage ? 'text-white bg-[#0A1E5E]' : 'text-[#0A1E5E] bg-[#C7F236]') : ($isLightHeaderPage ? 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' : 'text-white/85 hover:text-white hover:bg-white/10 font-medium') }}'"
-                class="px-3.5 lg:px-4 py-1.5 rounded-full text-sm font-bold transition-all duration-300"
+                class="px-3.5 lg:px-4 py-2 rounded-full text-sm font-bold transition-all duration-300 flex items-center justify-center leading-none"
             >
                 Blog
             </a>
@@ -170,24 +175,41 @@
                 :class="scrolled 
                     ? '{{ $currentRoute == 'contact' ? 'text-white bg-[#0A1E5E]' : 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' }}' 
                     : '{{ $currentRoute == 'contact' ? 'text-[#0A1E5E] bg-[#C7F236]' : ($isLightHeaderPage ? 'text-slate-600 hover:text-[#2563EB] hover:bg-slate-100 font-medium' : 'text-white/85 hover:text-white hover:bg-white/10 font-medium') }}'"
-                class="px-3.5 lg:px-4 py-1.5 rounded-full text-sm font-bold transition-all duration-300"
+                class="px-3.5 lg:px-4 py-2 rounded-full text-sm font-bold transition-all duration-300 flex items-center justify-center leading-none"
             >
                 Kontak
             </a>
         </nav>
 
-        <!-- Desktop CTA -->
+        <!-- Desktop Auth / Customer Profile Button -->
         <div>
-            <a 
-                href="{{ route('contact') }}" 
-                :class="scrolled
-                    ? 'bg-[#2563EB] text-white border-2 border-[#2563EB] hover:bg-[#1a4fd4] hover:border-[#1a4fd4] shadow-md shadow-[#2563EB]/20'
-                    : '{{ $isLightHeaderPage ? 'bg-[#2563EB] text-white border-2 border-[#2563EB] hover:bg-[#1a4fd4]' : 'bg-[#C7F236] text-[#0A1E5E] border-2 border-[#C7F236] hover:bg-[#b5dd2a] hover:border-[#b5dd2a] shadow-[0_0_20px_-5px_rgba(199,242,54,0.35)]' }}'"
-                class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-200 group"
-            >
-                <span>Konsultasi Gratis</span>
-                <i data-lucide="arrow-up-right" class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"></i>
-            </a>
+            @auth
+                <!-- Logged in Customer Button (Dynamic Yellow before scroll, Blue after scroll like Masuk button) -->
+                <a 
+                    href="{{ route('customer.dashboard') }}"
+                    :class="scrolled
+                        ? 'bg-[#2563EB] text-white border-2 border-[#2563EB] hover:bg-[#1a4fd4] hover:border-[#1a4fd4] shadow-md shadow-[#2563EB]/20'
+                        : '{{ $isLightHeaderPage ? 'bg-[#2563EB] text-white border-2 border-[#2563EB] hover:bg-[#1a4fd4]' : 'bg-[#C7F236] text-[#0A1E5E] border-2 border-[#C7F236] hover:bg-[#b5dd2a] hover:border-[#b5dd2a] shadow-[0_0_20px_-5px_rgba(199,242,54,0.35)]' }}'"
+                    class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition-all duration-200 active:scale-95 cursor-pointer select-none"
+                    title="Buka Profil & Histori Pesanan"
+                >
+                    <i data-lucide="user" class="w-4 h-4"></i>
+                    <span class="truncate max-w-[150px]">{{ auth()->user()->name }}</span>
+                </a>
+            @else
+                <!-- Guest Login Button (Gambar 4 Style: Icon + "Masuk") -->
+                <button 
+                    type="button" 
+                    @click="$dispatch('open-auth-modal', { mode: 'login' })"
+                    :class="scrolled
+                        ? 'bg-[#2563EB] text-white border-2 border-[#2563EB] hover:bg-[#1a4fd4] hover:border-[#1a4fd4] shadow-md shadow-[#2563EB]/20'
+                        : '{{ $isLightHeaderPage ? 'bg-[#2563EB] text-white border-2 border-[#2563EB] hover:bg-[#1a4fd4]' : 'bg-[#C7F236] text-[#0A1E5E] border-2 border-[#C7F236] hover:bg-[#b5dd2a] hover:border-[#b5dd2a] shadow-[0_0_20px_-5px_rgba(199,242,54,0.35)]' }}'"
+                    class="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition-all duration-200 active:scale-95 cursor-pointer"
+                >
+                    <i data-lucide="user" class="w-4 h-4"></i>
+                    <span>Masuk</span>
+                </button>
+            @endauth
         </div>
     </div>
 
@@ -236,9 +258,10 @@
         x-transition:leave-start="translate-x-0"
         x-transition:leave-end="translate-x-full"
         class="pointer-events-auto fixed top-0 right-0 bottom-0 w-[84vw] max-w-[320px] bg-white text-slate-800 shadow-2xl z-[70] flex flex-col justify-between overflow-y-auto border-l border-slate-200/80 md:hidden"
-            <!-- Top Drawer Header: Hero Pattern Background -->
+    >
+        <!-- Top Drawer Header: Hero Pattern Background -->
         <div class="relative bg-[#0A1E5E] text-white px-5 py-3.5 shrink-0 overflow-hidden border-b border-white/10">
-            <!-- Hero Grid Pattern (Kotak-Kotak seperti Hero Section) -->
+            <!-- Hero Grid Pattern -->
             <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff10_1px,transparent_1px),linear-gradient(to_bottom,#ffffff10_1px,transparent_1px)] bg-[size:1.25rem_1.25rem] pointer-events-none"></div>
 
             <div class="relative z-10 flex items-center justify-between">
@@ -262,6 +285,30 @@
 
         <!-- Middle Drawer Body: Modern Card Navigation -->
         <div class="flex-1 p-4 space-y-2 overflow-y-auto bg-slate-50/70">
+            
+            @auth
+                <!-- Logged in Customer Card -->
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs mb-2">
+                    <div class="flex items-center gap-3 mb-2.5">
+                        <div class="w-9 h-9 rounded-full bg-[#0A1E5E] text-[#C7F236] flex items-center justify-center text-xs font-black shrink-0">
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                        </div>
+                        <div class="min-w-0">
+                            <p class="text-xs font-bold text-slate-900 truncate">{{ auth()->user()->name }}</p>
+                            <p class="text-[10px] text-slate-500 truncate">{{ auth()->user()->email }}</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1.5 pt-2 border-t border-slate-100">
+                        <a href="{{ route('customer.dashboard') }}" @click="mobileOpen = false" class="text-center py-1.5 px-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-[11px] font-bold">
+                            📦 Pesanan
+                        </a>
+                        <a href="{{ route('customer.profile') }}" @click="mobileOpen = false" class="text-center py-1.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[11px] font-semibold">
+                            👤 Profil
+                        </a>
+                    </div>
+                </div>
+            @endauth
+
             <!-- Beranda -->
             <a 
                 href="{{ route('home') }}" 
@@ -274,7 +321,7 @@
                 </div>
             </a>
 
-            <!-- Layanan Accordion (Satu-satunya dengan tanda panah dropdown) -->
+            <!-- Layanan Accordion -->
             <div x-data="{ openServices: {{ in_array($currentRoute, ['services', 'estimator']) ? 'true' : 'false' }} }" class="flex flex-col">
                 <button 
                     type="button" 
@@ -290,7 +337,7 @@
                     </svg>
                 </button>
                 
-                <!-- Submenu Layanan (Card Submenu) -->
+                <!-- Submenu Layanan -->
                 <div x-show="openServices" x-cloak class="mt-1.5 p-2 bg-slate-100/80 rounded-2xl border border-slate-200/70 space-y-1">
                     <a 
                         href="{{ route('services') }}" 
@@ -356,17 +403,29 @@
             </a>
         </div>
 
-        <!-- Bottom Drawer Footer: Clean CTA & Info -->
+        <!-- Bottom Drawer Footer -->
         <div class="p-4 sm:p-5 border-t border-slate-200/80 bg-white shrink-0 space-y-3">
-            <a 
-                href="{{ $whatsappUrl }}" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                class="w-full inline-flex items-center justify-center gap-2 rounded-xl py-3 px-4 text-xs font-bold bg-[#2563EB] hover:bg-[#1d4ed8] text-white shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all duration-200 group"
-            >
-                <span>Konsultasi Gratis</span>
-                <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"></i>
-            </a>
+            @auth
+                <form action="{{ route('logout') }}" method="POST">
+                    @csrf
+                    <button 
+                        type="submit" 
+                        class="w-full inline-flex items-center justify-center gap-2 rounded-xl py-3 px-4 text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 active:scale-[0.98] transition-all duration-200 cursor-pointer"
+                    >
+                        <i data-lucide="log-out" class="w-3.5 h-3.5"></i>
+                        <span>Keluar dari Akun</span>
+                    </button>
+                </form>
+            @else
+                <button 
+                    type="button" 
+                    @click="mobileOpen = false; $dispatch('open-auth-modal', { mode: 'login' })"
+                    class="w-full inline-flex items-center justify-center gap-2 rounded-xl py-3 px-4 text-xs font-bold bg-[#2563EB] hover:bg-[#1d4ed8] text-white shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all duration-200 group cursor-pointer"
+                >
+                    <i data-lucide="user" class="w-3.5 h-3.5"></i>
+                    <span>Masuk</span>
+                </button>
+            @endauth
 
             <div class="text-center text-[11px] text-slate-500 space-y-0.5 pt-0.5">
                 <p class="font-semibold text-slate-700">{{ $settings['phone'] ?? '+62 838-5217-4877' }}</p>

@@ -7,6 +7,12 @@
     class="py-20 md:py-28 bg-[#f8f9fc]"
     @select-estimate-plan.window="selectPlanFromCategory($event.detail.category, $event.detail.planId)"
     x-data="{
+        currentUser: {{ auth()->check() ? json_encode([
+            'id' => auth()->user()->id,
+            'name' => auth()->user()->name,
+            'email' => auth()->user()->email,
+            'phone' => auth()->user()->phone ?? '',
+        ]) : 'null' }},
         services: {{ json_encode($services) }},
         pricingPlans: {{ json_encode($pricingPlans ?? []) }},
         serviceFeatures: {{ json_encode($serviceFeatures) }},
@@ -14,21 +20,30 @@
         selectedPlanId: null,
         selectedFeatureIds: [],
         formData: {
-            name: '',
-            phone: '',
-            email: '',
+            name: {{ json_encode(auth()->check() ? auth()->user()->name : '') }},
+            phone: {{ json_encode(auth()->check() ? (auth()->user()->phone ?? '') : '') }},
+            email: {{ json_encode(auth()->check() ? auth()->user()->email : '') }},
             projectName: '',
             paymentScheme: 'dp_50',
             details: ''
         },
         selectedPaymentChannel: 'qris',
         createdOrder: {{ json_encode($order ?? null) }},
+        pakasirData: null,
+        isCheckingPayment: false,
+        paymentPollingTimer: null,
         estimatorStep: {{ isset($order) ? "'order_history'" : "'form'" }}, // 'form', 'payment_methods', 'payment_instruction', 'order_history'
         isSubmitting: false,
         isJustPaid: false,
         customPriceInput: null,
 
         init() {
+            if (this.currentUser) {
+                if (!this.formData.name) this.formData.name = this.currentUser.name;
+                if (!this.formData.email) this.formData.email = this.currentUser.email;
+                if (!this.formData.phone && this.currentUser.phone) this.formData.phone = this.currentUser.phone;
+            }
+
             if (this.createdOrder) {
                 this.formData.name = this.createdOrder.customer_name;
                 this.formData.phone = this.createdOrder.customer_phone;
@@ -184,6 +199,23 @@
             return new Intl.NumberFormat('id-ID').format(num || 0);
         },
         goToPaymentMethods() {
+            if (!this.currentUser) {
+                window.dispatchEvent(new CustomEvent('open-auth-modal', {
+                    detail: {
+                        mode: 'login',
+                        notice: 'Silakan masuk atau daftar akun terlebih dahulu untuk melanjutkan pemesanan dan melacak pengerjaan proyek Anda.',
+                        onSuccess: (user) => {
+                            this.currentUser = user;
+                            this.formData.name = user.name;
+                            this.formData.email = user.email;
+                            if (user.phone) this.formData.phone = user.phone;
+                            this.estimatorStep = 'payment_methods';
+                        }
+                    }
+                }));
+                return;
+            }
+
             if (!this.formData.name || !this.formData.phone || !this.formData.email) {
                 alert('Silakan lengkapi Nama, Email, dan Nomor WhatsApp Anda.');
                 return;
@@ -225,6 +257,7 @@
                     addons: selectedAddons,
                     total_amount: this.totalPrice,
                     payment_scheme: this.formData.paymentScheme,
+                    payment_channel: this.selectedPaymentChannel,
                     notes: this.formData.details
                 })
             })
@@ -233,12 +266,18 @@
                 this.isSubmitting = false;
                 if (data.invoice_number) {
                     this.createdOrder = data;
-                    this.isJustPaid = true;
-                    this.estimatorStep = 'order_history';
-                    // Update URL browser history without full page reload
-                    if (window.history && window.history.pushState) {
-                        window.history.pushState({ path: data.invoice_url }, '', data.invoice_url);
-                    }
+                    this.pakasirData = data.pakasir;
+                    this.isJustPaid = false;
+                    this.estimatorStep = 'payment_instruction';
+                    
+                    // Start automatic polling to verify payment
+                    this.startPaymentPolling(data.invoice_number);
+
+                    this.$nextTick(() => {
+                        if (window.lucide) window.lucide.createIcons();
+                        const el = document.getElementById('estimator');
+                        if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    });
                 }
             })
             .catch(e => {
@@ -246,6 +285,59 @@
                 this.isSubmitting = false;
                 alert('Terjadi kesalahan saat memproses pesanan. Silakan coba kembali.');
             });
+        },
+        checkOrderPaymentStatus(manual = false) {
+            if (!this.createdOrder) return;
+            if (manual) this.isCheckingPayment = true;
+
+            fetch('/orders/' + this.createdOrder.invoice_number + '/check-status')
+                .then(res => res.json())
+                .then(data => {
+                    if (manual) this.isCheckingPayment = false;
+                    if (data.paid) {
+                        if (this.paymentPollingTimer) clearInterval(this.paymentPollingTimer);
+                        this.createdOrder.payment_status = data.payment_status;
+                        this.createdOrder.project_status = data.project_status;
+                        this.createdOrder.remaining_amount = data.remaining_amount;
+                        this.isJustPaid = true;
+                        this.estimatorStep = 'order_history';
+                        if (manual) alert('Pembayaran berhasil dikonfirmasi oleh sistem!');
+                    } else if (manual) {
+                        alert('Pembayaran belum terdeteksi. Silakan selesaikan pembayaran melalui QRIS / Pakasir.');
+                    }
+                })
+                .catch(e => {
+                    if (manual) {
+                        this.isCheckingPayment = false;
+                        alert('Gagal memeriksa status pembayaran.');
+                    }
+                });
+        },
+        startPaymentPolling(invoiceNumber) {
+            if (this.paymentPollingTimer) clearInterval(this.paymentPollingTimer);
+            this.paymentPollingTimer = setInterval(() => {
+                if (this.estimatorStep === 'payment_instruction') {
+                    this.checkOrderPaymentStatus(false);
+                } else {
+                    clearInterval(this.paymentPollingTimer);
+                }
+            }, 4000);
+        },
+        cancelCurrentOrder() {
+            if (confirm('Apakah Anda yakin ingin membatalkan pesanan ini dan kembali ke estimator?')) {
+                if (this.paymentPollingTimer) {
+                    clearInterval(this.paymentPollingTimer);
+                    this.paymentPollingTimer = null;
+                }
+                this.createdOrder = null;
+                this.pakasirData = null;
+                this.estimatorStep = 'form';
+                this.$nextTick(() => {
+                    if (window.lucide) window.lucide.createIcons();
+                    const el = document.getElementById('estimator');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                });
+            }
         },
         printReceipt() {
             if (typeof printThermalReceipt === 'function') {
@@ -488,6 +580,39 @@
                             Informasi Pemesan &amp; Skema Pembayaran
                         </label>
                         
+                        <!-- Logged-in Customer Badge -->
+                        <template x-if="currentUser">
+                            <div class="mb-4 bg-emerald-50/80 border border-emerald-200/80 rounded-2xl p-3.5 flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-7 h-7 rounded-full bg-[#0A1E5E] text-[#C7F236] flex items-center justify-center text-xs font-black">
+                                        <span x-text="currentUser.name.charAt(0).toUpperCase()"></span>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-800" x-text="'Masuk sebagai: ' + currentUser.name"></p>
+                                        <p class="text-[10px] text-slate-500 font-medium" x-text="currentUser.email"></p>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">Akun Terhubung</span>
+                            </div>
+                        </template>
+
+                        <!-- Guest Prompt -->
+                        <template x-if="!currentUser">
+                            <div class="mb-4 bg-blue-50/80 border border-blue-200/80 rounded-2xl p-3.5 flex items-center justify-between">
+                                <div class="flex items-center gap-2 text-xs text-blue-900 font-medium">
+                                    <i data-lucide="lock" class="w-4 h-4 text-blue-600 shrink-0"></i>
+                                    <span>Sudah punya akun? Masuk untuk menyimpan pesanan ke portal Anda.</span>
+                                </div>
+                                <button 
+                                    type="button" 
+                                    @click="$dispatch('open-auth-modal', { mode: 'login' })"
+                                    class="text-xs font-bold text-[#2563EB] hover:underline shrink-0 ml-2"
+                                >
+                                    Masuk
+                                </button>
+                            </div>
+                        </template>
+
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                             <div>
                                 <label class="block text-[11px] font-bold text-slate-600 mb-1">Nama Lengkap *</label>
@@ -583,81 +708,335 @@
                 </div>
 
                 <!-- VIEW 2: Select Payment Method (In-Place) -->
-                <div x-show="estimatorStep === 'payment_methods'" x-cloak class="space-y-6">
+                <div x-show="estimatorStep === 'payment_methods'" x-cloak class="space-y-6" x-data="{ paymentCategoryTab: 'all' }">
                     <div class="flex items-center justify-between border-b border-slate-100 pb-4">
                         <div>
-                            <h3 class="text-xl font-black text-slate-900">Pilih Metode Pembayaran Pakasir</h3>
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-xl font-black text-slate-900">Pilih Metode Pembayaran Pakasir</h3>
+                                <span class="text-[10px] font-black bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full border border-blue-200 uppercase">Resmi Pakasir</span>
+                            </div>
                             <p class="text-xs text-slate-500 font-medium mt-0.5">
                                 Tagihan: <span class="font-bold text-[#2563EB]" x-text="'Rp ' + formatRupiah(payableAmount)"></span>
-                                (<span x-text="formData.paymentScheme === 'dp_50' ? 'DP 50%' : 'Lunas 100%'"></span>)
+                                (<span x-text="formData.paymentScheme === 'dp_50' ? 'DP 50%' : 'Lunas 100%'"></span>) &bull; <span class="text-emerald-600 font-bold">Bebas Biaya Admin (Rp0)</span>
                             </p>
                         </div>
                         <button 
                             type="button" 
                             @click="estimatorStep = 'form'"
-                            class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all flex items-center gap-1"
+                            class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
                         >
                             <span>← Kembali</span>
                         </button>
                     </div>
 
+                    <!-- Category Filter Tabs -->
+                    <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+                        <button 
+                            type="button" 
+                            @click="paymentCategoryTab = 'all'"
+                            :class="paymentCategoryTab === 'all' ? 'bg-[#0A1E5E] text-white font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 font-semibold'"
+                            class="px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer"
+                        >
+                            Semua Channel (14)
+                        </button>
+                        <button 
+                            type="button" 
+                            @click="paymentCategoryTab = 'qris_ewallet'"
+                            :class="paymentCategoryTab === 'qris_ewallet' ? 'bg-[#0A1E5E] text-white font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 font-semibold'"
+                            class="px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer"
+                        >
+                            QRIS &amp; E-Wallet (5)
+                        </button>
+                        <button 
+                            type="button" 
+                            @click="paymentCategoryTab = 'va_bank'"
+                            :class="paymentCategoryTab === 'va_bank' ? 'bg-[#0A1E5E] text-white font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 font-semibold'"
+                            class="px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer"
+                        >
+                            Virtual Account (7)
+                        </button>
+                        <button 
+                            type="button" 
+                            @click="paymentCategoryTab = 'retail'"
+                            :class="paymentCategoryTab === 'retail' ? 'bg-[#0A1E5E] text-white font-bold' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 font-semibold'"
+                            class="px-3 py-1.5 rounded-xl transition-all whitespace-nowrap cursor-pointer"
+                        >
+                            Gerai Retail (2)
+                        </button>
+                    </div>
+
                     <!-- Pakasir Channels List -->
-                    <div class="space-y-3">
-                        <label 
-                            :class="selectedPaymentChannel === 'qris' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20' : 'border-slate-200 bg-white'"
-                            class="flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all"
-                        >
-                            <div class="flex items-center gap-3">
-                                <input type="radio" name="payment_channel" value="qris" x-model="selectedPaymentChannel" class="text-[#2563EB]">
-                                <div>
-                                    <p class="font-bold text-slate-900 text-sm">QRIS Instant (All E-Wallet &amp; M-Banking)</p>
-                                    <p class="text-xs text-slate-500 font-medium">BCA, GoPay, OVO, Dana, ShopeePay, LinkAja</p>
-                                </div>
-                            </div>
-                            <span class="text-xs font-black text-emerald-600 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full uppercase">Instant</span>
-                        </label>
+                    <div class="space-y-3 max-h-[460px] overflow-y-auto pr-1">
 
-                        <label 
-                            :class="selectedPaymentChannel === 'va_bca' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20' : 'border-slate-200 bg-white'"
-                            class="flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all"
-                        >
-                            <div class="flex items-center gap-3">
-                                <input type="radio" name="payment_channel" value="va_bca" x-model="selectedPaymentChannel" class="text-[#2563EB]">
-                                <div>
-                                    <p class="font-bold text-slate-900 text-sm">Virtual Account BCA</p>
-                                    <p class="text-xs text-slate-500 font-medium">Verifikasi Otomatis Pakasir</p>
+                        <!-- CATEGORY 1: QRIS & E-WALLET -->
+                        <div x-show="paymentCategoryTab === 'all' || paymentCategoryTab === 'qris_ewallet'" class="space-y-2.5">
+                            <p class="text-[11px] font-black text-slate-400 uppercase tracking-wider px-1">QRIS &amp; E-Wallet Instant</p>
+                            
+                            <!-- QRIS Instant -->
+                            <label 
+                                :class="selectedPaymentChannel === 'qris' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300'"
+                                class="flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition-all"
+                            >
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <input type="radio" name="payment_channel" value="qris" x-model="selectedPaymentChannel" class="text-[#2563EB]">
+                                    <div class="w-16 h-10 bg-white border border-slate-200/80 rounded-xl p-1 flex items-center justify-center shrink-0">
+                                        <img src="{{ asset('images/payments/qris.svg') }}" alt="QRIS" class="max-h-full max-w-full object-contain">
+                                    </div>
+                                    <div class="min-w-0">
+                                        <div class="flex items-center gap-1.5">
+                                            <p class="font-bold text-slate-900 text-xs sm:text-sm">QRIS Instant</p>
+                                            <span class="text-[9px] font-black bg-amber-100 text-amber-800 px-1.5 py-0.2 rounded uppercase">Populer</span>
+                                        </div>
+                                        <p class="text-[11px] text-slate-500 font-medium truncate">BCA Mobile, Livin Mandiri, BRImo, GoPay, OVO, Dana, ShopeePay</p>
+                                    </div>
                                 </div>
-                            </div>
-                            <span class="text-xs font-bold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-full">VA Bank</span>
-                        </label>
+                                <span class="text-[10px] font-black text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full uppercase shrink-0">Instant</span>
+                            </label>
 
-                        <label 
-                            :class="selectedPaymentChannel === 'va_mandiri' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20' : 'border-slate-200 bg-white'"
-                            class="flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all"
-                        >
-                            <div class="flex items-center gap-3">
-                                <input type="radio" name="payment_channel" value="va_mandiri" x-model="selectedPaymentChannel" class="text-[#2563EB]">
-                                <div>
-                                    <p class="font-bold text-slate-900 text-sm">Virtual Account Mandiri</p>
-                                    <p class="text-xs text-slate-500 font-medium">Verifikasi Otomatis Pakasir</p>
+                            <!-- GoPay -->
+                            <label 
+                                :class="selectedPaymentChannel === 'gopay' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300'"
+                                class="flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition-all"
+                            >
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <input type="radio" name="payment_channel" value="gopay" x-model="selectedPaymentChannel" class="text-[#2563EB]">
+                                    <div class="w-16 h-10 bg-white border border-slate-200/80 rounded-xl p-1 flex items-center justify-center shrink-0">
+                                        <img src="{{ asset('images/payments/gopay.svg') }}" alt="GoPay" class="max-h-full max-w-full object-contain">
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="font-bold text-slate-900 text-xs sm:text-sm">GoPay Instant</p>
+                                        <p class="text-[11px] text-slate-500 font-medium truncate">Pembayaran langsung &amp; scan QR GoPay</p>
+                                    </div>
                                 </div>
-                            </div>
-                            <span class="text-xs font-bold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-full">VA Bank</span>
-                        </label>
+                                <span class="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">E-Wallet</span>
+                            </label>
 
-                        <label 
-                            :class="selectedPaymentChannel === 'va_bri' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20' : 'border-slate-200 bg-white'"
-                            class="flex items-center justify-between p-4 rounded-2xl border-2 cursor-pointer transition-all"
-                        >
-                            <div class="flex items-center gap-3">
-                                <input type="radio" name="payment_channel" value="va_bri" x-model="selectedPaymentChannel" class="text-[#2563EB]">
-                                <div>
-                                    <p class="font-bold text-slate-900 text-sm">Virtual Account BRI</p>
-                                    <p class="text-xs text-slate-500 font-medium">Verifikasi Otomatis Pakasir</p>
+                            <!-- ShopeePay -->
+                            <label 
+                                :class="selectedPaymentChannel === 'shopeepay' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300'"
+                                class="flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition-all"
+                            >
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <input type="radio" name="payment_channel" value="shopeepay" x-model="selectedPaymentChannel" class="text-[#2563EB]">
+                                    <div class="w-16 h-10 bg-white border border-slate-200/80 rounded-xl p-1 flex items-center justify-center shrink-0">
+                                        <img src="{{ asset('images/payments/shopeepay.svg') }}" alt="ShopeePay" class="max-h-full max-w-full object-contain">
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="font-bold text-slate-900 text-xs sm:text-sm">ShopeePay</p>
+                                        <p class="text-[11px] text-slate-500 font-medium truncate">Pembayaran instan via ShopeePay</p>
+                                    </div>
                                 </div>
-                            </div>
-                            <span class="text-xs font-bold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-full">VA Bank</span>
-                        </label>
+                                <span class="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">E-Wallet</span>
+                            </label>
+
+                            <!-- DANA -->
+                            <label 
+                                :class="selectedPaymentChannel === 'dana' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300'"
+                                class="flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition-all"
+                            >
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <input type="radio" name="payment_channel" value="dana" x-model="selectedPaymentChannel" class="text-[#2563EB]">
+                                    <div class="w-16 h-10 bg-white border border-slate-200/80 rounded-xl p-1 flex items-center justify-center shrink-0">
+                                        <img src="{{ asset('images/payments/dana.svg') }}" alt="DANA" class="max-h-full max-w-full object-contain">
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="font-bold text-slate-900 text-xs sm:text-sm">DANA</p>
+                                        <p class="text-[11px] text-slate-500 font-medium truncate">Pembayaran instan via akun DANA</p>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">E-Wallet</span>
+                            </label>
+
+                            <!-- OVO -->
+                            <label 
+                                :class="selectedPaymentChannel === 'ovo' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300'"
+                                class="flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition-all"
+                            >
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <input type="radio" name="payment_channel" value="ovo" x-model="selectedPaymentChannel" class="text-[#2563EB]">
+                                    <div class="w-16 h-10 bg-white border border-slate-200/80 rounded-xl p-1 flex items-center justify-center shrink-0">
+                                        <img src="{{ asset('images/payments/ovo.svg') }}" alt="OVO" class="max-h-full max-w-full object-contain">
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="font-bold text-slate-900 text-xs sm:text-sm">OVO</p>
+                                        <p class="text-[11px] text-slate-500 font-medium truncate">Pembayaran instan via akun OVO</p>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">E-Wallet</span>
+                            </label>
+                        </div>
+
+                        <!-- CATEGORY 2: VIRTUAL ACCOUNT BANK -->
+                        <div x-show="paymentCategoryTab === 'all' || paymentCategoryTab === 'va_bank'" class="space-y-2.5 pt-2">
+                            <p class="text-[11px] font-black text-slate-400 uppercase tracking-wider px-1">Virtual Account Bank (Verifikasi Otomatis 24 Jam)</p>
+                            
+                            <!-- VA BCA -->
+                            <label 
+                                :class="selectedPaymentChannel === 'va_bca' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300'"
+                                class="flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition-all"
+                            >
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <input type="radio" name="payment_channel" value="va_bca" x-model="selectedPaymentChannel" class="text-[#2563EB]">
+                                    <div class="w-16 h-10 bg-white border border-slate-200/80 rounded-xl p-1 flex items-center justify-center shrink-0">
+                                        <img src="{{ asset('images/payments/bca.svg') }}" alt="BCA" class="max-h-full max-w-full object-contain">
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="font-bold text-slate-900 text-xs sm:text-sm">BCA Virtual Account</p>
+                                        <p class="text-[11px] text-slate-500 font-medium truncate">BCA Mobile, KlikBCA, myBCA &amp; ATM</p>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full shrink-0">VA Otomatis</span>
+                            </label>
+
+                            <!-- VA Mandiri -->
+                            <label 
+                                :class="selectedPaymentChannel === 'va_mandiri' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300'"
+                                class="flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition-all"
+                            >
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <input type="radio" name="payment_channel" value="va_mandiri" x-model="selectedPaymentChannel" class="text-[#2563EB]">
+                                    <div class="w-16 h-10 bg-white border border-slate-200/80 rounded-xl p-1 flex items-center justify-center shrink-0">
+                                        <img src="{{ asset('images/payments/mandiri.svg') }}" alt="Mandiri" class="max-h-full max-w-full object-contain">
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="font-bold text-slate-900 text-xs sm:text-sm">Mandiri Virtual Account</p>
+                                        <p class="text-[11px] text-slate-500 font-medium truncate">Livin' by Mandiri, Kopra &amp; ATM</p>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full shrink-0">VA Otomatis</span>
+                            </label>
+
+                            <!-- VA BRI -->
+                            <label 
+                                :class="selectedPaymentChannel === 'va_bri' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300'"
+                                class="flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition-all"
+                            >
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <input type="radio" name="payment_channel" value="va_bri" x-model="selectedPaymentChannel" class="text-[#2563EB]">
+                                    <div class="w-16 h-10 bg-white border border-slate-200/80 rounded-xl p-1 flex items-center justify-center shrink-0">
+                                        <img src="{{ asset('images/payments/bri.svg') }}" alt="BRI" class="max-h-full max-w-full object-contain">
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="font-bold text-slate-900 text-xs sm:text-sm">BRI Virtual Account (BRIVA)</p>
+                                        <p class="text-[11px] text-slate-500 font-medium truncate">BRImo, Internet Banking &amp; ATM BRI</p>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full shrink-0">VA Otomatis</span>
+                            </label>
+
+                            <!-- VA BNI -->
+                            <label 
+                                :class="selectedPaymentChannel === 'va_bni' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300'"
+                                class="flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition-all"
+                            >
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <input type="radio" name="payment_channel" value="va_bni" x-model="selectedPaymentChannel" class="text-[#2563EB]">
+                                    <div class="w-16 h-10 bg-white border border-slate-200/80 rounded-xl p-1 flex items-center justify-center shrink-0">
+                                        <img src="{{ asset('images/payments/bni.svg') }}" alt="BNI" class="max-h-full max-w-full object-contain">
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="font-bold text-slate-900 text-xs sm:text-sm">BNI Virtual Account</p>
+                                        <p class="text-[11px] text-slate-500 font-medium truncate">BNI Mobile Banking, Direct &amp; ATM BNI</p>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full shrink-0">VA Otomatis</span>
+                            </label>
+
+                            <!-- VA Permata -->
+                            <label 
+                                :class="selectedPaymentChannel === 'va_permata' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300'"
+                                class="flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition-all"
+                            >
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <input type="radio" name="payment_channel" value="va_permata" x-model="selectedPaymentChannel" class="text-[#2563EB]">
+                                    <div class="w-16 h-10 bg-white border border-slate-200/80 rounded-xl p-1 flex items-center justify-center shrink-0">
+                                        <img src="{{ asset('images/payments/permata.svg') }}" alt="Permata" class="max-h-full max-w-full object-contain">
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="font-bold text-slate-900 text-xs sm:text-sm">Permata Virtual Account</p>
+                                        <p class="text-[11px] text-slate-500 font-medium truncate">PermataMobile X, PermataNet &amp; ATM</p>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full shrink-0">VA Otomatis</span>
+                            </label>
+
+                            <!-- VA CIMB Niaga -->
+                            <label 
+                                :class="selectedPaymentChannel === 'va_cimb' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300'"
+                                class="flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition-all"
+                            >
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <input type="radio" name="payment_channel" value="va_cimb" x-model="selectedPaymentChannel" class="text-[#2563EB]">
+                                    <div class="w-16 h-10 bg-white border border-slate-200/80 rounded-xl p-1 flex items-center justify-center shrink-0">
+                                        <img src="{{ asset('images/payments/cimb.svg') }}" alt="CIMB Niaga" class="max-h-full max-w-full object-contain">
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="font-bold text-slate-900 text-xs sm:text-sm">CIMB Niaga Virtual Account</p>
+                                        <p class="text-[11px] text-slate-500 font-medium truncate">OCTO Mobile, OCTO Clicks &amp; ATM</p>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] font-bold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full shrink-0">VA Otomatis</span>
+                            </label>
+
+                            <!-- VA BSI -->
+                            <label 
+                                :class="selectedPaymentChannel === 'va_bsi' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300'"
+                                class="flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition-all"
+                            >
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <input type="radio" name="payment_channel" value="va_bsi" x-model="selectedPaymentChannel" class="text-[#2563EB]">
+                                    <div class="w-16 h-10 bg-white border border-slate-200/80 rounded-xl p-1 flex items-center justify-center shrink-0">
+                                        <img src="{{ asset('images/payments/bsi.svg') }}" alt="BSI" class="max-h-full max-w-full object-contain">
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="font-bold text-slate-900 text-xs sm:text-sm">Bank Syariah Indonesia (BSI)</p>
+                                        <p class="text-[11px] text-slate-500 font-medium truncate">BSI Mobile, BSI Net &amp; ATM BSI</p>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full shrink-0">Syariah</span>
+                            </label>
+                        </div>
+
+                        <!-- CATEGORY 3: GERAI RETAIL -->
+                        <div x-show="paymentCategoryTab === 'all' || paymentCategoryTab === 'retail'" class="space-y-2.5 pt-2">
+                            <p class="text-[11px] font-black text-slate-400 uppercase tracking-wider px-1">Gerai Retail / Minimarket</p>
+                            
+                            <!-- Indomaret -->
+                            <label 
+                                :class="selectedPaymentChannel === 'retail_indomaret' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300'"
+                                class="flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition-all"
+                            >
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <input type="radio" name="payment_channel" value="retail_indomaret" x-model="selectedPaymentChannel" class="text-[#2563EB]">
+                                    <div class="w-16 h-10 bg-white border border-slate-200/80 rounded-xl p-1 flex items-center justify-center shrink-0">
+                                        <img src="{{ asset('images/payments/indomaret.png') }}" alt="Indomaret" class="max-h-full max-w-full object-contain">
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="font-bold text-slate-900 text-xs sm:text-sm">Indomaret / Ceriamart</p>
+                                        <p class="text-[11px] text-slate-500 font-medium truncate">Bayar tunai di seluruh kasir Indomaret</p>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">Retail</span>
+                            </label>
+
+                            <!-- Alfamart -->
+                            <label 
+                                :class="selectedPaymentChannel === 'retail_alfamart' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300'"
+                                class="flex items-center justify-between p-3.5 rounded-2xl border-2 cursor-pointer transition-all"
+                            >
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <input type="radio" name="payment_channel" value="retail_alfamart" x-model="selectedPaymentChannel" class="text-[#2563EB]">
+                                    <div class="w-16 h-10 bg-white border border-slate-200/80 rounded-xl p-1 flex items-center justify-center shrink-0">
+                                        <img src="{{ asset('images/payments/alfamart.svg') }}" alt="Alfamart" class="max-h-full max-w-full object-contain">
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="font-bold text-slate-900 text-xs sm:text-sm">Alfamart / Alfamidi / Dan+Dan</p>
+                                        <p class="text-[11px] text-slate-500 font-medium truncate">Bayar tunai di seluruh kasir Alfamart Group</p>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">Retail</span>
+                            </label>
+                        </div>
                     </div>
 
                     <!-- Action Buttons: Bayar & Kembali -->
@@ -665,7 +1044,7 @@
                         <button 
                             type="button" 
                             @click="estimatorStep = 'form'"
-                            class="w-1/3 py-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-all"
+                            class="w-1/3 py-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-all cursor-pointer"
                         >
                             ← Kembali
                         </button>
@@ -675,10 +1054,10 @@
                             @click="processFinalPayment()"
                             :disabled="isSubmitting"
                             :class="isSubmitting ? 'opacity-70 cursor-not-allowed' : ''"
-                            class="w-2/3 flex items-center justify-center gap-2 rounded-xl py-4 text-xs sm:text-sm font-black transition-all duration-300 bg-[#2563EB] text-white hover:bg-[#1d4ed8] shadow-lg shadow-[#2563EB]/25"
+                            class="w-2/3 flex items-center justify-center gap-2 rounded-xl py-4 text-xs sm:text-sm font-black transition-all duration-300 bg-[#2563EB] text-white hover:bg-[#1d4ed8] shadow-lg shadow-[#2563EB]/25 cursor-pointer"
                         >
                             <span x-show="!isSubmitting">Bayar Rp <span x-text="formatRupiah(payableAmount)"></span> Sekarang</span>
-                            <span x-show="isSubmitting">Memproses QRIS/VA...</span>
+                            <span x-show="isSubmitting">Menyiapkan Channel Pakasir...</span>
                             <i x-show="!isSubmitting" data-lucide="credit-card" class="w-4 h-4"></i>
                             <i x-show="isSubmitting" data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
                         </button>
@@ -687,55 +1066,130 @@
 
                 <!-- VIEW 3: Payment Instructions & Cetak Resi Button (In-Place) -->
                 <div x-show="estimatorStep === 'payment_instruction'" x-cloak class="space-y-6 text-center py-4">
-                    <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mx-auto flex items-center justify-center shadow-lg shadow-emerald-500/20">
-                        <i data-lucide="check-circle" class="w-8 h-8 stroke-[2.5]"></i>
+                    <div class="w-16 h-16 rounded-full bg-blue-100 text-[#2563EB] mx-auto flex items-center justify-center shadow-lg shadow-blue-500/20">
+                        <i data-lucide="qr-code" class="w-8 h-8 stroke-[2.5]"></i>
                     </div>
 
                     <div>
-                        <span class="bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase px-3 py-1 rounded-full">
+                        <span class="bg-blue-100 text-blue-800 text-[10px] font-black uppercase px-3 py-1 rounded-full">
                             Nomor Invoice: <span x-text="createdOrder?.invoice_number"></span>
                         </span>
-                        <h3 class="text-2xl font-black text-slate-900 mt-2">Instruksi Pembayaran Pakasir</h3>
+                        <h3 class="text-2xl font-black text-slate-900 mt-2">Selesaikan Pembayaran</h3>
                         <p class="text-slate-500 text-xs font-medium mt-1">
-                            Silakan selesaikan pembayaran <span class="font-bold text-[#2563EB]" x-text="'Rp ' + formatRupiah(payableAmount)"></span> melalui instruksi di bawah ini.
+                            Total Tagihan: <span class="font-bold text-[#2563EB] text-sm" x-text="'Rp ' + formatRupiah(pakasirData?.total_payment || payableAmount)"></span>
+                            <span x-show="pakasirData?.fee > 0" class="text-[11px] text-slate-400">(Biaya layanan Rp <span x-text="formatRupiah(pakasirData?.fee)"></span>)</span>
                         </p>
                     </div>
 
-                    <!-- QRIS / VA Code Display Box -->
+                    <!-- Dynamic Payment Display Box Generated Live from Pakasir -->
                     <div class="bg-slate-50 border-2 border-slate-200 rounded-2xl p-6 text-left space-y-4">
-                        <template x-if="selectedPaymentChannel === 'qris'">
+                        
+                        <!-- 1. QRIS Display (Live Barcode from Pakasir) -->
+                        <template x-if="selectedPaymentChannel === 'qris' || ['gopay', 'ovo', 'shopeepay', 'dana'].includes(selectedPaymentChannel) || !selectedPaymentChannel.startsWith('va_')">
                             <div class="text-center space-y-3">
-                                <p class="text-xs font-bold text-slate-700 uppercase">Pindai Kode QRIS Di Bawah Ini</p>
-                                <div class="bg-white p-4 inline-block rounded-xl border border-slate-200 shadow-xs">
-                                    <div class="w-44 h-44 bg-slate-900 rounded-lg mx-auto flex items-center justify-center text-white text-xs font-mono font-bold p-4 text-center">
-                                        [ QRIS PAKASIR JUANGDEV ]
+                                <div class="inline-flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-2xs mb-1">
+                                    <img src="{{ asset('images/payments/qris.svg') }}" alt="QRIS" class="h-4 w-auto">
+                                    <span class="text-[11px] font-bold text-slate-700">QRIS Resmi Pakasir (Semua Bank &amp; E-Wallet)</span>
+                                </div>
+                                <p class="text-xs font-bold text-slate-700 uppercase">Pindai Kode QR Resmi Di Bawah Ini</p>
+                                <div class="bg-white p-3 inline-block rounded-2xl border border-slate-200 shadow-sm">
+                                    <img 
+                                        :src="pakasirData?.qr_image_url || ('https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(pakasirData?.payment_url || ''))" 
+                                        alt="QRIS Resmi Pakasir" 
+                                        class="w-60 h-60 mx-auto object-contain rounded-xl"
+                                    >
+                                </div>
+                                <div class="bg-white p-3.5 rounded-xl border border-slate-200 text-left space-y-1 text-xs">
+                                    <div class="flex justify-between">
+                                        <span class="text-slate-500 font-medium">Merchant:</span>
+                                        <span class="font-bold text-slate-900">JUANGDEV / PAKASIR</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-slate-500 font-medium">Total yang Harus Dibayar:</span>
+                                        <span class="font-black text-[#2563EB]" x-text="'Rp ' + formatRupiah(pakasirData?.total_payment || payableAmount)"></span>
                                     </div>
                                 </div>
-                                <p class="text-[11px] text-slate-500 font-medium">Buka aplikasi GoPay, ShopeePay, BCA, OVO, Dana atau M-Banking Anda dan scan QRIS di atas.</p>
+                                <p class="text-[11px] text-slate-500 font-medium max-w-sm mx-auto">
+                                    Buka aplikasi <strong>BCA Mobile, Livin Mandiri, BRImo, BNI, GoPay, OVO, Dana, ShopeePay</strong> dan scan QRIS di atas untuk menyelesaikan pembayaran secara instan.
+                                </p>
                             </div>
                         </template>
 
-                        <template x-if="selectedPaymentChannel !== 'qris'">
+                        <!-- 2. Virtual Account Display (Live VA from Pakasir for BNI, BRI, Permata, etc.) -->
+                        <template x-if="selectedPaymentChannel.startsWith('va_')">
                             <div class="space-y-3">
-                                <p class="text-xs font-bold text-slate-700 uppercase">Nomor Virtual Account</p>
-                                <div class="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200 font-mono font-bold text-lg text-slate-900">
-                                    <span>8801 8273 9912 0019</span>
-                                    <span class="text-xs font-sans font-bold bg-blue-50 text-[#2563EB] px-2.5 py-1 rounded uppercase" x-text="selectedPaymentChannel.replace('va_', '')"></span>
+                                <div class="flex items-center justify-between border-b border-slate-200 pb-2">
+                                    <span class="text-xs font-bold text-slate-700 uppercase">Nomor Virtual Account Resmi</span>
+                                    <div class="h-6 w-auto flex items-center">
+                                        <template x-if="selectedPaymentChannel === 'va_bca'"><img src="{{ asset('images/payments/bca.svg') }}" class="h-5 w-auto"></template>
+                                        <template x-if="selectedPaymentChannel === 'va_mandiri'"><img src="{{ asset('images/payments/mandiri.svg') }}" class="h-5 w-auto"></template>
+                                        <template x-if="selectedPaymentChannel === 'va_bri'"><img src="{{ asset('images/payments/bri.svg') }}" class="h-5 w-auto"></template>
+                                        <template x-if="selectedPaymentChannel === 'va_bni'"><img src="{{ asset('images/payments/bni.svg') }}" class="h-5 w-auto"></template>
+                                        <template x-if="selectedPaymentChannel === 'va_permata'"><img src="{{ asset('images/payments/permata.svg') }}" class="h-5 w-auto"></template>
+                                        <template x-if="selectedPaymentChannel === 'va_cimb'"><img src="{{ asset('images/payments/cimb.svg') }}" class="h-5 w-auto"></template>
+                                        <template x-if="selectedPaymentChannel === 'va_bsi'"><img src="{{ asset('images/payments/bsi.svg') }}" class="h-5 w-auto"></template>
+                                    </div>
                                 </div>
-                                <p class="text-[11px] text-slate-500 font-medium">Transfer sesuai nominal persis: <span class="font-bold text-slate-900" x-text="'Rp ' + formatRupiah(payableAmount)"></span></p>
+
+                                <div class="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200">
+                                    <div>
+                                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Nomor Rekening Virtual Account</p>
+                                        <p class="font-mono font-black text-xl text-slate-900 tracking-wider" x-text="pakasirData?.payment_number || '8801827399120019'"></p>
+                                    </div>
+                                    <button 
+                                        type="button" 
+                                        @click="navigator.clipboard.writeText(pakasirData?.payment_number || '8801827399120019'); alert('Nomor Virtual Account berhasil disalin!');" 
+                                        class="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-[#2563EB] text-xs font-bold rounded-lg border border-blue-200 transition-colors cursor-pointer"
+                                    >
+                                        Salin VA
+                                    </button>
+                                </div>
+
+                                <div class="flex justify-between items-center text-xs text-slate-700 bg-amber-50/80 p-3 rounded-xl border border-amber-200">
+                                    <span>Nominal Transfer Tepat:</span>
+                                    <span class="font-black text-slate-900 text-sm" x-text="'Rp ' + formatRupiah(pakasirData?.total_payment || payableAmount)"></span>
+                                </div>
+
+                                <template x-if="pakasirData?.qr_image_url && selectedPaymentChannel !== 'va_bni' && selectedPaymentChannel !== 'va_bri' && selectedPaymentChannel !== 'va_permata'">
+                                    <div class="text-center pt-2 space-y-2">
+                                        <p class="text-[11px] font-bold text-slate-600">Atau Scan QRIS di Bawah Ini:</p>
+                                        <div class="bg-white p-2.5 inline-block rounded-xl border border-slate-200">
+                                            <img :src="pakasirData?.qr_image_url" class="w-44 h-44 mx-auto object-contain">
+                                        </div>
+                                    </div>
+                                </template>
                             </div>
                         </template>
+
+                        <!-- Live Polling & Auto Verification Indicator -->
+                        <div class="flex items-center justify-center gap-2 p-3 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 text-xs font-bold">
+                            <span class="relative flex h-2.5 w-2.5">
+                                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-600"></span>
+                            </span>
+                            <span>Menunggu Pembayaran (Verifikasi Otomatis Real-Time)</span>
+                        </div>
                     </div>
 
-                    <!-- Cetak Resi Button & WhatsApp Notification Notice -->
-                    <div class="space-y-3">
+                    <!-- Payment Action Buttons (Status Check & Print Receipt) -->
+                    <div class="space-y-2.5">
                         <button 
                             type="button" 
-                            @click="printReceipt()"
-                            class="w-full py-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md"
+                            @click="checkOrderPaymentStatus(true)"
+                            :disabled="isCheckingPayment"
+                            class="w-full py-3.5 rounded-xl bg-[#2563EB] hover:bg-[#1d4ed8] text-white font-black text-xs flex items-center justify-center gap-2 shadow-md shadow-[#2563EB]/25 transition-all cursor-pointer"
                         >
-                            <i data-lucide="printer" class="w-4 h-4"></i>
-                            <span>Cetak Resi / Download PDF</span>
+                            <i data-lucide="refresh-cw" :class="isCheckingPayment ? 'animate-spin' : ''" class="w-4 h-4"></i>
+                            <span x-text="isCheckingPayment ? 'Memeriksa Pembayaran...' : 'Saya Sudah Bayar (Cek Status Real-Time)'"></span>
+                        </button>
+
+                        <button 
+                            type="button" 
+                            @click="cancelCurrentOrder()"
+                            class="w-full py-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 font-bold text-xs flex items-center justify-center gap-2 border border-rose-200 transition-all cursor-pointer"
+                        >
+                            <i data-lucide="x-circle" class="w-4 h-4 text-rose-500"></i>
+                            <span>Batalkan Pesanan</span>
                         </button>
 
                         <p class="text-[11px] text-slate-400 font-medium">
@@ -837,42 +1291,84 @@
                                 <p class="text-[11px] text-blue-700 font-medium mt-0.5">Pilih channel pembayaran Pakasir di bawah ini untuk memproses pembayaran secara instan.</p>
                             </div>
 
-                            <!-- Pakasir Channels List -->
-                            <div class="space-y-2.5">
+                            <!-- Pakasir Channels List with Logos -->
+                            <div class="space-y-2 max-h-[260px] overflow-y-auto pr-1">
+                                <!-- QRIS -->
                                 <label 
-                                    :class="selectedPaymentChannel === 'qris' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20' : 'border-slate-200 bg-white'"
-                                    class="flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition-all text-xs"
+                                    :class="selectedPaymentChannel === 'qris' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300'"
+                                    class="flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all text-xs"
                                 >
-                                    <div class="flex items-center gap-3">
+                                    <div class="flex items-center gap-2.5 min-w-0">
                                         <input type="radio" name="pay_hist_channel" value="qris" x-model="selectedPaymentChannel" class="text-[#2563EB]">
-                                        <div>
-                                            <p class="font-bold text-slate-900">QRIS Instant (All E-Wallet &amp; M-Banking)</p>
-                                            <p class="text-[11px] text-slate-500 font-medium">GoPay, OVO, ShopeePay, BCA, Dana, LinkAja</p>
+                                        <div class="w-12 h-8 bg-white border border-slate-200/80 rounded-lg p-0.5 flex items-center justify-center shrink-0">
+                                            <img src="{{ asset('images/payments/qris.svg') }}" alt="QRIS" class="max-h-full max-w-full object-contain">
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="font-bold text-slate-900 truncate">QRIS Instant (All E-Wallet &amp; M-Banking)</p>
+                                            <p class="text-[10px] text-slate-500 font-medium truncate">BCA, GoPay, OVO, ShopeePay, Dana, LinkAja</p>
                                         </div>
                                     </div>
-                                    <span class="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded uppercase">Instant</span>
+                                    <span class="text-[9px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded uppercase shrink-0">Instant</span>
                                 </label>
 
+                                <!-- VA BCA -->
                                 <label 
-                                    :class="selectedPaymentChannel === 'va_bca' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20' : 'border-slate-200 bg-white'"
-                                    class="flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition-all text-xs"
+                                    :class="selectedPaymentChannel === 'va_bca' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300'"
+                                    class="flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all text-xs"
                                 >
-                                    <div class="flex items-center gap-3">
+                                    <div class="flex items-center gap-2.5 min-w-0">
                                         <input type="radio" name="pay_hist_channel" value="va_bca" x-model="selectedPaymentChannel" class="text-[#2563EB]">
-                                        <p class="font-bold text-slate-900">Virtual Account BCA</p>
+                                        <div class="w-12 h-8 bg-white border border-slate-200/80 rounded-lg p-0.5 flex items-center justify-center shrink-0">
+                                            <img src="{{ asset('images/payments/bca.svg') }}" alt="BCA" class="max-h-full max-w-full object-contain">
+                                        </div>
+                                        <p class="font-bold text-slate-900 truncate">BCA Virtual Account</p>
                                     </div>
-                                    <span class="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded">VA Bank</span>
+                                    <span class="text-[9px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded shrink-0">VA Bank</span>
                                 </label>
 
+                                <!-- VA Mandiri -->
                                 <label 
-                                    :class="selectedPaymentChannel === 'va_mandiri' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20' : 'border-slate-200 bg-white'"
-                                    class="flex items-center justify-between p-3.5 rounded-xl border-2 cursor-pointer transition-all text-xs"
+                                    :class="selectedPaymentChannel === 'va_mandiri' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300'"
+                                    class="flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all text-xs"
                                 >
-                                    <div class="flex items-center gap-3">
+                                    <div class="flex items-center gap-2.5 min-w-0">
                                         <input type="radio" name="pay_hist_channel" value="va_mandiri" x-model="selectedPaymentChannel" class="text-[#2563EB]">
-                                        <p class="font-bold text-slate-900">Virtual Account Mandiri</p>
+                                        <div class="w-12 h-8 bg-white border border-slate-200/80 rounded-lg p-0.5 flex items-center justify-center shrink-0">
+                                            <img src="{{ asset('images/payments/mandiri.svg') }}" alt="Mandiri" class="max-h-full max-w-full object-contain">
+                                        </div>
+                                        <p class="font-bold text-slate-900 truncate">Mandiri Virtual Account</p>
                                     </div>
-                                    <span class="text-[10px] font-bold text-slate-600 bg-slate-100 px-2.5 py-0.5 rounded">VA Bank</span>
+                                    <span class="text-[9px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded shrink-0">VA Bank</span>
+                                </label>
+
+                                <!-- VA BRI -->
+                                <label 
+                                    :class="selectedPaymentChannel === 'va_bri' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300'"
+                                    class="flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all text-xs"
+                                >
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <input type="radio" name="pay_hist_channel" value="va_bri" x-model="selectedPaymentChannel" class="text-[#2563EB]">
+                                        <div class="w-12 h-8 bg-white border border-slate-200/80 rounded-lg p-0.5 flex items-center justify-center shrink-0">
+                                            <img src="{{ asset('images/payments/bri.svg') }}" alt="BRI" class="max-h-full max-w-full object-contain">
+                                        </div>
+                                        <p class="font-bold text-slate-900 truncate">BRI Virtual Account (BRIVA)</p>
+                                    </div>
+                                    <span class="text-[9px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded shrink-0">VA Bank</span>
+                                </label>
+
+                                <!-- VA BNI -->
+                                <label 
+                                    :class="selectedPaymentChannel === 'va_bni' ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20 shadow-xs' : 'border-slate-200 bg-white hover:border-slate-300'"
+                                    class="flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all text-xs"
+                                >
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <input type="radio" name="pay_hist_channel" value="va_bni" x-model="selectedPaymentChannel" class="text-[#2563EB]">
+                                        <div class="w-12 h-8 bg-white border border-slate-200/80 rounded-lg p-0.5 flex items-center justify-center shrink-0">
+                                            <img src="{{ asset('images/payments/bni.svg') }}" alt="BNI" class="max-h-full max-w-full object-contain">
+                                        </div>
+                                        <p class="font-bold text-slate-900 truncate">BNI Virtual Account</p>
+                                    </div>
+                                    <span class="text-[9px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded shrink-0">VA Bank</span>
                                 </label>
                             </div>
 
@@ -894,9 +1390,30 @@
                     </template>
 
                     <template x-if="createdOrder?.payment_status === 'dp_paid' && (isJustPaid || {{ session('success') ? 'true' : 'false' }})">
-                        <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4 text-center space-y-1.5 mt-2">
-                            <p class="font-bold text-blue-900 text-xs">Informasi Pelunasan Sisa 50%</p>
-                            <p class="text-[11px] text-blue-800 font-medium leading-relaxed">Tautan invoice resmi telah dikirim ke WhatsApp Anda. Anda dapat kembali mengakses tautan tersebut kapan saja untuk melakukan pembayaran <b>Pelunasan Sisa 50%</b> di kemudian hari.</p>
+                        <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4 text-center space-y-2 mt-2">
+                            <div class="flex items-center justify-center gap-1.5 text-blue-900 font-bold text-xs">
+                                <i data-lucide="check-circle" class="w-4 h-4 text-emerald-600"></i>
+                                <span>Pembayaran DP 50% Berhasil Dikonfirmasi</span>
+                            </div>
+                            <p class="text-[11px] text-blue-800 font-medium leading-relaxed">
+                                Notifikasi konfirmasi resmi telah dikirim ke WhatsApp Anda. <b>Sisa kekurangan (50%)</b> dapat Anda lunasi setelah pengerjaan proyek selesai secara langsung melalui menu <b>Detail Pesanan</b> di profil akun Anda.
+                            </p>
+                            <div class="pt-1 flex flex-wrap items-center justify-center gap-2">
+                                <a 
+                                    :href="'/customer/orders/' + createdOrder?.invoice_number"
+                                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#2563EB] hover:bg-[#1d4ed8] text-white font-bold text-xs transition-all shadow-xs"
+                                >
+                                    <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                                    <span>Lihat Detail Pesanan Ini</span>
+                                </a>
+                                <a 
+                                    href="{{ route('customer.dashboard') }}" 
+                                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-bold text-xs transition-all shadow-2xs"
+                                >
+                                    <i data-lucide="package" class="w-3.5 h-3.5"></i>
+                                    <span>Semua Pesanan Saya</span>
+                                </a>
+                            </div>
                         </div>
                     </template>
 
@@ -905,6 +1422,22 @@
                         <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 text-center space-y-2">
                             <p class="font-black text-emerald-800 text-sm">Terima Kasih! Tagihan Proyek Ini Telah LUNAS 100%</p>
                             <p class="text-xs text-emerald-700 font-medium">Seluruh proses pembayaran telah terverifikasi. Tim teknis JuangDev sedang/telah menyelesaikan proyek Anda.</p>
+                            <div class="pt-1 flex flex-wrap items-center justify-center gap-2">
+                                <a 
+                                    :href="'/customer/orders/' + createdOrder?.invoice_number"
+                                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition-all shadow-xs"
+                                >
+                                    <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                                    <span>Lihat Detail Pesanan Ini</span>
+                                </a>
+                                <a 
+                                    href="{{ route('customer.dashboard') }}" 
+                                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-bold text-xs transition-all shadow-2xs"
+                                >
+                                    <i data-lucide="package" class="w-3.5 h-3.5"></i>
+                                    <span>Semua Pesanan Saya</span>
+                                </a>
+                            </div>
                         </div>
                     </template>
 
@@ -913,7 +1446,7 @@
                         <button 
                             type="button" 
                             @click="printReceipt()"
-                            class="w-full sm:w-1/2 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-2"
+                            class="w-full sm:w-1/2 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer"
                         >
                             <i data-lucide="printer" class="w-4 h-4"></i>
                             <span>Cetak Resi / Download PDF</span>
@@ -922,7 +1455,7 @@
                         <button 
                             type="button" 
                             @click="estimatorStep = 'form'; createdOrder = null;"
-                            class="w-full sm:w-1/2 py-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-all"
+                            class="w-full sm:w-1/2 py-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-all cursor-pointer"
                         >
                             + Hitung Estimasi Baru
                         </button>
@@ -935,113 +1468,8 @@
     </div>
 </section>
 
-<!-- Thermal Paper Receipt Print Area -->
-
-<div id="receipt-print-area" class="hidden print:block font-mono text-black text-xs p-6 bg-white max-w-sm mx-auto border border-dashed border-slate-300">
-    <div class="text-center space-y-1 mb-4">
-        <h2 class="text-base font-black tracking-widest uppercase">JUANGDEV</h2>
-        <p class="text-10">Digital Solutions &amp; Software House</p>
-        <p class="text-9">WhatsApp: +62 859-1716-81988 | halo@juangdev.com</p>
-    </div>
-
-    <div class="border-dashed-line"></div>
-    
-    <p class="rec-title text-center font-bold uppercase tracking-wider text-xs">
-        @if(isset($order) && $order->payment_status === 'fully_paid')
-            OFFICIAL BUKTI PELUNASAN (LUNAS 100%)
-        @elseif(isset($order) && $order->payment_status === 'dp_paid')
-            OFFICIAL BUKTI PEMBAYARAN DP (50%)
-        @else
-            OFFICIAL TAGIHAN PESANAN PROYEK
-        @endif
-    </p>
-
-    <div class="border-dashed-line"></div>
-
-    <div class="space-y-1 text-11 mb-3">
-        <div class="flex justify-between">
-            <span>No. Invoice:</span>
-            <span class="rec-inv font-bold">{{ isset($order) ? $order->invoice_number : '-' }}</span>
-        </div>
-        <div class="flex justify-between">
-            <span>Tanggal:</span>
-            <span class="rec-date">{{ isset($order) ? $order->created_at->format('d M Y H:i') . ' WIB' : date('d M Y H:i') . ' WIB' }}</span>
-        </div>
-        <div class="flex justify-between">
-            <span>Klien:</span>
-            <span class="rec-name font-bold">{{ isset($order) ? $order->customer_name : '-' }}</span>
-        </div>
-        <div class="flex justify-between">
-            <span>No. WA:</span>
-            <span class="rec-phone">{{ isset($order) ? $order->customer_phone : '-' }}</span>
-        </div>
-        <div class="flex justify-between">
-            <span>Proyek:</span>
-            <span class="rec-proj">{{ isset($order) ? ($order->project_name ?? '-') : '-' }}</span>
-        </div>
-    </div>
-
-    <div class="border-solid-line"></div>
-
-    <div class="space-y-15 text-11 mb-3">
-        <div class="flex justify-between font-bold">
-            <span>Deskripsi Layanan</span>
-            <span>Biaya</span>
-        </div>
-        <div class="flex justify-between">
-            <span class="rec-service">{{ isset($order) ? $order->service_name : '-' }}</span>
-            <span class="rec-total-cost">{{ isset($order) ? $order->formatted_total : 'Rp 0' }}</span>
-        </div>
-        @if(isset($order) && $order->package_name)
-            <div class="flex justify-between text-10 pl-2" style="color:#64748b">
-                <span>Paket: {{ $order->package_name }}</span>
-            </div>
-        @endif
-    </div>
-
-    <div class="border-double-line"></div>
-
-    <div class="space-y-1 text-11 mb-4">
-        <div class="flex justify-between font-bold text-xs">
-            <span>Total Nilai Proyek</span>
-            <span class="rec-total">{{ isset($order) ? $order->formatted_total : 'Rp 0' }}</span>
-        </div>
-        
-        <div class="flex justify-between font-bold" style="color:#2563eb">
-            <span>Tagihan DP (50%)</span>
-            <span class="rec-dp">
-                {{ isset($order) ? $order->formatted_dp . ($order->payment_status !== 'unpaid' ? ' (LUNAS ✓)' : '') : 'Rp 0' }}
-            </span>
-        </div>
-
-        <div class="flex justify-between" style="color:#475569">
-            <span>Sisa Pelunasan (50%)</span>
-            <span class="rec-rem">
-                {{ isset($order) ? ($order->payment_status === 'fully_paid' ? 'Rp 0 (LUNAS ✓)' : $order->formatted_remaining) : 'Rp 0' }}
-            </span>
-        </div>
-
-        <div class="flex justify-between pt-1 border-t">
-            <span>Status Pembayaran:</span>
-            <span class="rec-status font-bold uppercase">
-                @if(isset($order) && $order->payment_status === 'fully_paid')
-                    <span style="color:#047857">LUNAS SEPENUHNYA (100%)</span>
-                @elseif(isset($order) && $order->payment_status === 'dp_paid')
-                    <span style="color:#b45309">DP 50% LUNAS</span>
-                @else
-                    <span style="color:#e11d48">MENUNGGU PEMBAYARAN</span>
-                @endif
-            </span>
-        </div>
-    </div>
-
-    <div class="border-dashed-line"></div>
-    
-    <div class="text-center space-y-1 mt-4">
-        <p class="font-bold tracking-widest text-xs">THANK YOU FOR YOUR BUSINESS!</p>
-        <p class="text-9" style="color:#64748b">JUANGDEV - YOUR DIGITAL GROWTH PARTNER</p>
-    </div>
-</div>
+<!-- Formal E-Receipt Component -->
+@include('partials.receipt-modal')
 
 <script>
 function formatRupiah(num) {
@@ -1056,29 +1484,31 @@ function printThermalReceipt() {
         return;
     }
 
-    // Default values (empty when no Blade $order)
-    var inv = '', name = '', phone = '', proj = '-', service = '-', dateStr = '';
-    var total = 'Rp 0', dp = 'Rp 0', rem = 'Rp 0';
+    // Default values
+    var inv = '', name = '', phone = '', maskedPhone = '', proj = '-', service = '-', pkg = '', dateStr = '';
+    var total = 'Rp 0', dp = 'Rp 0', rem = 'Rp 0', currentPaid = 'Rp 0';
     var status = 'MENUNGGU PEMBAYARAN';
-    var title = 'OFFICIAL TAGIHAN PESANAN PROYEK';
+    var title = 'Tagihan Transaksi Resmi';
+    var trxType = 'Tagihan Menunggu Pembayaran';
     var payStatus = 'unpaid';
     var totalNum = 0, dpNum = 0, remNum = 0;
 
-    // 1. Try Blade server-side values first (only available when $order exists via invoice URL)
+    // 1. Try Blade server-side values first
     @if(isset($order))
     inv = @json($order->invoice_number);
     name = @json($order->customer_name);
     phone = @json($order->customer_phone);
     proj = @json($order->project_name ?? '-');
     service = @json($order->service_name ?? '-');
-    dateStr = @json($order->created_at->format('d M Y H:i') . ' WIB');
+    pkg = @json($order->package_name ?? '');
+    dateStr = @json($order->created_at->format('Y-m-d H:i:s') . ' WIB');
     totalNum = {{ $order->total_amount }};
     dpNum = {{ $order->dp_amount }};
     remNum = {{ $order->remaining_amount }};
     payStatus = @json($order->payment_status);
     @endif
 
-    // 2. Override with Alpine.js data (always has latest, especially for new AJAX orders)
+    // 2. Override with Alpine.js data
     if (window.Alpine && document.getElementById('estimator')) {
         try {
             var alpineData = Alpine.$data(document.getElementById('estimator'));
@@ -1089,26 +1519,33 @@ function printThermalReceipt() {
                 if (o.customer_phone) phone = o.customer_phone;
                 if (o.project_name) proj = o.project_name;
                 if (o.service_name) service = o.service_name;
+                if (o.package_name) pkg = o.package_name;
                 if (o.total_amount !== undefined) totalNum = Number(o.total_amount);
                 if (o.dp_amount !== undefined) dpNum = Number(o.dp_amount);
                 if (o.remaining_amount !== undefined) remNum = Number(o.remaining_amount);
                 if (o.payment_status) payStatus = o.payment_status;
                 if (o.created_at) {
                     var d = new Date(o.created_at);
-                    dateStr = d.toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'}) + ' ' + d.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) + ' WIB';
+                    var yyyy = d.getFullYear();
+                    var mm = String(d.getMonth() + 1).padStart(2, '0');
+                    var dd = String(d.getDate()).padStart(2, '0');
+                    var hh = String(d.getHours()).padStart(2, '0');
+                    var min = String(d.getMinutes()).padStart(2, '0');
+                    var ss = String(d.getSeconds()).padStart(2, '0');
+                    dateStr = yyyy + '-' + mm + '-' + dd + ' ' + hh + ':' + min + ':' + ss + ' WIB';
                 }
             }
-            // Also try formData for name/phone if createdOrder is missing them
             if (alpineData && alpineData.formData && !name) {
                 if (alpineData.formData.name) name = alpineData.formData.name;
                 if (alpineData.formData.phone) phone = alpineData.formData.phone;
                 if (alpineData.formData.projectName) proj = alpineData.formData.projectName;
             }
-            // Try to get service name from selected service
             if (alpineData && alpineData.selectedService && (!service || service === '-')) {
                 service = alpineData.selectedService.name || service;
             }
-            // Try totalPrice from Alpine for total
+            if (alpineData && alpineData.selectedPlan && !pkg) {
+                pkg = alpineData.selectedPlan.name || '';
+            }
             if (alpineData && alpineData.totalPrice && totalNum === 0) {
                 totalNum = Number(alpineData.totalPrice);
                 dpNum = Math.round(totalNum * 0.5);
@@ -1119,28 +1556,42 @@ function printThermalReceipt() {
         }
     }
 
-    // 3. Compute formatted values from numbers
-    total = formatRupiah(totalNum);
-    if (payStatus === 'fully_paid') {
-        dp = formatRupiah(dpNum) + ' (LUNAS ✓)';
-        rem = 'Rp 0 (LUNAS ✓)';
-        status = 'LUNAS SEPENUHNYA (100%)';
-        title = 'OFFICIAL BUKTI PELUNASAN (LUNAS 100%)';
-    } else if (payStatus === 'dp_paid') {
-        dp = formatRupiah(dpNum) + ' (LUNAS ✓)';
-        rem = formatRupiah(remNum);
-        status = 'DP 50% LUNAS';
-        title = 'OFFICIAL BUKTI PEMBAYARAN DP (50%)';
+    // Mask phone number
+    if (phone && phone.length >= 8) {
+        maskedPhone = phone.substring(0, 4) + ' **** **** ' + phone.substring(phone.length - 3);
     } else {
-        dp = formatRupiah(dpNum);
-        rem = formatRupiah(remNum);
-        status = 'MENUNGGU PEMBAYARAN';
-        title = 'OFFICIAL TAGIHAN PESANAN PROYEK';
+        maskedPhone = phone || '-';
+    }
+
+    // 3. Compute formatted values & status
+    total = formatRupiah(totalNum);
+    dp = formatRupiah(dpNum);
+    rem = formatRupiah(remNum);
+
+    if (payStatus === 'fully_paid') {
+        title = 'Transaksi Berhasil (Lunas 100%)';
+        trxType = 'Pelunasan Proyek (100% LUNAS)';
+        currentPaid = total;
+        rem = 'Rp 0 (LUNAS)';
+    } else if (payStatus === 'dp_paid') {
+        title = 'Transaksi Berhasil (DP 50%)';
+        trxType = 'Pembayaran Uang Muka (DP 50%)';
+        currentPaid = dp;
+    } else {
+        title = 'Tagihan Transaksi Resmi';
+        trxType = 'Tagihan Menunggu Pembayaran';
+        currentPaid = dp;
     }
 
     if (!dateStr) {
         var now = new Date();
-        dateStr = now.toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'}) + ' ' + now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) + ' WIB';
+        var yyyy = now.getFullYear();
+        var mm = String(now.getMonth() + 1).padStart(2, '0');
+        var dd = String(now.getDate()).padStart(2, '0');
+        var hh = String(now.getHours()).padStart(2, '0');
+        var min = String(now.getMinutes()).padStart(2, '0');
+        var ss = String(now.getSeconds()).padStart(2, '0');
+        dateStr = yyyy + '-' + mm + '-' + dd + ' ' + hh + ':' + min + ':' + ss + ' WIB';
     }
 
     // 4. Clone receipt and inject all values
@@ -1153,70 +1604,88 @@ function printThermalReceipt() {
     setEl('.rec-inv', inv || '-');
     setEl('.rec-date', dateStr);
     setEl('.rec-name', name || '-');
-    setEl('.rec-phone', phone || '-');
+    setEl('.rec-phone', maskedPhone);
+    setEl('.rec-trx-type', trxType);
     setEl('.rec-proj', proj || '-');
     setEl('.rec-service', service || '-');
+    if (pkg) setEl('.rec-pkg', 'Paket: ' + pkg);
+    setEl('.rec-notes', proj && proj !== '-' ? proj : 'Pembayaran Resmi Proyek JuangDev');
     setEl('.rec-total-cost', total);
-    setEl('.rec-total', total);
     setEl('.rec-dp', dp);
     setEl('.rec-rem', rem);
-    // For status, set innerHTML since it may have color spans
-    var recStatusEl = clone.querySelector('.rec-status');
-    if (recStatusEl) {
-        var statusColor = '#e11d48'; // rose for unpaid
-        if (payStatus === 'fully_paid') statusColor = '#047857';
-        else if (payStatus === 'dp_paid') statusColor = '#b45309';
-        recStatusEl.innerHTML = '<span style="color:' + statusColor + '">' + status + '</span>';
-    }
+    setEl('.rec-total-highlight', currentPaid);
 
-    // 5. Open print popup - FULL CANVAS
-    var printWin = window.open('', '_blank', 'width=800,height=900');
+    // 5. Open print popup - BRImo Style Clean E-Receipt View
+    var printWin = window.open('', '_blank', 'width=780,height=920');
     if (!printWin) {
         window.print();
         return;
     }
     var css = [
-        '@page { size: A4; margin: 12mm 10mm; }',
-        '* { box-sizing: border-box; }',
+        '@page { size: A4 portrait; margin: 15mm 10mm; }',
+        '* { box-sizing: border-box; margin: 0; padding: 0; }',
         'body {',
-        '  font-family: "Courier New", Courier, monospace;',
-        '  background: #fff; color: #000;',
-        '  margin: 0; padding: 0;',
-        '  display: flex; justify-content: center; align-items: flex-start;',
+        '  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;',
+        '  background: #0086E5; color: #0f172a;',
+        '  padding: 30px 15px; display: flex; justify-content: center; align-items: flex-start;',
         '  min-height: 100vh;',
         '}',
-        '.receipt-box {',
-        '  width: 100%; max-width: 100%;',
-        '  padding: 30px 40px;',
-        '  box-sizing: border-box;',
+        '.receipt-container { width: 100%; max-width: 440px; margin: 0 auto; }',
+        '.receipt-card {',
+        '  background: #ffffff; border-radius: 28px;',
+        '  padding: 32px 28px;',
+        '  box-shadow: 0 20px 45px rgba(0,0,0,0.18);',
+        '  position: relative; overflow: hidden;',
         '}',
         '.text-center { text-align: center; }',
-        '.flex { display: flex; justify-content: space-between; align-items: center; }',
-        '.font-bold { font-weight: bold; }',
+        '.flex { display: flex; justify-content: space-between; align-items: flex-start; }',
+        '.items-center { align-items: center; }',
+        '.font-bold { font-weight: 700; }',
         '.font-black { font-weight: 900; }',
+        '.font-semibold { font-weight: 600; }',
+        '.font-medium { font-weight: 500; }',
+        '.font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }',
         '.uppercase { text-transform: uppercase; }',
         '.text-xs { font-size: 13px; }',
-        '.text-base { font-size: 19px; }',
-        '.text-10 { font-size: 12px; }',
-        '.text-11 { font-size: 14px; }',
-        '.text-9 { font-size: 11px; }',
-        '.mb-3 { margin-bottom: 16px; }',
-        '.mb-4 { margin-bottom: 20px; }',
-        '.mt-4 { margin-top: 20px; }',
-        '.pl-2 { padding-left: 10px; }',
-        '.border-dashed-line { border-bottom: 2px dashed #000; margin: 12px 0; }',
-        '.border-solid-line { border-bottom: 2px solid #000; margin: 12px 0; }',
-        '.border-double-line { border-bottom: 4px double #000; margin: 12px 0; }',
-        '.space-y-1 > * + * { margin-top: 6px; }',
-        '.space-y-15 > * + * { margin-top: 8px; }',
-        '.border-t { border-top: 1px dotted #999; }',
-        '.pt-1 { padding-top: 6px; }',
-        '.tracking-widest { letter-spacing: 0.15em; }',
-        '.tracking-wider { letter-spacing: 0.08em; }',
-        'h2 { font-size: 24px; margin: 0; }',
-        'p { margin: 2px 0; }',
+        '.text-sm { font-size: 14px; }',
+        '.text-lg { font-size: 18px; }',
+        '.text-xl { font-size: 20px; }',
+        '.text-2xl { font-size: 24px; }',
+        '.text-3xl { font-size: 30px; }',
+        '.text-slate-900 { color: #0f172a; }',
+        '.text-slate-800 { color: #1e293b; }',
+        '.text-slate-700 { color: #334155; }',
+        '.text-slate-500 { color: #64748b; }',
+        '.text-slate-400 { color: #94a3b8; }',
+        '.text-right { text-align: right; }',
+        '.border-b { border-bottom: 1px solid #f1f5f9; }',
+        '.border-t { border-top: 1px solid #f1f5f9; }',
+        '.border-t-2 { border-top: 2px dashed #cbd5e1; }',
+        '.py-2 { padding-top: 8px; padding-bottom: 8px; }',
+        '.py-3 { padding-top: 12px; padding-bottom: 12px; }',
+        '.py-4 { padding-top: 16px; padding-bottom: 16px; }',
+        '.pb-5 { padding-bottom: 20px; }',
+        '.pt-2 { padding-top: 8px; }',
+        '.pt-3 { padding-top: 12px; }',
+        '.mt-4 { margin-top: 16px; }',
+        '.mb-1\\.5 { margin-bottom: 6px; }',
+        '.space-y-2 > * + * { margin-top: 8px; }',
+        '.space-y-2\\.5 > * + * { margin-top: 10px; }',
+        '.relative { position: relative; }',
+        '.my-3 { margin-top: 12px; margin-bottom: 12px; }',
+        '.scallop-top, .scallop-bottom { display: flex; justify-content: space-between; overflow: hidden; width: 100%; }',
+        '.scallop-top span, .scallop-bottom span { width: 12px; height: 12px; background: #0086E5; border-radius: 50%; flex-shrink: 0; }',
+        '.scallop-top span { margin-top: -8px; }',
+        '.scallop-bottom span { margin-bottom: -8px; }',
+        '.rec-total-highlight { color: #0086E5; font-weight: 900; font-size: 30px; letter-spacing: -0.5px; }',
+        '@media print {',
+        '  body { background: #ffffff !important; padding: 0 !important; }',
+        '  .receipt-card { box-shadow: none !important; border: 1px solid #e2e8f0 !important; }',
+        '  .scallop-top span, .scallop-bottom span { background: #ffffff !important; }',
+        '}'
     ].join('\n');
-    printWin.document.write('<!DOCTYPE html><html><head><title>Resi Transaksi Resmi - JuangDev</title><meta charset="utf-8"><style>' + css + '</style></head><body><div class="receipt-box">' + clone.innerHTML + '</div><scr' + 'ipt>setTimeout(function(){window.print();},500);</scr' + 'ipt></body></html>');
+
+    printWin.document.write('<!DOCTYPE html><html><head><title>Bukti Transaksi Resmi - JuangDev</title><meta charset="utf-8"><style>' + css + '</style></head><body><div class="receipt-container">' + clone.innerHTML + '</div><scr' + 'ipt>setTimeout(function(){window.print();},400);</scr' + 'ipt></body></html>');
     printWin.document.close();
 }
 </script>

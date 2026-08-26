@@ -52,8 +52,33 @@ Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap')
 Route::get('/llms.txt', [LlmsTxtController::class, 'index'])->name('llms');
 Route::get('/llms-full.txt', [LlmsTxtController::class, 'full'])->name('llms.full');
 
+use App\Http\Controllers\CustomerAuthController;
+use App\Http\Controllers\CustomerPortalController;
+
+/*
+|--------------------------------------------------------------------------
+| Customer Authentication & Portal Routes
+|--------------------------------------------------------------------------
+*/
+Route::get('/login', [CustomerAuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [CustomerAuthController::class, 'login'])->name('login.submit');
+Route::get('/register', [CustomerAuthController::class, 'showRegister'])->name('register');
+Route::post('/register', [CustomerAuthController::class, 'register'])->name('register.submit');
+Route::post('/auth/google-firebase', [CustomerAuthController::class, 'firebaseGoogleAuth'])->name('auth.google-firebase');
+Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('logout');
+
+Route::middleware('auth')->prefix('customer')->name('customer.')->group(function () {
+    Route::get('/dashboard', [CustomerPortalController::class, 'dashboard'])->name('dashboard');
+    Route::get('/orders', [CustomerPortalController::class, 'orders'])->name('orders');
+    Route::get('/orders/{invoiceNumber}', [CustomerPortalController::class, 'showOrder'])->name('orders.show');
+    Route::post('/orders/{invoiceNumber}/testimonial', [CustomerPortalController::class, 'submitTestimonial'])->name('orders.testimonial');
+    Route::get('/profile', [CustomerPortalController::class, 'profile'])->name('profile');
+    Route::post('/profile', [CustomerPortalController::class, 'updateProfile'])->name('profile.update');
+});
+
 // Public Invoice & Pakasir Order Routes
 Route::post('/orders', [InvoiceController::class, 'store'])->name('orders.store');
+Route::get('/orders/{invoiceNumber}/check-status', [InvoiceController::class, 'checkStatus'])->name('orders.check-status');
 Route::get('/invoice/{invoiceNumber}', [InvoiceController::class, 'show'])->name('invoice.show');
 Route::post('/invoice/{invoiceNumber}/pay', [InvoiceController::class, 'pay'])->name('invoice.pay');
 Route::post('/webhook/pakasir', [InvoiceController::class, 'webhook'])->name('webhook.pakasir');

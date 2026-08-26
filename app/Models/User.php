@@ -19,7 +19,11 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone',
         'password',
+        'firebase_uid',
+        'avatar',
+        'role',
     ];
 
     /**
@@ -43,5 +47,13 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Customer orders relation.
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
     }
 }

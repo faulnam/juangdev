@@ -69,11 +69,11 @@
 
                         <button 
                             type="button" 
-                            onclick="window.print()" 
-                            class="inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-3.5 py-1.5 rounded-full transition-all print:hidden"
+                            onclick="printThermalReceipt()" 
+                            class="inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-3.5 py-1.5 rounded-full transition-all print:hidden cursor-pointer"
                         >
                             <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-                            <span>Cetak Resi</span>
+                            <span>Cetak Resi Formal</span>
                         </button>
                     </div>
                 </div>
@@ -264,101 +264,93 @@
     </div>
 </div>
 
-<!-- Thermal Paper Receipt Print Area (Visible ONLY when printing) -->
-<style>
-@media print {
-    body * {
-        visibility: hidden !important;
-    }
-    #receipt-print-area, #receipt-print-area * {
-        visibility: visible !important;
-    }
-    #receipt-print-area {
-        position: absolute !important;
-        left: 50% !important;
-        top: 20px !important;
-        transform: translateX(-50%) !important;
-        width: 100% !important;
-        max-width: 360px !important;
-        display: block !important;
-        background: #ffffff !important;
-        color: #000000 !important;
-        border: 1px dashed #000000 !important;
-        font-family: monospace !important;
-    }
+<!-- Formal E-Receipt Component -->
+@include('partials.receipt-modal')
+
+<script>
+function formatRupiah(num) {
+    if (!num && num !== 0) return 'Rp 0';
+    return 'Rp ' + Number(num).toLocaleString('id-ID');
 }
-</style>
 
-<div id="receipt-print-area" class="hidden print:block font-mono text-black text-xs p-6 bg-white max-w-sm mx-auto border border-dashed border-slate-300">
-    <div class="text-center space-y-1 mb-4">
-        <h2 class="text-base font-black tracking-widest uppercase">JUANGDEV</h2>
-        <p class="text-[10px]">Digital Solutions &amp; Software House</p>
-        <p class="text-[9px]">WhatsApp: +62 859-1716-81988 | halo@juangdev.com</p>
-    </div>
+function printThermalReceipt() {
+    var receiptEl = document.getElementById('receipt-print-area');
+    if (!receiptEl) {
+        window.print();
+        return;
+    }
 
-    <p class="text-center text-[10px] my-2">**************************************************</p>
-    <p class="text-center font-bold uppercase tracking-wider text-xs">OFFICIAL ORDER RECEIPT</p>
-    <p class="text-center text-[10px] my-2">**************************************************</p>
+    var clone = receiptEl.cloneNode(true);
+    clone.classList.remove('hidden', 'print:block');
+    clone.style.display = 'block';
 
-    <div class="space-y-1 text-[11px] mb-3">
-        <div class="flex justify-between"><span>No. Invoice:</span><span class="font-bold">{{ $order->invoice_number }}</span></div>
-        <div class="flex justify-between"><span>Tanggal:</span><span>{{ $order->created_at->format('d M Y H:i') }} WIB</span></div>
-        <div class="flex justify-between"><span>Klien:</span><span class="font-bold">{{ $order->customer_name }}</span></div>
-        <div class="flex justify-between"><span>No. WA:</span><span>{{ $order->customer_phone }}</span></div>
-        <div class="flex justify-between"><span>Proyek:</span><span>{{ $order->project_name ?? '-' }}</span></div>
-    </div>
+    var printWin = window.open('', '_blank', 'width=800,height=950');
+    if (!printWin) {
+        window.print();
+        return;
+    }
 
-    <p class="text-center text-[10px] my-2">--------------------------------------------------</p>
+    var css = [
+        '@page { size: A4 portrait; margin: 20mm 15mm; }',
+        '* { box-sizing: border-box; margin: 0; padding: 0; }',
+        'body {',
+        '  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;',
+        '  background: #f8fafc; color: #0f172a;',
+        '  padding: 40px 20px; display: flex; justify-content: center; align-items: flex-start;',
+        '  min-height: 100vh;',
+        '}',
+        '.receipt-container { width: 100%; max-width: 520px; margin: 0 auto; }',
+        '.receipt-card {',
+        '  background: #ffffff; border-radius: 16px;',
+        '  padding: 36px 32px;',
+        '  border: 2px solid #cbd5e1;',
+        '  box-shadow: 0 10px 25px rgba(0,0,0,0.06);',
+        '  position: relative;',
+        '}',
+        '.text-center { text-align: center; }',
+        '.flex { display: flex; justify-content: space-between; align-items: flex-start; }',
+        '.items-center { align-items: center; }',
+        '.font-bold { font-weight: 700; }',
+        '.font-black { font-weight: 900; }',
+        '.font-semibold { font-weight: 600; }',
+        '.font-medium { font-weight: 500; }',
+        '.font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }',
+        '.uppercase { text-transform: uppercase; }',
+        '.text-xs { font-size: 13px; }',
+        '.text-sm { font-size: 14px; }',
+        '.text-base { font-size: 16px; }',
+        '.text-lg { font-size: 18px; }',
+        '.text-2xl { font-size: 24px; }',
+        '.text-slate-900 { color: #0f172a; }',
+        '.text-slate-800 { color: #1e293b; }',
+        '.text-slate-700 { color: #334155; }',
+        '.text-slate-500 { color: #64748b; }',
+        '.text-slate-400 { color: #94a3b8; }',
+        '.text-blue { color: #2563EB; }',
+        '.text-right { text-align: right; }',
+        '.border-b { border-bottom: 1px solid #e2e8f0; }',
+        '.border-b-2 { border-bottom: 2px solid #cbd5e1; }',
+        '.border-t { border-top: 1px solid #e2e8f0; }',
+        '.border-t-2 { border-top: 2px solid #0f172a; }',
+        '.py-2 { padding-top: 8px; padding-bottom: 8px; }',
+        '.py-4 { padding-top: 16px; padding-bottom: 16px; }',
+        '.pb-5 { padding-bottom: 20px; }',
+        '.mt-4 { margin-top: 16px; }',
+        '.mt-5 { margin-top: 20px; }',
+        '.pt-3 { padding-top: 12px; }',
+        '.pt-4 { padding-top: 16px; }',
+        '.space-y-2 > * + * { margin-top: 8px; }',
+        '.space-y-2\\.5 > * + * { margin-top: 10px; }',
+        '.my-3 { margin-top: 14px; margin-bottom: 14px; }',
+        '.rec-total-highlight { color: #2563EB; font-weight: 900; font-size: 26px; }',
+        '@media print {',
+        '  body { background: #ffffff !important; padding: 0 !important; }',
+        '  .receipt-card { box-shadow: none !important; border: 1.5px solid #0f172a !important; border-radius: 8px !important; }',
+        '}'
+    ].join('\n');
 
-    <div class="space-y-1.5 text-[11px] mb-3">
-        <div class="flex justify-between font-bold">
-            <span>Deskripsi Layanan</span>
-            <span>Biaya</span>
-        </div>
-        <div class="flex justify-between">
-            <span>{{ $order->service_name }}</span>
-            <span>{{ $order->formatted_total }}</span>
-        </div>
-        @if($order->package_name)
-            <div class="flex justify-between text-[10px] text-slate-600 pl-2">
-                <span>Paket: {{ $order->package_name }}</span>
-            </div>
-        @endif
-    </div>
-
-    <p class="text-center text-[10px] my-2">==================================================</p>
-
-    <div class="space-y-1 text-[11px] mb-4">
-        <div class="flex justify-between font-bold text-xs">
-            <span>Total Investasi Proyek</span>
-            <span>{{ $order->formatted_total }}</span>
-        </div>
-        <div class="flex justify-between text-blue-600 font-bold">
-            <span>Tagihan DP (50%)</span>
-            <span>{{ $order->formatted_dp }}</span>
-        </div>
-        <div class="flex justify-between text-slate-600">
-            <span>Sisa Pelunasan (50%)</span>
-            <span>{{ $order->formatted_remaining }}</span>
-        </div>
-        <div class="flex justify-between pt-1 border-t border-dotted border-slate-300">
-            <span>Status Pembayaran:</span>
-            <span class="font-bold uppercase text-amber-600">
-                @if($order->payment_status === 'fully_paid') LUNAS 100%
-                @elseif($order->payment_status === 'dp_paid') DP 50% LUNAS
-                @else MENUNGGU PEMBAYARAN @endif
-            </span>
-        </div>
-    </div>
-
-    <p class="text-center text-[10px] my-2">**************************************************</p>
-    
-    <div class="text-center space-y-2 mt-4">
-        <p class="font-bold tracking-widest text-xs">THANK YOU FOR YOUR BUSINESS!</p>
-        <div class="inline-block px-4 py-2 border border-black font-mono text-[10px] tracking-widest">
-            |||||||||||||||||||||||||||||||||||||||||||||||
-        </div>
-        <p class="text-[9px] text-slate-500">JUANGDEV - YOUR DIGITAL GROWTH PARTNER</p>
-    </div>
-</div>
+    printWin.document.write('<!DOCTYPE html><html><head><title>Bukti Transaksi Resmi - JuangDev</title><meta charset="utf-8"><style>' + css + '</style></head><body><div class="receipt-container">' + clone.innerHTML + '</div><scr' + 'ipt>setTimeout(function(){window.print();},400);</scr' + 'ipt></body></html>');
+    printWin.document.close();
+}
+</script>
 @endsection

@@ -162,6 +162,9 @@
     <!-- Floating Gemini AI Chatbot -->
     @include('partials.chatbot')
 
+    <!-- Reusable Customer Auth Modal -->
+    @include('partials.auth-modal')
+
     <script>
         // Initialize Lucide Icons
         document.addEventListener('DOMContentLoaded', () => {

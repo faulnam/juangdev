@@ -26,6 +26,7 @@ class InvoiceController extends Controller
             'addons' => 'nullable|array',
             'total_amount' => 'required|numeric|min:0',
             'payment_scheme' => 'required|string|in:dp_50,full_100',
+            'payment_channel' => 'nullable|string|max:50',
             'notes' => 'nullable|string',
         ]);
 
@@ -35,11 +36,19 @@ class InvoiceController extends Controller
         $total = (int) $validated['total_amount'];
         $isFull = ($validated['payment_scheme'] === 'full_100');
         $dp = $isFull ? $total : (int) round($total * 0.5);
-        $initialStatus = $isFull ? 'fully_paid' : 'dp_paid';
-        $initialProjectStatus = $isFull ? 'completed' : 'in_progress';
         $remaining = $isFull ? 0 : ($total - $dp);
 
+        $userId = auth()->id();
+        if (!$userId) {
+            $existingUser = \App\Models\User::where('email', $validated['customer_email'])->first();
+            if ($existingUser) {
+                $userId = $existingUser->id;
+            }
+        }
+
+        // INITIAL ORDER IS ALWAYS UNPAID AND PROJECT PENDING
         $order = Order::create([
+            'user_id' => $userId,
             'invoice_number' => $invNumber,
             'token' => $token,
             'customer_name' => $validated['customer_name'],
@@ -53,13 +62,17 @@ class InvoiceController extends Controller
             'dp_amount' => $dp,
             'remaining_amount' => $remaining,
             'payment_scheme' => $validated['payment_scheme'],
-            'payment_status' => $initialStatus,
-            'project_status' => $initialProjectStatus,
+            'payment_status' => 'unpaid',
+            'project_status' => 'pending',
             'notes' => $validated['notes'] ?? null,
         ]);
 
-        // Send payment confirmation WA directly (1 WA for customer, 1 for admin)
-        PakasirService::sendCustomerPaymentSuccessWa($order, $isFull ? 'full' : 'dp');
+        // WA notification is strictly sent ONLY after payment is completed (DP 50% or Full)
+
+        // Generate genuine Pakasir Transaction (Live ASPI QRIS string, VA, or Direct Link)
+        $channel = $request->input('payment_channel', 'qris');
+        $type = $isFull ? 'full' : 'dp';
+        $pakasirData = PakasirService::createTransaction($order, $channel, $type);
 
         if ($request->expectsJson()) {
             return response()->json([
@@ -78,6 +91,7 @@ class InvoiceController extends Controller
                 'payment_scheme' => $order->payment_scheme,
                 'payment_status' => $order->payment_status,
                 'project_status' => $order->project_status,
+                'pakasir' => $pakasirData,
                 'created_at' => $order->created_at->toISOString(),
             ]);
         }
@@ -95,56 +109,59 @@ class InvoiceController extends Controller
 
         $settings = SiteSetting::pluck('value', 'key')->toArray();
 
-        return view('pages.invoice', compact('order', 'settings'));
+        // Generate real Pakasir transaction data for this invoice
+        $type = ($order->payment_status === 'dp_paid') ? 'remaining' : ($order->payment_scheme === 'full_100' ? 'full' : 'dp');
+        $pakasirData = PakasirService::createTransaction($order, 'qris', $type);
+
+        return view('pages.invoice', compact('order', 'settings', 'pakasirData'));
     }
 
     /**
-     * Process Pakasir payment action / simulation.
-     * Has idempotency guards to prevent double-processing on page refresh.
+     * Check real-time payment status via Pakasir API.
+     */
+    public function checkStatus(Request $request, $invoiceNumber)
+    {
+        $order = Order::where('invoice_number', $invoiceNumber)->first();
+        if (!$order) {
+            return response()->json(['paid' => false, 'message' => 'Pesanan tidak ditemukan'], 404);
+        }
+
+        $type = $request->input('type', $order->payment_status === 'dp_paid' ? 'remaining' : 'dp');
+        $result = PakasirService::checkTransactionStatus($order, $type);
+
+        return response()->json([
+            'paid' => $result['paid'] ?? false,
+            'payment_status' => $order->payment_status,
+            'project_status' => $order->project_status,
+            'remaining_amount' => $order->remaining_amount,
+            'formatted_remaining' => $order->formatted_remaining,
+        ]);
+    }
+
+    /**
+     * Process Pakasir payment action: Redirect customer directly to official Pakasir Gateway.
      */
     public function pay(Request $request, $invoiceNumber)
     {
         $order = Order::where('invoice_number', $invoiceNumber)->firstOrFail();
-        $type = $request->input('type', 'dp'); // 'dp' or 'remaining' or 'full'
+        $type = $request->input('type', ($order->payment_status === 'dp_paid') ? 'remaining' : 'dp');
 
         // IDEMPOTENCY GUARD: Prevent re-processing if already paid
         if ($order->payment_status === 'fully_paid') {
-            // Already fully paid, just redirect without sending WA again
             Log::info('Payment SKIPPED (already fully_paid): ' . $order->invoice_number);
-            return redirect()->route('invoice.show', ['invoiceNumber' => $order->invoice_number, 't' => time()])
+            return redirect()->route('customer.orders.show', $order->invoice_number)
                 ->with('success', 'Pembayaran sudah lunas sebelumnya.');
         }
 
         if (($type === 'dp') && $order->payment_status === 'dp_paid') {
-            // DP already paid, just redirect without sending WA again
             Log::info('Payment SKIPPED (dp already paid): ' . $order->invoice_number);
-            return redirect()->route('invoice.show', ['invoiceNumber' => $order->invoice_number, 't' => time()])
+            return redirect()->route('customer.orders.show', $order->invoice_number)
                 ->with('success', 'Pembayaran DP sudah diterima sebelumnya.');
         }
 
-        if ($type === 'dp' || $type === 'full') {
-            $newStatus = ($order->payment_scheme === 'full_100' || $type === 'full') ? 'fully_paid' : 'dp_paid';
-            $order->payment_status = $newStatus;
-            $order->project_status = ($newStatus === 'fully_paid') ? 'completed' : 'in_progress';
-            $order->remaining_amount = ($newStatus === 'fully_paid') ? 0 : ($order->total_amount - $order->dp_amount);
-            $order->save();
-
-            $freshOrder = Order::find($order->id);
-            Log::info('Payment processed: ' . $freshOrder->invoice_number . ' -> ' . $freshOrder->payment_status);
-            PakasirService::sendCustomerPaymentSuccessWa($freshOrder, $freshOrder->payment_status === 'fully_paid' ? 'full' : 'dp');
-        } elseif ($type === 'remaining') {
-            $order->payment_status = 'fully_paid';
-            $order->remaining_amount = 0;
-            $order->project_status = 'completed';
-            $order->save();
-
-            $freshOrder = Order::find($order->id);
-            Log::info('Pelunasan processed: ' . $freshOrder->invoice_number . ' -> ' . $freshOrder->payment_status);
-            PakasirService::sendCustomerPaymentSuccessWa($freshOrder, 'full');
-        }
-
-        return redirect()->route('invoice.show', ['invoiceNumber' => $order->invoice_number, 't' => time()])
-            ->with('success', 'Pembayaran berhasil diproses dan dikonfirmasi.');
+        // Direct user to official Pakasir payment gateway
+        $pakasirData = PakasirService::createTransaction($order, 'qris', $type);
+        return redirect($pakasirData['payment_url']);
     }
 
     /**
@@ -154,25 +171,29 @@ class InvoiceController extends Controller
     {
         Log::info('Pakasir Webhook Payload: ', $request->all());
 
-        $invoiceNumber = $request->input('invoice_number') ?? $request->input('order_id');
-        $status = strtolower($request->input('status') ?? 'paid');
+        $rawOrderId = $request->input('order_id') ?? $request->input('invoice_number');
+        $status = strtolower($request->input('status') ?? 'completed');
+        $isPelunasan = str_contains($rawOrderId, '-PELUNASAN');
+        $invoiceNumber = str_replace('-PELUNASAN', '', $rawOrderId);
 
         if ($invoiceNumber) {
             $order = Order::where('invoice_number', $invoiceNumber)->first();
             if ($order && in_array($status, ['paid', 'success', 'completed'])) {
-                if ($order->payment_status === 'unpaid') {
-                    $order->update([
-                        'payment_status' => ($order->payment_scheme === 'full_100') ? 'fully_paid' : 'dp_paid',
-                        'project_status' => 'in_progress',
-                    ]);
-                    PakasirService::sendCustomerPaymentSuccessWa($order, $order->payment_status === 'fully_paid' ? 'full' : 'dp');
-                } elseif ($order->payment_status === 'dp_paid') {
+                if ($isPelunasan || $order->payment_status === 'dp_paid') {
                     $order->update([
                         'payment_status' => 'fully_paid',
                         'remaining_amount' => 0,
                         'project_status' => 'completed',
                     ]);
                     PakasirService::sendCustomerPaymentSuccessWa($order, 'full');
+                } else {
+                    $newStatus = ($order->payment_scheme === 'full_100') ? 'fully_paid' : 'dp_paid';
+                    $order->update([
+                        'payment_status' => $newStatus,
+                        'project_status' => ($newStatus === 'fully_paid') ? 'completed' : 'in_progress',
+                        'remaining_amount' => ($newStatus === 'fully_paid') ? 0 : ($order->total_amount - $order->dp_amount),
+                    ]);
+                    PakasirService::sendCustomerPaymentSuccessWa($order, $newStatus === 'fully_paid' ? 'full' : 'dp');
                 }
             }
         }
