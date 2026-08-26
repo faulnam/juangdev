@@ -39,54 +39,27 @@
             {{-- Loop twice for continuous seamless loop --}}
             @for ($loopCount = 0; $loopCount < 2; $loopCount++)
                 @foreach($testimonials as $testimonial)
-                    @php
-                        $initials = collect(explode(' ', $testimonial->name))->map(fn($n) => $n[0] ?? '')->take(2)->join('');
-                    @endphp
-                    <div class="w-[320px] sm:w-[380px] shrink-0 select-none">
-                        <div class="bg-white rounded-[1.75rem] p-7 md:p-8 shadow-2xl h-full flex flex-col justify-between transition-transform duration-300 hover:-translate-y-1.5 border border-slate-100">
+                    <div class="w-[300px] sm:w-[350px] shrink-0 select-none">
+                        <div class="bg-white rounded-2xl p-6 sm:p-7 shadow-xl h-full flex flex-col justify-between transition-transform duration-300 hover:-translate-y-1 border border-slate-100/90">
                             <div>
-                                <!-- Large Serif Quote Mark -->
-                                <div class="text-[#a5b4fc] font-serif text-[3.75rem] leading-none h-8 mb-5 opacity-70">
-                                    &ldquo;
-                                </div>
-                                
-                                <!-- Review Content -->
-                                <p class="text-[#1e293b] text-[0.925rem] leading-relaxed font-semibold mb-6">
-                                    {{ $testimonial->content }}
-                                </p>
-                            </div>
-
-                            <div>
-                                <!-- Star Rating -->
+                                <!-- Rating Bintang -->
                                 <div class="flex items-center gap-1 mb-4">
                                     @for($i = 0; $i < ($testimonial->rating ?? 5); $i++)
                                         <i data-lucide="star" class="w-4 h-4 fill-[#eab308] text-[#eab308]"></i>
                                     @endfor
                                 </div>
+                                
+                                <!-- Isi Review -->
+                                <p class="text-slate-700 text-sm sm:text-[0.925rem] leading-relaxed font-medium mb-5">
+                                    &ldquo;{{ $testimonial->content }}&rdquo;
+                                </p>
+                            </div>
 
-                                <!-- Client Avatar & Details -->
-                                <div class="flex items-center gap-3.5 pt-3 border-t border-slate-100">
-                                    @if($testimonial->avatar_url)
-                                        <img 
-                                            src="{{ $testimonial->avatar_url }}" 
-                                            alt="{{ $testimonial->name }}" 
-                                            class="w-11 h-11 rounded-full object-cover shrink-0 ring-2 ring-blue-500/20"
-                                        >
-                                    @else
-                                        <div class="w-11 h-11 rounded-full bg-[#1e40af] flex items-center justify-center text-white text-[0.85rem] font-bold shrink-0">
-                                            {{ $initials }}
-                                        </div>
-                                    @endif
-                                    
-                                    <div class="flex flex-col min-w-0">
-                                        <p class="text-[0.95rem] font-bold text-[#0f172a] leading-tight truncate">
-                                            {{ $testimonial->name }}
-                                        </p>
-                                        <p class="text-[0.8rem] font-semibold text-[#64748b] mt-0.5 truncate">
-                                            {{ $testimonial->role ?? 'Klien' }}
-                                        </p>
-                                    </div>
-                                </div>
+                            <!-- Nama Klien -->
+                            <div class="pt-3.5 border-t border-slate-100">
+                                <h4 class="text-sm sm:text-[0.95rem] font-bold text-slate-900 leading-tight">
+                                    {{ $testimonial->name }}
+                                </h4>
                             </div>
                         </div>
                     </div>

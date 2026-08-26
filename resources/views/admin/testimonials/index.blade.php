@@ -13,15 +13,21 @@
             <form action="{{ route('admin.testimonials.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                 @csrf
 
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Nama Klien *</label>
-                    <input type="text" name="name" required placeholder="Contoh: Sarah Wijaya" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-[#2563EB]">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Nama Klien *</label>
+                        <input type="text" name="name" required placeholder="Contoh: Bagus Wicaksono" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-[#2563EB]">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Perusahaan / Bisnis</label>
+                        <input type="text" name="company" placeholder="Contoh: Gudeg Yu Djum Solo" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-[#2563EB]">
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Role / Jabatan *</label>
-                        <input type="text" name="role" required placeholder="CEO of TechFlow" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-[#2563EB]">
+                        <input type="text" name="role" required placeholder="Contoh: Owner / Founder" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-[#2563EB]">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Rating (1-5) *</label>
@@ -35,18 +41,7 @@
 
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Isi Testimoni *</label>
-                    <textarea name="content" rows="3" required placeholder="Tuliskan ulasan klien mengenai hasil kerja JuangDev..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-[#2563EB] resize-none"></textarea>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Upload Avatar Foto Klien</label>
-                    <input 
-                        type="file" 
-                        name="avatar_file" 
-                        accept="image/*"
-                        class="w-full px-3 py-2 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-[#2563EB] file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-[#2563EB] file:text-white hover:file:bg-blue-700 cursor-pointer bg-slate-50/50 mb-2"
-                    >
-                    <input type="text" name="avatar_url" placeholder="Atau URL gambar (Opsional)" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-[#2563EB]">
+                    <textarea name="content" rows="4" required placeholder="Tuliskan ulasan klien mengenai hasil kerja JuangDev..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-[#2563EB] resize-none"></textarea>
                 </div>
 
                 <button type="submit" class="w-full py-3 rounded-xl bg-[#0A1E5E] text-[#C7F236] font-bold text-xs hover:bg-[#122d78] shadow-md transition-all">
@@ -86,12 +81,9 @@
                                 &ldquo;{{ $t->content }}&rdquo;
                             </p>
                             <div class="flex items-center gap-2 pt-1">
-                                @if($t->avatar_url)
-                                    <img src="{{ $t->avatar_url }}" alt="{{ $t->name }}" class="w-6 h-6 rounded-full object-cover border border-slate-200">
-                                @endif
                                 <p class="text-xs font-bold text-slate-900">{{ $t->name }}</p>
                                 <span class="text-slate-300">•</span>
-                                <p class="text-xs text-slate-500">{{ $t->role }}</p>
+                                <p class="text-xs text-slate-500">{{ $t->role }}@if($t->company) ({{ $t->company }})@endif</p>
                             </div>
                         </div>
 

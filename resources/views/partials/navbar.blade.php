@@ -14,8 +14,12 @@
     x-init="
         window.addEventListener('scroll', () => { scrolled = window.scrollY > 40 });
         $watch('mobileOpen', value => {
-            if (value) { document.body.style.overflow = 'hidden'; } 
-            else { document.body.style.overflow = ''; }
+            if (value) { 
+                document.body.style.overflow = 'hidden'; 
+                $nextTick(() => { if (window.lucide) { lucide.createIcons(); } });
+            } else { 
+                document.body.style.overflow = ''; 
+            }
         });
     "
     class="fixed top-0 left-0 right-0 z-50 w-full flex justify-center pointer-events-none"
@@ -112,7 +116,7 @@
                 >
                     <div class="bg-white rounded-xl p-1.5 border border-slate-200/90 shadow-lg shadow-slate-900/5 space-y-0.5">
                         <a 
-                            href="{{ route('services') }}"
+                            href="{{ route('services') }}" 
                             @click="open = false"
                             class="flex flex-col px-3 py-2 rounded-lg text-slate-700 hover:text-slate-950 hover:bg-slate-100/80 transition-colors"
                         >
@@ -121,7 +125,7 @@
                         </a>
 
                         <a 
-                            href="{{ route('home') }}#pricing"
+                            href="{{ route('home') }}#pricing" 
                             @click="scrollTo('pricing')"
                             class="flex flex-col px-3 py-2 rounded-lg text-slate-700 hover:text-slate-950 hover:bg-slate-100/80 transition-colors"
                         >
@@ -130,7 +134,7 @@
                         </a>
 
                         <a 
-                            href="{{ route('estimator') }}"
+                            href="{{ route('estimator') }}" 
                             @click="open = false"
                             class="flex flex-col px-3 py-2 rounded-lg text-slate-700 hover:text-slate-950 hover:bg-slate-100/80 transition-colors"
                         >
@@ -189,25 +193,23 @@
 
     <!-- ==========================================
          2. MOBILE FLOATING HAMBURGER BUTTON
-         (Logo is hidden outside on mobile, only hamburger is shown.
-          Transparent initially, white rounded bg when scrolled)
          ========================================== -->
     <div class="md:hidden fixed top-4 right-4 z-50 pointer-events-auto">
         <button 
             @click="mobileOpen = !mobileOpen"
             :class="scrolled 
-                ? 'bg-white/95 text-slate-900 shadow-xl border border-slate-200/90 hover:bg-slate-50' 
-                : '{{ $isLightHeaderPage ? 'bg-white/90 text-slate-900 shadow-md border border-slate-200/80' : 'bg-white/15 text-white hover:bg-white/25 border border-white/20' }} backdrop-blur-md'"
-            class="w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 active:scale-95 focus:outline-none cursor-pointer"
+                ? 'bg-white/95 text-slate-900 shadow-lg shadow-slate-900/10 border border-slate-200/90 hover:bg-slate-50' 
+                : '{{ $isLightHeaderPage ? 'bg-white/90 text-slate-900 shadow-sm border border-slate-200/80' : 'bg-white/15 text-white hover:bg-white/25 border border-white/20' }} backdrop-blur-md'"
+            class="w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300 active:scale-95 focus:outline-none cursor-pointer"
             aria-label="Buka Menu Navigasi"
         >
-            <i x-show="!mobileOpen" data-lucide="menu" class="w-6 h-6 stroke-[2.5]"></i>
-            <i x-show="mobileOpen" x-cloak data-lucide="x" class="w-6 h-6 stroke-[2.5]"></i>
+            <i x-show="!mobileOpen" data-lucide="menu" class="w-5 h-5 stroke-[2.2]"></i>
+            <i x-show="mobileOpen" x-cloak data-lucide="x" class="w-5 h-5 stroke-[2.2]"></i>
         </button>
     </div>
 
     <!-- ==========================================
-         3. MOBILE SLIDE-OVER DRAWER (From Right to Left)
+         3. MOBILE SLIDE-OVER DRAWER
          ========================================== -->
     <!-- Backdrop Overlay -->
     <div 
@@ -220,7 +222,7 @@
         x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0"
         @click="mobileOpen = false"
-        class="pointer-events-auto fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 md:hidden"
+        class="pointer-events-auto fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-[60] md:hidden"
     ></div>
 
     <!-- Slide-over Drawer Panel -->
@@ -233,75 +235,86 @@
         x-transition:leave="transition transform ease-in duration-200"
         x-transition:leave-start="translate-x-0"
         x-transition:leave-end="translate-x-full"
-        class="pointer-events-auto fixed top-0 right-0 bottom-0 w-[84vw] max-w-[340px] bg-[#071542] text-white shadow-2xl z-50 flex flex-col justify-between overflow-y-auto border-l border-white/10 md:hidden"
-    >
-        <!-- Top Drawer Header: Logo & Close Button -->
-        <div class="p-5 pb-4 border-b border-white/10 flex items-center justify-between shrink-0 bg-[#0A1E5E]/80 backdrop-blur-md">
-            <a href="{{ route('home') }}" @click="mobileOpen = false" class="flex items-center group" aria-label="JuangDev">
-                <img 
-                    src="{{ asset('logo4.png') }}?v={{ filemtime(public_path('logo4.png')) }}" 
-                    alt="JuangDev" 
-                    class="h-10 sm:h-12 w-auto object-contain transition-transform group-hover:scale-105"
-                >
-            </a>
+        class="pointer-events-auto fixed top-0 right-0 bottom-0 w-[84vw] max-w-[320px] bg-white text-slate-800 shadow-2xl z-[70] flex flex-col justify-between overflow-y-auto border-l border-slate-200/80 md:hidden"
+            <!-- Top Drawer Header: Hero Pattern Background -->
+        <div class="relative bg-[#0A1E5E] text-white px-5 py-3.5 shrink-0 overflow-hidden border-b border-white/10">
+            <!-- Hero Grid Pattern (Kotak-Kotak seperti Hero Section) -->
+            <div class="absolute inset-0 bg-[linear-gradient(to_right,#ffffff10_1px,transparent_1px),linear-gradient(to_bottom,#ffffff10_1px,transparent_1px)] bg-[size:1.25rem_1.25rem] pointer-events-none"></div>
 
-            <button 
-                @click="mobileOpen = false"
-                class="w-10 h-10 rounded-full bg-white/10 text-white hover:bg-white/20 flex items-center justify-center transition-colors cursor-pointer"
-                aria-label="Tutup Menu"
-            >
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
+            <div class="relative z-10 flex items-center justify-between">
+                <a href="{{ route('home') }}" @click="mobileOpen = false" class="flex items-center group py-0.5" aria-label="JuangDev">
+                    <img 
+                        src="{{ asset('logo3.png') }}?v={{ filemtime(public_path('logo3.png')) }}" 
+                        alt="JuangDev" 
+                        class="h-7 w-auto object-contain transition-transform group-hover:scale-105"
+                    >
+                </a>
+
+                <button 
+                    @click="mobileOpen = false"
+                    class="w-7 h-7 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer border border-white/15 active:scale-95"
+                    aria-label="Tutup Menu"
+                >
+                    <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                </button>
+            </div>
         </div>
 
-        <!-- Middle Drawer Body: Clean Typography Navigation -->
-        <div class="flex-1 px-6 py-6 space-y-1 overflow-y-auto">
+        <!-- Middle Drawer Body: Modern Card Navigation -->
+        <div class="flex-1 p-4 space-y-2 overflow-y-auto bg-slate-50/70">
             <!-- Beranda -->
             <a 
                 href="{{ route('home') }}" 
                 @click="mobileOpen = false" 
-                class="flex items-center justify-between py-3.5 text-lg font-bold transition-all {{ $currentRoute == 'home' ? 'text-[#C7F236]' : 'text-white/80 hover:text-white' }}"
+                class="flex items-center p-3.5 rounded-2xl transition-all {{ $currentRoute == 'home' ? 'bg-white text-slate-900 font-bold shadow-sm border border-slate-200 ring-1 ring-slate-900/5' : 'bg-white/80 hover:bg-white text-slate-700 hover:text-slate-950 font-semibold border border-slate-200/60 hover:border-slate-300 shadow-2xs hover:shadow-xs' }}"
             >
-                <span>Beranda</span>
-                @if($currentRoute == 'home')
-                    <span class="w-1.5 h-1.5 rounded-full bg-[#C7F236]"></span>
-                @endif
+                <div class="flex items-center gap-3">
+                    <span class="w-2 h-2 rounded-full {{ $currentRoute == 'home' ? 'bg-[#0A1E5E]' : 'bg-slate-300' }}"></span>
+                    <span class="text-sm">Beranda</span>
+                </div>
             </a>
 
-            <!-- Layanan Accordion -->
-            <div x-data="{ openServices: {{ in_array($currentRoute, ['services']) ? 'true' : 'false' }} }" class="flex flex-col border-y border-white/5 py-1">
+            <!-- Layanan Accordion (Satu-satunya dengan tanda panah dropdown) -->
+            <div x-data="{ openServices: {{ in_array($currentRoute, ['services', 'estimator']) ? 'true' : 'false' }} }" class="flex flex-col">
                 <button 
                     type="button" 
                     @click="openServices = !openServices"
-                    class="flex items-center justify-between w-full py-3 text-lg font-bold transition-all {{ in_array($currentRoute, ['services']) ? 'text-[#C7F236]' : 'text-white/80 hover:text-white' }}"
+                    class="flex items-center justify-between p-3.5 rounded-2xl w-full transition-all {{ in_array($currentRoute, ['services', 'estimator']) ? 'bg-white text-slate-900 font-bold shadow-sm border border-slate-200 ring-1 ring-slate-900/5' : 'bg-white/80 hover:bg-white text-slate-700 hover:text-slate-950 font-semibold border border-slate-200/60 hover:border-slate-300 shadow-2xs hover:shadow-xs' }}"
                 >
-                    <span>Layanan</span>
-                    <svg class="w-4 h-4 text-white/50 transition-transform duration-200" :class="openServices ? 'rotate-180 text-[#C7F236]' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <div class="flex items-center gap-3">
+                        <span class="w-2 h-2 rounded-full {{ in_array($currentRoute, ['services', 'estimator']) ? 'bg-[#0A1E5E]' : 'bg-slate-300' }}"></span>
+                        <span class="text-sm">Layanan</span>
+                    </div>
+                    <svg class="w-4 h-4 transition-transform duration-200 {{ in_array($currentRoute, ['services', 'estimator']) ? 'text-slate-900' : 'text-slate-400' }}" :class="openServices ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                     </svg>
                 </button>
                 
-                <div x-show="openServices" x-cloak class="pl-4 pb-2 pt-1 flex flex-col gap-2 space-y-1">
+                <!-- Submenu Layanan (Card Submenu) -->
+                <div x-show="openServices" x-cloak class="mt-1.5 p-2 bg-slate-100/80 rounded-2xl border border-slate-200/70 space-y-1">
                     <a 
                         href="{{ route('services') }}" 
                         @click="mobileOpen = false" 
-                        class="text-sm font-medium text-white/70 hover:text-[#C7F236] transition-colors py-1 block"
+                        class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all {{ $currentRoute == 'services' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-950 hover:bg-white/70' }}"
                     >
-                        Semua Layanan
+                        <span>Semua Layanan</span>
+                        <span class="text-[10px] text-slate-400 font-normal">Katalog</span>
                     </a>
                     <a 
                         href="{{ route('home') }}#pricing" 
                         @click="mobileOpen = false" 
-                        class="text-sm font-medium text-white/70 hover:text-[#C7F236] transition-colors py-1 block"
+                        class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-950 hover:bg-white/70 transition-all"
                     >
-                        Paket &amp; Harga
+                        <span>Paket &amp; Harga</span>
+                        <span class="text-[10px] text-slate-400 font-normal">Biaya</span>
                     </a>
                     <a 
                         href="{{ route('estimator') }}" 
                         @click="mobileOpen = false" 
-                        class="text-sm font-medium text-white/70 hover:text-[#C7F236] transition-colors py-1 block"
+                        class="flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all {{ $currentRoute == 'estimator' ? 'bg-white text-slate-900 font-bold shadow-xs' : 'text-slate-600 hover:text-slate-950 hover:bg-white/70' }}"
                     >
-                        Estimator Biaya
+                        <span>Estimator Biaya</span>
+                        <span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Simulasi</span>
                     </a>
                 </div>
             </div>
@@ -309,55 +322,55 @@
             <!-- Portofolio -->
             <a 
                 href="{{ route('portfolio') }}" 
-                @click="mobileOpen = false"
-                class="flex items-center justify-between py-3.5 text-lg font-bold transition-all {{ $currentRoute == 'portfolio' ? 'text-[#C7F236]' : 'text-white/80 hover:text-white' }}"
+                @click="mobileOpen = false" 
+                class="flex items-center p-3.5 rounded-2xl transition-all {{ $currentRoute == 'portfolio' ? 'bg-white text-slate-900 font-bold shadow-sm border border-slate-200 ring-1 ring-slate-900/5' : 'bg-white/80 hover:bg-white text-slate-700 hover:text-slate-950 font-semibold border border-slate-200/60 hover:border-slate-300 shadow-2xs hover:shadow-xs' }}"
             >
-                <span>Portofolio</span>
-                @if($currentRoute == 'portfolio')
-                    <span class="w-1.5 h-1.5 rounded-full bg-[#C7F236]"></span>
-                @endif
+                <div class="flex items-center gap-3">
+                    <span class="w-2 h-2 rounded-full {{ $currentRoute == 'portfolio' ? 'bg-[#0A1E5E]' : 'bg-slate-300' }}"></span>
+                    <span class="text-sm">Portofolio</span>
+                </div>
             </a>
 
             <!-- Blog -->
             <a 
                 href="{{ route('blog') }}" 
-                @click="mobileOpen = false"
-                class="flex items-center justify-between py-3.5 text-lg font-bold transition-all {{ str_starts_with($currentRoute ?? '', 'blog') ? 'text-[#C7F236]' : 'text-white/80 hover:text-white' }}"
+                @click="mobileOpen = false" 
+                class="flex items-center p-3.5 rounded-2xl transition-all {{ str_starts_with($currentRoute ?? '', 'blog') ? 'bg-white text-slate-900 font-bold shadow-sm border border-slate-200 ring-1 ring-slate-900/5' : 'bg-white/80 hover:bg-white text-slate-700 hover:text-slate-950 font-semibold border border-slate-200/60 hover:border-slate-300 shadow-2xs hover:shadow-xs' }}"
             >
-                <span>Blog &amp; Artikel</span>
-                @if(str_starts_with($currentRoute ?? '', 'blog'))
-                    <span class="w-1.5 h-1.5 rounded-full bg-[#C7F236]"></span>
-                @endif
+                <div class="flex items-center gap-3">
+                    <span class="w-2 h-2 rounded-full {{ str_starts_with($currentRoute ?? '', 'blog') ? 'bg-[#0A1E5E]' : 'bg-slate-300' }}"></span>
+                    <span class="text-sm">Blog &amp; Artikel</span>
+                </div>
             </a>
 
             <!-- Kontak -->
             <a 
                 href="{{ route('contact') }}" 
-                @click="mobileOpen = false"
-                class="flex items-center justify-between py-3.5 text-lg font-bold transition-all {{ $currentRoute == 'contact' ? 'text-[#C7F236]' : 'text-white/80 hover:text-white' }}"
+                @click="mobileOpen = false" 
+                class="flex items-center p-3.5 rounded-2xl transition-all {{ $currentRoute == 'contact' ? 'bg-white text-slate-900 font-bold shadow-sm border border-slate-200 ring-1 ring-slate-900/5' : 'bg-white/80 hover:bg-white text-slate-700 hover:text-slate-950 font-semibold border border-slate-200/60 hover:border-slate-300 shadow-2xs hover:shadow-xs' }}"
             >
-                <span>Hubungi Kami</span>
-                @if($currentRoute == 'contact')
-                    <span class="w-1.5 h-1.5 rounded-full bg-[#C7F236]"></span>
-                @endif
+                <div class="flex items-center gap-3">
+                    <span class="w-2 h-2 rounded-full {{ $currentRoute == 'contact' ? 'bg-[#0A1E5E]' : 'bg-slate-300' }}"></span>
+                    <span class="text-sm">Hubungi Kami</span>
+                </div>
             </a>
         </div>
 
-        <!-- Bottom Drawer Footer: WhatsApp CTA & Info -->
-        <div class="p-6 border-t border-white/10 bg-black/20 shrink-0 space-y-4">
+        <!-- Bottom Drawer Footer: Clean CTA & Info -->
+        <div class="p-4 sm:p-5 border-t border-slate-200/80 bg-white shrink-0 space-y-3">
             <a 
                 href="{{ $whatsappUrl }}" 
                 target="_blank" 
-                rel="noopener noreferrer"
-                class="w-full inline-flex items-center justify-center gap-2 rounded-full py-3.5 px-5 text-sm font-bold bg-[#C7F236] text-[#0A1E5E] hover:bg-[#b5dd2a] shadow-lg shadow-[#C7F236]/20 transition-all duration-200"
+                rel="noopener noreferrer" 
+                class="w-full inline-flex items-center justify-center gap-2 rounded-xl py-3 px-4 text-xs font-bold bg-[#2563EB] hover:bg-[#1d4ed8] text-white shadow-md shadow-blue-500/20 active:scale-[0.98] transition-all duration-200 group"
             >
                 <span>Konsultasi Gratis</span>
-                <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"></i>
             </a>
 
-            <div class="text-center text-xs text-white/50 space-y-1 pt-1">
-                <p class="font-medium text-white/70">{{ $settings['phone'] ?? '+62 838-5217-4877' }}</p>
-                <p>{{ $settings['working_hours'] ?? 'Senin - Sabtu: 09:00 - 18:00 WIB' }}</p>
+            <div class="text-center text-[11px] text-slate-500 space-y-0.5 pt-0.5">
+                <p class="font-semibold text-slate-700">{{ $settings['phone'] ?? '+62 838-5217-4877' }}</p>
+                <p class="text-slate-400">{{ $settings['working_hours'] ?? 'Senin - Sabtu: 09:00 - 18:00 WIB' }}</p>
             </div>
         </div>
     </div>

@@ -21,24 +21,16 @@ class TestimonialController extends Controller
             'name' => 'required|string|max:255',
             'role' => 'nullable|string|max:255',
             'company' => 'nullable|string|max:255',
-            'avatar_file' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:10240',
-            'avatar_url' => 'nullable|string',
             'content' => 'required|string',
             'rating' => 'required|integer|min:1|max:5',
             'featured' => 'nullable|boolean',
             'display_order' => 'nullable|integer',
         ]);
 
-        $avatarUrl = $request->avatar_url;
-        if ($request->hasFile('avatar_file')) {
-            $avatarUrl = ImageCompressor::uploadAndCompress($request->file('avatar_file'));
-        }
-
         Testimonial::create([
             'name' => $request->name,
             'role' => $request->role,
             'company' => $request->company,
-            'avatar_url' => $avatarUrl,
             'content' => $request->content,
             'rating' => (int)$request->rating,
             'featured' => $request->has('featured'),
@@ -54,26 +46,16 @@ class TestimonialController extends Controller
             'name' => 'required|string|max:255',
             'role' => 'nullable|string|max:255',
             'company' => 'nullable|string|max:255',
-            'avatar_file' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:10240',
-            'avatar_url' => 'nullable|string',
             'content' => 'required|string',
             'rating' => 'required|integer|min:1|max:5',
             'featured' => 'nullable|boolean',
             'display_order' => 'nullable|integer',
         ]);
 
-        $avatarUrl = $testimonial->avatar_url;
-        if ($request->hasFile('avatar_file')) {
-            $avatarUrl = ImageCompressor::uploadAndCompress($request->file('avatar_file'));
-        } elseif ($request->filled('avatar_url')) {
-            $avatarUrl = $request->avatar_url;
-        }
-
         $testimonial->update([
             'name' => $request->name,
             'role' => $request->role,
             'company' => $request->company,
-            'avatar_url' => $avatarUrl,
             'content' => $request->content,
             'rating' => (int)$request->rating,
             'featured' => $request->has('featured'),

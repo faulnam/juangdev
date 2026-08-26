@@ -50,7 +50,7 @@
     <link rel="dns-prefetch" href="//unpkg.com">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@1,400;1,600;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@1,400;1,600;1,700&display=swap" rel="stylesheet">
     
     <!-- Structured JSON-LD Schema -->
     <script type="application/ld+json">
@@ -91,7 +91,7 @@
                         }
                     },
                     fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
                         serif: ['Playfair Display', 'Georgia', 'serif'],
                     },
                     keyframes: {

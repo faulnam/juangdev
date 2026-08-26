@@ -13,7 +13,6 @@ class Testimonial extends Model
         'name',
         'role',
         'company',
-        'avatar_url',
         'content',
         'rating',
         'featured',

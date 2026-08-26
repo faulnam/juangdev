@@ -120,7 +120,6 @@ return new class extends Migration
             $table->string('name');
             $table->string('role')->nullable();
             $table->string('company')->nullable();
-            $table->string('avatar_url')->nullable();
             $table->text('content');
             $table->integer('rating')->default(5);
             $table->boolean('featured')->default(false);
