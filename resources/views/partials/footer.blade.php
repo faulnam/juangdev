@@ -113,6 +113,7 @@
                     <li><a href="{{ route('home') }}#about" class="hover:text-[#C7F236] transition-colors">Tentang Kami</a></li>
                     <li><a href="{{ route('portfolio') }}" class="hover:text-[#C7F236] transition-colors">Portofolio</a></li>
                     <li><a href="{{ route('home') }}#pricing" class="hover:text-[#C7F236] transition-colors">Paket Harga</a></li>
+                    <li><a href="{{ route('estimator') }}" class="hover:text-[#C7F236] transition-colors">Estimator Biaya</a></li>
                     <li><a href="{{ route('blog') }}" class="hover:text-[#C7F236] transition-colors">Blog &amp; Artikel</a></li>
                     <li><a href="{{ route('contact') }}" class="hover:text-[#C7F236] transition-colors">Kontak</a></li>
                 </ul>

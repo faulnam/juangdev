@@ -25,15 +25,17 @@
         plans: {{ json_encode($plansByCategory) }},
         whatsappBase: 'https://wa.me/{{ $whatsappNumber }}',
         selectPlan(plan) {
-            window.dispatchEvent(new CustomEvent('select-estimate-plan', { 
-                detail: { 
-                    category: plan.category, 
-                    planId: plan.id 
-                } 
-            }));
             const estimatorEl = document.getElementById('estimator');
             if (estimatorEl) {
+                window.dispatchEvent(new CustomEvent('select-estimate-plan', { 
+                    detail: { 
+                        category: plan.category, 
+                        planId: plan.id 
+                    } 
+                }));
                 estimatorEl.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                window.location.href = "{{ route('estimator') }}?service=" + encodeURIComponent(plan.category) + "&plan=" + encodeURIComponent(plan.id);
             }
         }
     }"

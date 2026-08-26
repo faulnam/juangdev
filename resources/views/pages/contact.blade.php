@@ -99,6 +99,7 @@
                                     placeholder="+62 812 3456 7890"
                                     class="w-full px-5 py-3.5 rounded-xl border-2 border-slate-100 bg-[#f8f9fc] text-slate-800 font-medium focus:outline-none focus:border-[#2563EB] transition-colors"
                                 >
+                                <span class="text-[11px] text-slate-500 font-medium mt-1 block">Konfirmasi penerimaan pesan akan dikirim otomatis ke nomor ini.</span>
                             </div>
 
                             <div>

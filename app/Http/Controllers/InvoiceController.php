@@ -86,40 +86,16 @@ class InvoiceController extends Controller
     }
 
     /**
-     * Show order invoice on home page estimator.
+     * Show order invoice on dedicated invoice page.
      */
     public function show($invoiceNumber)
     {
         $order = Order::where('invoice_number', $invoiceNumber)->firstOrFail();
         $order->refresh();
 
-        $services = \App\Models\Service::where('is_active', true)->orderBy('display_order')->get();
-        $pricingPlans = \App\Models\PricingPlan::where('is_active', true)->orderBy('display_order')->get();
-        $portfolios = \App\Models\Portfolio::orderBy('display_order')->get();
-        $testimonials = \App\Models\Testimonial::orderBy('display_order')->get();
-        $blogs = \App\Models\Blog::where('is_published', true)
-            ->where(function ($q) {
-                $q->whereNull('published_at')
-                  ->orWhere('published_at', '<=', now());
-            })
-            ->orderBy('published_at', 'desc')
-            ->take(3)
-            ->get();
-        $serviceFeatures = \App\Models\ServiceFeature::where('is_active', true)->orderBy('display_order')->get();
-        $designTiers = \App\Models\DesignTier::orderBy('display_order')->get();
         $settings = SiteSetting::pluck('value', 'key')->toArray();
 
-        return view('pages.home', compact(
-            'services',
-            'pricingPlans',
-            'portfolios',
-            'testimonials',
-            'blogs',
-            'serviceFeatures',
-            'designTiers',
-            'settings',
-            'order'
-        ));
+        return view('pages.invoice', compact('order', 'settings'));
     }
 
     /**

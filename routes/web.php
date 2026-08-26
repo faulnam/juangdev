@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\BlogPageController;
 use App\Http\Controllers\ContactPageController;
+use App\Http\Controllers\EstimatorPageController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PortfolioPageController;
 use App\Http\Controllers\ServicePageController;
@@ -39,6 +40,8 @@ use App\Http\Controllers\LlmsTxtController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/services', [ServicePageController::class, 'index'])->name('services');
+Route::get('/estimator', [EstimatorPageController::class, 'index'])->name('estimator');
+Route::get('/estimasi-biaya', [EstimatorPageController::class, 'index']);
 Route::get('/portfolio', [PortfolioPageController::class, 'index'])->name('portfolio');
 Route::get('/portfolio/{slug}', [PortfolioPageController::class, 'show'])->name('portfolio.show');
 Route::get('/blog', [BlogPageController::class, 'index'])->name('blog');

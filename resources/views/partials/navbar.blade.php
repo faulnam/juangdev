@@ -130,8 +130,8 @@
                         </a>
 
                         <a 
-                            href="{{ route('home') }}#estimator"
-                            @click="scrollTo('estimator')"
+                            href="{{ route('estimator') }}"
+                            @click="open = false"
                             class="flex flex-col px-3 py-2 rounded-lg text-slate-700 hover:text-slate-950 hover:bg-slate-100/80 transition-colors"
                         >
                             <span class="text-xs font-semibold">Estimator Biaya</span>
@@ -297,7 +297,7 @@
                         Paket &amp; Harga
                     </a>
                     <a 
-                        href="{{ route('home') }}#estimator" 
+                        href="{{ route('estimator') }}" 
                         @click="mobileOpen = false" 
                         class="text-sm font-medium text-white/70 hover:text-[#C7F236] transition-colors py-1 block"
                     >

@@ -33,7 +33,4 @@
 
     <!-- 9. Ready to Build Your Next Digital Product? (Final CTA) -->
     @include('partials.final-cta')
-
-    <!-- 10. Price Estimator A La Carte -->
-    @include('partials.estimator')
 @endsection

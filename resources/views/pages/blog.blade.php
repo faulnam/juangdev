@@ -50,47 +50,48 @@
     >
         <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8">
             
-            <!-- Search & Filter Controls Bar -->
-            <div class="flex flex-col lg:flex-row items-center justify-between gap-4 mb-10 pb-2">
-                
-                <!-- Category Filter Pills (Single Row Only) -->
-                <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar flex-nowrap w-full lg:w-auto py-1 shrink-0">
-                    <button 
-                        @click="filterCategory('all')"
-                        :class="selectedCategory === 'all' 
-                            ? 'bg-[#2563EB] text-white border-2 border-[#2563EB] shadow-md shadow-[#2563EB]/25' 
-                            : 'bg-white text-slate-700 border-2 border-slate-200 hover:border-slate-300'"
-                        class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 shrink-0"
-                    >
-                        Semua Artikel ({{ $totalCount ?? $blogs->total() }})
-                    </button>
-
-                    @foreach($allCategories as $cat)
-                        <button 
-                            @click="filterCategory('{{ $cat }}')"
-                            :class="selectedCategory === '{{ $cat }}' 
-                                ? 'bg-[#2563EB] text-white border-2 border-[#2563EB] shadow-md shadow-[#2563EB]/25' 
-                                : 'bg-white text-slate-700 border-2 border-slate-200 hover:border-slate-300'"
-                            class="px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 shrink-0"
+            <!-- Filter & Search Toolbar (Clean, Modern Dropdown like Portfolio) -->
+            <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-5 mb-10">
+                <form action="{{ route('blog') }}" method="GET" class="grid grid-cols-1 md:grid-cols-12 gap-3 sm:gap-4 items-center">
+                    
+                    <!-- Search Input -->
+                    <div class="md:col-span-7 lg:col-span-8 relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i data-lucide="search" class="w-4 h-4"></i>
+                        </div>
+                        <input 
+                            type="text" 
+                            name="q" 
+                            value="{{ request('q') }}"
+                            placeholder="Cari artikel, panduan website, tips teknologi..."
+                            class="w-full pl-10 pr-9 py-2.5 rounded-xl border border-slate-200 bg-slate-50/60 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#2563EB] focus:bg-white transition-all"
                         >
-                            {{ $cat }}
-                        </button>
-                    @endforeach
-                </div>
+                        @if(request('q'))
+                            <a 
+                                href="{{ route('blog', array_filter(['category' => request('category')])) }}"
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600"
+                            >
+                                <i data-lucide="x" class="w-4 h-4"></i>
+                            </a>
+                        @endif
+                    </div>
 
-                <!-- Search Input -->
-                <form action="{{ route('blog') }}" method="GET" class="w-full lg:w-72 relative shrink-0">
-                    @if(request('category'))
-                        <input type="hidden" name="category" value="{{ request('category') }}">
-                    @endif
-                    <input 
-                        type="text" 
-                        name="q" 
-                        value="{{ request('q') }}"
-                        placeholder="Cari artikel..." 
-                        class="w-full pl-10 pr-4 py-2 rounded-full border-2 border-slate-200 text-xs font-medium bg-white focus:outline-none focus:border-[#2563EB] transition-colors shadow-xs"
-                    >
-                    <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                    <!-- Dropdown Kategori Artikel -->
+                    <div class="md:col-span-5 lg:col-span-4 relative">
+                        <select 
+                            name="category"
+                            onchange="this.form.submit()"
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/60 text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:border-[#2563EB] focus:bg-white cursor-pointer transition-all"
+                        >
+                            <option value="">Semua Kategori ({{ $totalCount ?? $blogs->total() }})</option>
+                            @foreach($allCategories as $cat)
+                                <option value="{{ $cat }}" {{ request('category') == $cat ? 'selected' : '' }}>
+                                    {{ $cat }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
                 </form>
             </div>
 

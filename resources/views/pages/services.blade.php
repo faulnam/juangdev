@@ -118,11 +118,7 @@
                     return `https://wa.me/{{ $whatsappNumber }}?text=${msg}`;
                 },
                 selectEstimator(tabId) {
-                    window.dispatchEvent(new CustomEvent('select-estimate-plan', { 
-                        detail: { category: tabId } 
-                    }));
-                    const el = document.getElementById('estimator');
-                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    window.location.href = "{{ route('estimator') }}?service=" + encodeURIComponent(tabId);
                 }
             }"
         >
@@ -136,20 +132,24 @@
                 </p>
             </div>
 
-            <!-- Category Filter Tabs -->
-            <div class="flex flex-wrap gap-2.5 mb-8">
-                <template x-for="tab in tabs" :key="tab.id">
-                    <button 
-                        type="button"
-                        @click="activeTab = tab.id"
-                        :class="activeTab === tab.id 
-                            ? 'bg-[#2563EB] text-white shadow-md shadow-[#2563EB]/25' 
-                            : 'bg-slate-100 text-slate-700 hover:bg-slate-200'"
-                        class="px-5 py-2.5 rounded-full text-xs sm:text-sm font-bold transition-all duration-200"
-                        x-text="tab.title"
-                    >
-                    </button>
-                </template>
+            <!-- Category Filter Dropdown (Clean, Formal, Modern - matching portfolio style) -->
+            <div class="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-4 sm:p-5 mb-8">
+                <div class="max-w-md relative">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Pilih Kategori Layanan</label>
+                    <div class="relative">
+                        <select 
+                            x-model="activeTab"
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/60 text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:border-[#2563EB] focus:bg-white cursor-pointer transition-all appearance-none pr-10"
+                        >
+                            <template x-for="tab in tabs" :key="tab.id">
+                                <option :value="tab.id" x-text="tab.title" :selected="activeTab === tab.id"></option>
+                            </template>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-500">
+                            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Active Tab Content Card (Dark Navy with Dual Column) -->

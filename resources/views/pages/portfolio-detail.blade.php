@@ -200,11 +200,11 @@
                             @endif
 
                             <a 
-                                href="{{ route('home') }}?service={{ \Illuminate\Support\Str::slug($portfolio->category) }}#estimator" 
+                                href="{{ route('estimator') }}?service={{ \Illuminate\Support\Str::slug($portfolio->category) }}" 
                                 class="w-full inline-flex items-center justify-center gap-2 bg-[#C7F236] hover:bg-[#b5dd2a] text-[#0A1E5E] font-bold text-sm py-3 px-5 rounded-xl transition-all duration-200 shadow-sm"
                             >
                                 <i data-lucide="calculator" class="w-4 h-4"></i>
-                                <span>Buat Proyek Seperti Ini</span>
+                                <span>Hitung Estimasi Proyek</span>
                             </a>
                         </div>
 
