@@ -38,7 +38,7 @@
             ]
         ],
         [
-            'id' => 'e-commerce',
+            'id' => 'ecommerce',
             'title' => 'E-Commerce',
             'desc' => 'Toko online modern dengan sistem belanja terstruktur, lengkap dengan katalog produk, keranjang belanja, dan integrasi checkout instan.',
             'price' => 'Rp 499.000',
@@ -66,7 +66,7 @@
             ]
         ],
         [
-            'id' => 'custom-web-app',
+            'id' => 'custom-app',
             'title' => 'Custom Web App',
             'desc' => 'Pengembangan aplikasi web kustom fleksibel yang dapat menggabungkan fitur dari seluruh layanan (Landing Page, Compro, E-Commerce, Sistem Informasi) sesuai kebutuhan unik bisnis Anda.',
             'price' => 'Mulai Rp 199.000',
@@ -118,7 +118,7 @@
                     return `https://wa.me/{{ $whatsappNumber }}?text=${msg}`;
                 },
                 selectEstimator(tabId) {
-                    window.location.href = "{{ route('estimator') }}?service=" + encodeURIComponent(tabId);
+                    window.location.href = '{{ route('estimator') }}?service=' + encodeURIComponent(tabId);
                 }
             }"
         >
@@ -141,9 +141,11 @@
                             x-model="activeTab"
                             class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/60 text-xs sm:text-sm font-semibold text-slate-800 focus:outline-none focus:border-[#2563EB] focus:bg-white cursor-pointer transition-all appearance-none pr-10"
                         >
-                            <template x-for="tab in tabs" :key="tab.id">
-                                <option :value="tab.id" x-text="tab.title" :selected="activeTab === tab.id"></option>
-                            </template>
+                            @foreach($serviceTabs as $tab)
+                                <option value="{{ $tab['id'] }}">
+                                    {{ $tab['title'] }}
+                                </option>
+                            @endforeach
                         </select>
                         <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-500">
                             <i data-lucide="chevron-down" class="w-4 h-4"></i>
