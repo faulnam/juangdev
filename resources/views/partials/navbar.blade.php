@@ -300,10 +300,10 @@
                     </div>
                     <div class="grid grid-cols-2 gap-1.5 pt-2 border-t border-slate-100">
                         <a href="{{ route('customer.dashboard') }}" @click="mobileOpen = false" class="text-center py-1.5 px-2 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl text-[11px] font-bold">
-                            📦 Pesanan
+                            Pesanan
                         </a>
                         <a href="{{ route('customer.profile') }}" @click="mobileOpen = false" class="text-center py-1.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-[11px] font-semibold">
-                            👤 Profil
+                            Profil
                         </a>
                     </div>
                 </div>
