@@ -39,7 +39,7 @@
             <div class="inline-flex items-center justify-center gap-2 mb-1">
                 <span class="text-2xl font-black tracking-tight text-slate-900">Juang<span class="text-[#2563EB]">Dev</span></span>
             </div>
-            <p class="text-[11px] font-bold tracking-widest text-slate-500 uppercase">PT JUANG SOLUSI DIGITAL</p>
+            <p class="text-[11px] font-bold tracking-widest text-slate-500 uppercase">JUANG SOLUSI DIGITAL</p>
             <p class="text-[10px] text-slate-400 mt-0.5">Software House & Digital Solution Partner</p>
 
             <div class="mt-4 pt-3 border-t border-slate-100">
@@ -94,7 +94,7 @@
 
             <div class="flex justify-between items-start">
                 <span class="text-slate-500 font-medium">Penyedia Jasa</span>
-                <span class="font-bold text-slate-900 text-right">PT JUANG SOLUSI DIGITAL</span>
+                <span class="font-bold text-slate-900 text-right">JUANG SOLUSI DIGITAL</span>
             </div>
 
             <div class="flex justify-between items-start">
@@ -166,7 +166,7 @@
         <!-- Corporate Footer Disclaimer -->
         <div class="mt-5 pt-4 border-t border-slate-200 text-center space-y-1">
             <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                &copy; {{ date('Y') }} PT JUANG SOLUSI DIGITAL (JUANGDEV)
+                &copy; {{ date('Y') }} JUANG SOLUSI DIGITAL (JUANGDEV)
             </p>
             <p class="text-[9px] text-slate-400 leading-relaxed">
                 Bukti transaksi ini diterbitkan secara elektronik dan sah secara hukum perundang-undangan Republik Indonesia.
