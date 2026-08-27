@@ -3,6 +3,23 @@
 @section('title', 'Detail Pesanan #' . $order->invoice_number)
 
 @section('content')
+@php
+    $clientPhone = preg_replace('/[^0-9]/', '', $order->customer_phone);
+    if (str_starts_with($clientPhone, '0')) {
+        $clientPhone = '62' . substr($clientPhone, 1);
+    }
+    
+    $statusText = match($order->project_status) {
+        'in_progress' => 'sedang dalam proses pengerjaan (development & setup sistem)',
+        'completed' => 'telah SELESAI dan siap untuk tahap serah terima (handover)',
+        'pending' => 'telah masuk ke antrean pengerjaan tim JuangDev',
+        default => 'sedang dalam peninjauan tim teknis'
+    };
+
+    $waUpdateText = "Halo Kak {$order->customer_name},\n\nKami dari tim *JuangDev* ingin menginformasikan update status pengerjaan proyek Anda (*{$order->project_name}* - #{$order->invoice_number}).\n\nStatus saat ini: Proyek Anda *{$statusText}*.\n\nDetail spesifikasi & resi transaksi dapat dipantau langsung di:\n" . route('invoice.show', $order->invoice_number) . "\n\nJika ada kebutuhan atau pertanyaan tambahan, silakan balas pesan ini. Terima kasih! 🙏\n— JuangDev Team";
+    $waUpdateUrl = "https://wa.me/{$clientPhone}?text=" . urlencode($waUpdateText);
+@endphp
+
 <div class="space-y-6">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -14,18 +31,23 @@
             <h1 class="text-2xl font-black text-slate-900">Detail Pesanan #{{ $order->invoice_number }}</h1>
         </div>
 
-        <div class="flex items-center gap-3">
+        <div class="flex flex-wrap items-center gap-2.5">
+            <a href="{{ $waUpdateUrl }}" target="_blank" class="px-4 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#1ebc59] text-white font-bold text-xs flex items-center gap-2 shadow-xs transition-all">
+                <i data-lucide="message-circle" class="w-4 h-4"></i>
+                <span>Kirim Update Progress WA</span>
+            </a>
+
             <form action="{{ route('admin.orders.send-wa', $order->id) }}" method="POST">
                 @csrf
-                <button type="submit" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-2 shadow-sm">
+                <button type="submit" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-2 shadow-xs">
                     <i data-lucide="send" class="w-4 h-4"></i>
-                    <span>Kirim Invoice Formal ke WA Klien</span>
+                    <span>Kirim Tagihan Formal WA</span>
                 </button>
             </form>
 
             <a href="{{ route('invoice.show', $order->invoice_number) }}" target="_blank" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center gap-2">
                 <i data-lucide="external-link" class="w-4 h-4"></i>
-                <span>Buka Invoice Publik</span>
+                <span>Buka Invoice</span>
             </a>
         </div>
     </div>

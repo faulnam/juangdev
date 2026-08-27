@@ -105,4 +105,24 @@
 
         </div>
     </div>
+
+    <!-- Schema.org FAQPage Structured Data for Google Search Rich Snippets -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        @foreach($faqItems as $idx => $faq)
+        {
+          "@type": "Question",
+          "name": {!! json_encode($faq['question']) !!},
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": {!! json_encode($faq['answer']) !!}
+          }
+        }{{ $loop->last ? '' : ',' }}
+        @endforeach
+      ]
+    }
+    </script>
 </section>

@@ -1,8 +1,21 @@
 @php
     $whatsappNumber = $settings['whatsapp_number'] ?? '6283852174877';
-    $whatsappMsg = urlencode("Halo JuangDev, saya ingin berkonsultasi mengenai pembuatan website/aplikasi.");
-    $whatsappUrl = "https://wa.me/{$whatsappNumber}?text={$whatsappMsg}";
     $currentRoute = Route::currentRouteName();
+
+    if ($currentRoute === 'estimator') {
+        $rawMsg = "Halo JuangDev, saya ingin berkonsultasi mengenai estimasi biaya proyek website saya.";
+    } elseif ($currentRoute === 'services') {
+        $rawMsg = "Halo JuangDev, saya tertarik dengan layanan pembuatan website & aplikasi kustom Anda.";
+    } elseif ($currentRoute === 'portfolio' || $currentRoute === 'portfolio.show') {
+        $rawMsg = "Halo JuangDev, saya melihat portofolio proyek Anda dan tertarik untuk membuat website serupa.";
+    } elseif ($currentRoute === 'contact') {
+        $rawMsg = "Halo JuangDev, saya ingin menghubungi tim untuk mendiskusikan kebutuhan sistem/web bisnis saya.";
+    } else {
+        $rawMsg = "Halo JuangDev, saya ingin berkonsultasi mengenai pembuatan website/aplikasi profesional.";
+    }
+
+    $whatsappMsg = urlencode($rawMsg);
+    $whatsappUrl = "https://wa.me/{$whatsappNumber}?text={$whatsappMsg}";
     $isLightHeaderPage = in_array($currentRoute, ['blog.show', 'customer.dashboard', 'customer.orders', 'customer.profile']) || request()->is('customer*');
 @endphp
 

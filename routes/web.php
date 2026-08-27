@@ -47,7 +47,7 @@ Route::get('/portfolio/{slug}', [PortfolioPageController::class, 'show'])->name(
 Route::get('/blog', [BlogPageController::class, 'index'])->name('blog');
 Route::get('/blog/{slug}', [BlogPageController::class, 'show'])->name('blog.show');
 Route::get('/contact', [ContactPageController::class, 'index'])->name('contact');
-Route::post('/contact', [ContactPageController::class, 'submit'])->name('contact.submit');
+Route::post('/contact', [ContactPageController::class, 'submit'])->middleware('throttle:10,1')->name('contact.submit');
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/llms.txt', [LlmsTxtController::class, 'index'])->name('llms');
 Route::get('/llms-full.txt', [LlmsTxtController::class, 'full'])->name('llms.full');
@@ -61,9 +61,9 @@ use App\Http\Controllers\CustomerPortalController;
 |--------------------------------------------------------------------------
 */
 Route::get('/login', [CustomerAuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [CustomerAuthController::class, 'login'])->name('login.submit');
+Route::post('/login', [CustomerAuthController::class, 'login'])->middleware('throttle:10,1')->name('login.submit');
 Route::get('/register', [CustomerAuthController::class, 'showRegister'])->name('register');
-Route::post('/register', [CustomerAuthController::class, 'register'])->name('register.submit');
+Route::post('/register', [CustomerAuthController::class, 'register'])->middleware('throttle:10,1')->name('register.submit');
 Route::post('/auth/google-firebase', [CustomerAuthController::class, 'firebaseGoogleAuth'])->name('auth.google-firebase');
 Route::post('/logout', [CustomerAuthController::class, 'logout'])->name('logout');
 
@@ -77,7 +77,7 @@ Route::middleware('auth')->prefix('customer')->name('customer.')->group(function
 });
 
 // Public Invoice & Pakasir Order Routes
-Route::post('/orders', [InvoiceController::class, 'store'])->name('orders.store');
+Route::post('/orders', [InvoiceController::class, 'store'])->middleware('throttle:15,1')->name('orders.store');
 Route::get('/orders/{invoiceNumber}/check-status', [InvoiceController::class, 'checkStatus'])->name('orders.check-status');
 Route::get('/invoice/{invoiceNumber}', [InvoiceController::class, 'show'])->name('invoice.show');
 Route::post('/invoice/{invoiceNumber}/pay', [InvoiceController::class, 'pay'])->name('invoice.pay');
@@ -86,7 +86,7 @@ Route::post('/webhook/pakasir', [InvoiceController::class, 'webhook'])->name('we
 // API Routes
 Route::prefix('api')->group(function () {
     Route::get('/chat/status', [ChatController::class, 'status'])->name('api.chat.status');
-    Route::post('/chat', [ChatController::class, 'chat'])->name('api.chat');
+    Route::post('/chat', [ChatController::class, 'chat'])->middleware('throttle:20,1')->name('api.chat');
     Route::post('/upload', [UploadController::class, 'upload'])->name('api.upload');
 });
 
@@ -98,7 +98,7 @@ Route::prefix('api')->group(function () {
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1')->name('login.submit');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     /*
@@ -110,6 +110,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
         // Orders & Invoices Management
+        Route::get('/orders/export', [AdminOrderController::class, 'export'])->name('orders.export');
         Route::get('/orders', [AdminOrderController::class, 'index'])->name('orders.index');
         Route::get('/orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
         Route::put('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.update-status');

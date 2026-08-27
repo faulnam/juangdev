@@ -10,6 +10,55 @@
             <h1 class="text-2xl font-black text-slate-900">Daftar Pesanan &amp; Invoice</h1>
             <p class="text-slate-500 text-sm font-medium mt-1">Kelola transaksi proyek, status pembayaran DP 50% / Pelunasan Pakasir</p>
         </div>
+
+        <!-- Export CSV Button -->
+        <a 
+            href="{{ route('admin.orders.export', request()->all()) }}" 
+            class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-xs transition-all w-full sm:w-auto"
+        >
+            <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+            <span>Export Rekap CSV / Excel</span>
+        </a>
+    </div>
+
+    <!-- Quick Status Tabs -->
+    <div class="flex flex-wrap gap-2 pt-1">
+        <a 
+            href="{{ route('admin.orders.index') }}" 
+            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all {{ !request('status') && !request('project_status') ? 'bg-slate-900 text-white shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200' }}"
+        >
+            Semua Pesanan ({{ $counts['all'] ?? 0 }})
+        </a>
+        <a 
+            href="{{ route('admin.orders.index', ['status' => 'unpaid']) }}" 
+            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all {{ request('status') === 'unpaid' ? 'bg-rose-600 text-white shadow-xs' : 'bg-white text-rose-700 hover:bg-rose-50 border border-rose-200' }}"
+        >
+            Belum Bayar ({{ $counts['unpaid'] ?? 0 }})
+        </a>
+        <a 
+            href="{{ route('admin.orders.index', ['status' => 'dp_paid']) }}" 
+            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all {{ request('status') === 'dp_paid' ? 'bg-amber-600 text-white shadow-xs' : 'bg-white text-amber-700 hover:bg-amber-50 border border-amber-200' }}"
+        >
+            DP 50% Lunas ({{ $counts['dp_paid'] ?? 0 }})
+        </a>
+        <a 
+            href="{{ route('admin.orders.index', ['status' => 'fully_paid']) }}" 
+            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all {{ request('status') === 'fully_paid' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-white text-emerald-700 hover:bg-emerald-50 border border-emerald-200' }}"
+        >
+            Lunas 100% ({{ $counts['fully_paid'] ?? 0 }})
+        </a>
+        <a 
+            href="{{ route('admin.orders.index', ['project_status' => 'in_progress']) }}" 
+            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all {{ request('project_status') === 'in_progress' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-white text-indigo-700 hover:bg-indigo-50 border border-indigo-200' }}"
+        >
+            Dalam Pengerjaan ({{ $counts['in_progress'] ?? 0 }})
+        </a>
+        <a 
+            href="{{ route('admin.orders.index', ['project_status' => 'completed']) }}" 
+            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all {{ request('project_status') === 'completed' ? 'bg-blue-600 text-white shadow-xs' : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200' }}"
+        >
+            Selesai ({{ $counts['completed'] ?? 0 }})
+        </a>
     </div>
 
     <!-- Filters & Search Bar -->
@@ -19,18 +68,30 @@
                 type="text" 
                 name="search" 
                 value="{{ request('search') }}"
-                placeholder="Cari Invoice / Nama Klien / No WA..."
+                placeholder="Cari Invoice / Klien / WA / Proyek..."
                 class="w-full sm:w-64 px-4 py-2 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-[#2563EB]"
             >
             <select name="status" onchange="this.form.submit()" class="w-full sm:w-auto px-4 py-2 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-[#2563EB]">
-                <option value="">-- Semua Status Bayar --</option>
+                <option value="">-- Status Bayar --</option>
                 <option value="unpaid" {{ request('status') === 'unpaid' ? 'selected' : '' }}>Belum Dibayar</option>
                 <option value="dp_paid" {{ request('status') === 'dp_paid' ? 'selected' : '' }}>DP 50% Lunas</option>
                 <option value="fully_paid" {{ request('status') === 'fully_paid' ? 'selected' : '' }}>Lunas 100%</option>
             </select>
+            <select name="project_status" onchange="this.form.submit()" class="w-full sm:w-auto px-4 py-2 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-[#2563EB]">
+                <option value="">-- Status Pengerjaan --</option>
+                <option value="pending" {{ request('project_status') === 'pending' ? 'selected' : '' }}>Pending / Antrean</option>
+                <option value="in_progress" {{ request('project_status') === 'in_progress' ? 'selected' : '' }}>Dalam Pengerjaan</option>
+                <option value="completed" {{ request('project_status') === 'completed' ? 'selected' : '' }}>Selesai</option>
+                <option value="cancelled" {{ request('project_status') === 'cancelled' ? 'selected' : '' }}>Dibatalkan</option>
+            </select>
             <button type="submit" class="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold hover:bg-slate-800">
                 Filter
             </button>
+            @if(request('search') || request('status') || request('project_status'))
+                <a href="{{ route('admin.orders.index') }}" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-bold">
+                    Reset
+                </a>
+            @endif
         </form>
     </div>
 
