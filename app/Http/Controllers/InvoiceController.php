@@ -36,7 +36,7 @@ class InvoiceController extends Controller
             'total_amount' => 'required|numeric|min:0',
             'payment_scheme' => 'required|string|in:dp_50,full_100',
             'payment_channel' => 'nullable|string|max:50',
-            'notes' => 'nullable|string',
+            'notes' => 'nullable|string|max:100',
             'attachment' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,txt,zip,rar,7z,png,jpg,jpeg,webp|max:20480',
         ]);
 

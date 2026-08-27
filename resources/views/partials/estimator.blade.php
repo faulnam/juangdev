@@ -825,14 +825,25 @@
                         <div class="mb-6">
                             <label class="block text-[11px] font-bold text-slate-600 mb-1.5 flex items-center justify-between">
                                 <span>Catatan / Spesifikasi Proyek (Opsional)</span>
-                                <span class="text-[10px] text-slate-400 font-medium">Jelaskan kebutuhan khusus atau referensi</span>
+                                <span class="text-[10px] font-semibold" :class="(formData.details?.length || 0) >= 100 ? 'text-rose-600 font-bold' : 'text-slate-400'">
+                                    <span x-text="formData.details ? formData.details.length : 0"></span>/100 karakter
+                                </span>
                             </label>
                             <textarea 
                                 x-model="formData.details"
                                 rows="3"
-                                placeholder="Jelaskan secara ringkas kebutuhan, alur sistem, atau referensi proyek Anda..."
+                                maxlength="100"
+                                placeholder="Tuliskan catatan singkat proyek Anda (maksimal 100 karakter)..."
                                 class="w-full px-5 py-3.5 rounded-xl border-2 border-slate-100 bg-[#f8f9fc] text-[0.95rem] font-medium text-[#1a1f3c] placeholder:text-slate-400 focus:outline-none focus:border-[#2563EB] resize-none"
                             ></textarea>
+
+                            <!-- Guideline / Long Instruction Helper Note -->
+                            <div class="mt-2.5 p-3 rounded-xl bg-amber-50/90 border border-amber-200/90 flex items-start gap-2.5 text-xs text-amber-900 leading-relaxed shadow-2xs">
+                                <i data-lucide="info" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+                                <p class="font-medium text-[11px]">
+                                    <strong class="font-bold text-amber-950">Catatan:</strong> Maksimal 100 karakter. Jika Anda memiliki instruksi yang panjang, brief detail, atau file <i>guideline</i> proyek, dimohon untuk melampirkannya pada bagian berkas di bawah ini.
+                                </p>
+                            </div>
 
                             <!-- Interactive File Attachment Component (From Device) -->
                             <div class="mt-3">
