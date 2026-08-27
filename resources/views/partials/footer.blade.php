@@ -15,23 +15,32 @@
     $tiktok = $settings['tiktok_url'] ?? '';
 @endphp
 
-<footer class="bg-[#0A1E5E] text-white pt-16 pb-12 border-t border-white/10">
+<footer 
+    class="bg-[#0A1E5E] text-white pt-16 pb-12 border-t border-white/10"
+    x-data="{ 
+        activeMobileSection: null, 
+        isDesktop: window.innerWidth >= 640 
+    }"
+    @resize.window="isDesktop = window.innerWidth >= 640"
+>
     <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 sm:gap-8 lg:gap-8 pb-12 border-b border-white/10">
+        
+        <!-- Top Footer Grid / Mobile Accordions -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-8 lg:gap-8 pb-10 border-b border-white/10">
             
             <!-- Col 1: Brand & Bio -->
-            <div class="sm:col-span-2 lg:col-span-2 flex flex-col items-start">
-                <a href="{{ route('home') }}" class="inline-block mb-5 group" aria-label="JuangDev — Beranda">
+            <div class="sm:col-span-2 lg:col-span-2 flex flex-col items-start pb-6 sm:pb-0 border-b border-white/10 sm:border-b-0">
+                <a href="{{ route('home') }}" class="inline-block mb-4 sm:mb-5 group" aria-label="JuangDev — Beranda">
                     <img 
                         src="{{ asset('logo4.png') }}?v={{ filemtime(public_path('logo4.png')) }}" 
                         alt="JuangDev" 
                         loading="lazy"
                         decoding="async"
-                        class="h-20 sm:h-24 md:h-28 lg:h-32 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                        class="h-16 sm:h-24 md:h-28 lg:h-32 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
                     >
                 </a>
                 
-                <p class="text-white/70 text-sm leading-relaxed max-w-sm mb-6 font-medium">
+                <p class="text-white/70 text-sm leading-relaxed max-w-sm mb-5 sm:mb-6 font-medium">
                     JuangDev adalah studio teknologi kreatif yang berfokus pada pembuatan website berkonversi tinggi, aplikasi web modern, dan solusi digital kustom untuk memajukan bisnis Anda.
                 </p>
 
@@ -94,56 +103,212 @@
                 </div>
             </div>
 
-            <!-- Col 2: Services Links -->
-            <div>
-                <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-4">Layanan Kami</h4>
-                <ul class="space-y-2.5 text-sm text-white/70">
-                    <li><a href="{{ route('services') }}" class="hover:text-[#C7F236] transition-colors">Landing Page</a></li>
-                    <li><a href="{{ route('services') }}" class="hover:text-[#C7F236] transition-colors">Company Profile</a></li>
-                    <li><a href="{{ route('services') }}" class="hover:text-[#C7F236] transition-colors">E-Commerce</a></li>
-                    <li><a href="{{ route('services') }}" class="hover:text-[#C7F236] transition-colors">Sistem Informasi</a></li>
-                    <li><a href="{{ route('services') }}" class="hover:text-[#C7F236] transition-colors">Custom Web App</a></li>
-                </ul>
+            <!-- Col 2: Services Links (Mobile Collapsible Dropdown) -->
+            <div class="border-b border-white/10 sm:border-b-0 pb-4 sm:pb-0">
+                <button 
+                    type="button"
+                    @click="activeMobileSection = (activeMobileSection === 'services' ? null : 'services')"
+                    class="w-full flex items-center justify-between py-2 sm:py-0 text-left sm:cursor-default focus:outline-none group"
+                    :aria-expanded="activeMobileSection === 'services' ? 'true' : 'false'"
+                >
+                    <h4 class="text-sm font-bold text-white uppercase tracking-wider group-hover:text-[#C7F236] sm:group-hover:text-white transition-colors">
+                        Layanan Kami
+                    </h4>
+                    <span class="sm:hidden w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-white/70 group-hover:text-[#C7F236] group-hover:bg-white/10 transition-all">
+                        <svg 
+                            class="w-4 h-4 transition-transform duration-300"
+                            :class="activeMobileSection === 'services' ? 'rotate-180 text-[#C7F236]' : ''"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </span>
+                </button>
+                <div 
+                    x-show="isDesktop || activeMobileSection === 'services'" 
+                    class="pt-3 sm:pt-4"
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                >
+                    <ul class="space-y-2.5 text-sm text-white/70">
+                        <li><a href="{{ route('services') }}" class="hover:text-[#C7F236] transition-colors inline-block py-0.5">Landing Page</a></li>
+                        <li><a href="{{ route('services') }}" class="hover:text-[#C7F236] transition-colors inline-block py-0.5">Company Profile</a></li>
+                        <li><a href="{{ route('services') }}" class="hover:text-[#C7F236] transition-colors inline-block py-0.5">E-Commerce</a></li>
+                        <li><a href="{{ route('services') }}" class="hover:text-[#C7F236] transition-colors inline-block py-0.5">Sistem Informasi</a></li>
+                        <li><a href="{{ route('services') }}" class="hover:text-[#C7F236] transition-colors inline-block py-0.5">Custom Web App</a></li>
+                    </ul>
+                </div>
             </div>
 
-            <!-- Col 3: Quick Navigation -->
-            <div>
-                <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-4">Navigasi</h4>
-                <ul class="space-y-2.5 text-sm text-white/70">
-                    <li><a href="{{ route('home') }}#about" class="hover:text-[#C7F236] transition-colors">Tentang Kami</a></li>
-                    <li><a href="{{ route('portfolio') }}" class="hover:text-[#C7F236] transition-colors">Portofolio</a></li>
-                    <li><a href="{{ route('home') }}#pricing" class="hover:text-[#C7F236] transition-colors">Paket Harga</a></li>
-                    <li><a href="{{ route('estimator') }}" class="hover:text-[#C7F236] transition-colors">Estimator Biaya</a></li>
-                    <li><a href="{{ route('blog') }}" class="hover:text-[#C7F236] transition-colors">Blog &amp; Artikel</a></li>
-                    <li><a href="{{ route('contact') }}" class="hover:text-[#C7F236] transition-colors">Kontak</a></li>
-                </ul>
+            <!-- Col 3: Quick Navigation (Mobile Collapsible Dropdown) -->
+            <div class="border-b border-white/10 sm:border-b-0 pb-4 sm:pb-0">
+                <button 
+                    type="button"
+                    @click="activeMobileSection = (activeMobileSection === 'nav' ? null : 'nav')"
+                    class="w-full flex items-center justify-between py-2 sm:py-0 text-left sm:cursor-default focus:outline-none group"
+                    :aria-expanded="activeMobileSection === 'nav' ? 'true' : 'false'"
+                >
+                    <h4 class="text-sm font-bold text-white uppercase tracking-wider group-hover:text-[#C7F236] sm:group-hover:text-white transition-colors">
+                        Navigasi
+                    </h4>
+                    <span class="sm:hidden w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-white/70 group-hover:text-[#C7F236] group-hover:bg-white/10 transition-all">
+                        <svg 
+                            class="w-4 h-4 transition-transform duration-300"
+                            :class="activeMobileSection === 'nav' ? 'rotate-180 text-[#C7F236]' : ''"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </span>
+                </button>
+                <div 
+                    x-show="isDesktop || activeMobileSection === 'nav'" 
+                    class="pt-3 sm:pt-4"
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                >
+                    <ul class="space-y-2.5 text-sm text-white/70">
+                        <li><a href="{{ route('home') }}#about" class="hover:text-[#C7F236] transition-colors inline-block py-0.5">Tentang Kami</a></li>
+                        <li><a href="{{ route('portfolio') }}" class="hover:text-[#C7F236] transition-colors inline-block py-0.5">Portofolio</a></li>
+                        <li><a href="{{ route('home') }}#pricing" class="hover:text-[#C7F236] transition-colors inline-block py-0.5">Paket Harga</a></li>
+                        <li><a href="{{ route('estimator') }}" class="hover:text-[#C7F236] transition-colors inline-block py-0.5">Estimator Biaya</a></li>
+                        <li><a href="{{ route('blog') }}" class="hover:text-[#C7F236] transition-colors inline-block py-0.5">Blog &amp; Artikel</a></li>
+                        <li><a href="{{ route('contact') }}" class="hover:text-[#C7F236] transition-colors inline-block py-0.5">Kontak</a></li>
+                    </ul>
+                </div>
             </div>
 
-            <!-- Col 4: Contact & Office -->
-            <div>
-                <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-4">Kontak Kami</h4>
-                <ul class="space-y-3 text-sm text-white/70">
-                    <li class="flex items-start gap-2.5">
-                        <i data-lucide="mail" class="w-4 h-4 text-[#C7F236] shrink-0 mt-0.5"></i>
-                        <span>{{ $email }}</span>
-                    </li>
-                    <li class="flex items-start gap-2.5">
-                        <i data-lucide="phone" class="w-4 h-4 text-[#C7F236] shrink-0 mt-0.5"></i>
-                        <span>{{ $phone }}</span>
-                    </li>
-                    <li class="flex items-start gap-2.5">
-                        <i data-lucide="map-pin" class="w-4 h-4 text-[#C7F236] shrink-0 mt-0.5"></i>
-                        <span>{{ $address }}</span>
-                    </li>
-                </ul>
+            <!-- Col 4: Contact & Office (Mobile Collapsible Dropdown) -->
+            <div class="border-b border-white/10 sm:border-b-0 pb-4 sm:pb-0">
+                <button 
+                    type="button"
+                    @click="activeMobileSection = (activeMobileSection === 'contact' ? null : 'contact')"
+                    class="w-full flex items-center justify-between py-2 sm:py-0 text-left sm:cursor-default focus:outline-none group"
+                    :aria-expanded="activeMobileSection === 'contact' ? 'true' : 'false'"
+                >
+                    <h4 class="text-sm font-bold text-white uppercase tracking-wider group-hover:text-[#C7F236] sm:group-hover:text-white transition-colors">
+                        Kontak Kami
+                    </h4>
+                    <span class="sm:hidden w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-white/70 group-hover:text-[#C7F236] group-hover:bg-white/10 transition-all">
+                        <svg 
+                            class="w-4 h-4 transition-transform duration-300"
+                            :class="activeMobileSection === 'contact' ? 'rotate-180 text-[#C7F236]' : ''"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"
+                        >
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </span>
+                </button>
+                <div 
+                    x-show="isDesktop || activeMobileSection === 'contact'" 
+                    class="pt-3 sm:pt-4"
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 -translate-y-2"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                >
+                    <ul class="space-y-3 text-sm text-white/70">
+                        <li class="flex items-start gap-2.5">
+                            <i data-lucide="mail" class="w-4 h-4 text-[#C7F236] shrink-0 mt-0.5"></i>
+                            <span class="break-all">{{ $email }}</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <i data-lucide="phone" class="w-4 h-4 text-[#C7F236] shrink-0 mt-0.5"></i>
+                            <span>{{ $phone }}</span>
+                        </li>
+                        <li class="flex items-start gap-2.5">
+                            <i data-lucide="map-pin" class="w-4 h-4 text-[#C7F236] shrink-0 mt-0.5"></i>
+                            <span>{{ $address }}</span>
+                        </li>
+                    </ul>
+                </div>
             </div>
 
         </div>
 
-        <!-- Copyright -->
+        <!-- Payment Methods Showcase -->
+        <div class="py-6 sm:py-8 border-b border-white/10">
+            <!-- All Payment Method Logos -->
+            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-2.5">
+                
+                <!-- QRIS -->
+                <div class="bg-white hover:bg-white/95 rounded-xl px-2.5 py-1.5 h-9 flex items-center justify-center shadow-xs border border-white/30 hover:border-[#C7F236] transition-all duration-200 hover:scale-105 cursor-default group" title="QRIS Instant (Semua Bank & E-Wallet)">
+                    <img src="{{ asset('images/payments/qris.svg') }}" alt="QRIS" class="h-4 sm:h-5 w-auto max-w-[50px] object-contain">
+                </div>
+
+                <!-- BCA -->
+                <div class="bg-white hover:bg-white/95 rounded-xl px-2.5 py-1.5 h-9 flex items-center justify-center shadow-xs border border-white/30 hover:border-[#C7F236] transition-all duration-200 hover:scale-105 cursor-default group" title="BCA Virtual Account">
+                    <img src="{{ asset('images/payments/bca.svg') }}" alt="BCA" class="h-3.5 sm:h-4 w-auto max-w-[50px] object-contain">
+                </div>
+
+                <!-- Mandiri -->
+                <div class="bg-white hover:bg-white/95 rounded-xl px-2.5 py-1.5 h-9 flex items-center justify-center shadow-xs border border-white/30 hover:border-[#C7F236] transition-all duration-200 hover:scale-105 cursor-default group" title="Mandiri Virtual Account">
+                    <img src="{{ asset('images/payments/mandiri.svg') }}" alt="Mandiri" class="h-3.5 sm:h-4 w-auto max-w-[50px] object-contain">
+                </div>
+
+                <!-- BRI -->
+                <div class="bg-white hover:bg-white/95 rounded-xl px-2.5 py-1.5 h-9 flex items-center justify-center shadow-xs border border-white/30 hover:border-[#C7F236] transition-all duration-200 hover:scale-105 cursor-default group" title="BRI Virtual Account (BRIVA)">
+                    <img src="{{ asset('images/payments/bri.svg') }}" alt="BRI" class="h-3.5 sm:h-4 w-auto max-w-[50px] object-contain">
+                </div>
+
+                <!-- BNI -->
+                <div class="bg-white hover:bg-white/95 rounded-xl px-2.5 py-1.5 h-9 flex items-center justify-center shadow-xs border border-white/30 hover:border-[#C7F236] transition-all duration-200 hover:scale-105 cursor-default group" title="BNI Virtual Account">
+                    <img src="{{ asset('images/payments/bni.svg') }}" alt="BNI" class="h-3.5 sm:h-4 w-auto max-w-[50px] object-contain">
+                </div>
+
+                <!-- Permata -->
+                <div class="bg-white hover:bg-white/95 rounded-xl px-2.5 py-1.5 h-9 flex items-center justify-center shadow-xs border border-white/30 hover:border-[#C7F236] transition-all duration-200 hover:scale-105 cursor-default group" title="Permata Virtual Account">
+                    <img src="{{ asset('images/payments/permata.svg') }}" alt="Permata" class="h-3.5 sm:h-4 w-auto max-w-[50px] object-contain">
+                </div>
+
+                <!-- CIMB Niaga -->
+                <div class="bg-white hover:bg-white/95 rounded-xl px-2.5 py-1.5 h-9 flex items-center justify-center shadow-xs border border-white/30 hover:border-[#C7F236] transition-all duration-200 hover:scale-105 cursor-default group" title="CIMB Niaga Virtual Account">
+                    <img src="{{ asset('images/payments/cimb.svg') }}" alt="CIMB Niaga" class="h-3.5 sm:h-4 w-auto max-w-[50px] object-contain">
+                </div>
+
+                <!-- BSI -->
+                <div class="bg-white hover:bg-white/95 rounded-xl px-2.5 py-1.5 h-9 flex items-center justify-center shadow-xs border border-white/30 hover:border-[#C7F236] transition-all duration-200 hover:scale-105 cursor-default group" title="Bank Syariah Indonesia (BSI)">
+                    <img src="{{ asset('images/payments/bsi.svg') }}" alt="BSI" class="h-3.5 sm:h-4 w-auto max-w-[50px] object-contain">
+                </div>
+
+                <!-- GoPay -->
+                <div class="bg-white hover:bg-white/95 rounded-xl px-2.5 py-1.5 h-9 flex items-center justify-center shadow-xs border border-white/30 hover:border-[#C7F236] transition-all duration-200 hover:scale-105 cursor-default group" title="GoPay Instant">
+                    <img src="{{ asset('images/payments/gopay.svg') }}" alt="GoPay" class="h-3.5 sm:h-4 w-auto max-w-[50px] object-contain">
+                </div>
+
+                <!-- ShopeePay -->
+                <div class="bg-white hover:bg-white/95 rounded-xl px-2.5 py-1.5 h-9 flex items-center justify-center shadow-xs border border-white/30 hover:border-[#C7F236] transition-all duration-200 hover:scale-105 cursor-default group" title="ShopeePay">
+                    <img src="{{ asset('images/payments/shopeepay.svg') }}" alt="ShopeePay" class="h-3.5 sm:h-4 w-auto max-w-[50px] object-contain">
+                </div>
+
+                <!-- DANA -->
+                <div class="bg-white hover:bg-white/95 rounded-xl px-2.5 py-1.5 h-9 flex items-center justify-center shadow-xs border border-white/30 hover:border-[#C7F236] transition-all duration-200 hover:scale-105 cursor-default group" title="DANA">
+                    <img src="{{ asset('images/payments/dana.svg') }}" alt="DANA" class="h-3.5 sm:h-4 w-auto max-w-[50px] object-contain">
+                </div>
+
+                <!-- OVO -->
+                <div class="bg-white hover:bg-white/95 rounded-xl px-2.5 py-1.5 h-9 flex items-center justify-center shadow-xs border border-white/30 hover:border-[#C7F236] transition-all duration-200 hover:scale-105 cursor-default group" title="OVO">
+                    <img src="{{ asset('images/payments/ovo.svg') }}" alt="OVO" class="h-3.5 w-auto max-w-[45px] object-contain">
+                </div>
+
+                <!-- Indomaret -->
+                <div class="bg-white hover:bg-white/95 rounded-xl px-2.5 py-1.5 h-9 flex items-center justify-center shadow-xs border border-white/30 hover:border-[#C7F236] transition-all duration-200 hover:scale-105 cursor-default group" title="Indomaret / Ceriamart">
+                    <img src="{{ asset('images/payments/indomaret.png') }}" alt="Indomaret" class="h-3.5 sm:h-4 w-auto max-w-[50px] object-contain">
+                </div>
+
+                <!-- Alfamart -->
+                <div class="bg-white hover:bg-white/95 rounded-xl px-2.5 py-1.5 h-9 flex items-center justify-center shadow-xs border border-white/30 hover:border-[#C7F236] transition-all duration-200 hover:scale-105 cursor-default group" title="Alfamart / Alfamidi / Dan+Dan">
+                    <img src="{{ asset('images/payments/alfamart.svg') }}" alt="Alfamart" class="h-3.5 sm:h-4 w-auto max-w-[50px] object-contain">
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Copyright & Legal -->
         <div class="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/60">
             <p>&copy; {{ date('Y') }} JuangDev. Hak Cipta Dilindungi Undang-Undang.</p>
-            <div class="flex items-center gap-6">
+            <div class="flex flex-wrap items-center justify-center gap-6">
                 <a href="{{ route('admin.login') }}" class="text-white/40 hover:text-white/80 transition-colors">Panel Admin</a>
                 <a href="#" class="hover:text-[#C7F236] transition-colors">Kebijakan Privasi</a>
                 <a href="#" class="hover:text-[#C7F236] transition-colors">Syarat &amp; Ketentuan</a>

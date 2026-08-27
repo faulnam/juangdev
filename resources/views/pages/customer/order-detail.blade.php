@@ -150,51 +150,138 @@
                     </div>
                 </div>
 
-                <!-- Project Specifications Dotted Box (Gambar 5 Token Box Style) -->
-                <div class="border-2 border-dashed border-slate-300 rounded-2xl p-5 sm:p-6 text-center space-y-3 bg-slate-50/50">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">INFORMASI SPESIFIKASI PROYEK</p>
+                <!-- Official Visible E-Receipt Card (Kotak Bukti Resi Langsung) -->
+                <div id="receipt-print-area" class="receipt-card bg-white rounded-3xl border-2 border-dashed border-slate-300 p-6 sm:p-8 relative text-slate-800 shadow-sm overflow-hidden space-y-4">
                     
-                    <div class="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                        {{ $order->project_name ?? $order->service_name }}
+                    <!-- Header: Brand Logo & Company Info -->
+                    <div class="text-center pb-5 border-b-2 border-slate-200">
+                        <div class="inline-flex items-center justify-center gap-2 mb-1">
+                            <span class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">Juang<span class="text-[#2563EB]">Dev</span></span>
+                        </div>
+                        <p class="text-[11px] font-bold tracking-widest text-slate-500 uppercase">JUANG SOLUSI DIGITAL</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5 font-medium">Software House &amp; Digital Solution Partner</p>
+
+                        <div class="mt-4 pt-3 border-t border-slate-100">
+                            <h2 class="rec-title text-base sm:text-lg font-black text-slate-900 uppercase tracking-wide">
+                                @if($order->payment_status === 'fully_paid')
+                                    Bukti Transaksi Resmi (Lunas 100%)
+                                @elseif($order->payment_status === 'dp_paid')
+                                    Bukti Pembayaran Uang Muka (DP 50%)
+                                @else
+                                    Tagihan Transaksi Resmi (Invoice)
+                                @endif
+                            </h2>
+                            <p class="rec-status-subtitle text-[11px] font-semibold text-slate-500 mt-0.5">
+                                Bukti Pembayaran Elektronik Resmi JuangDev
+                            </p>
+                        </div>
                     </div>
 
-                    <div class="text-xs text-slate-600 font-medium space-y-1">
-                        <p class="font-bold text-slate-800">{{ $order->service_name }} — Paket {{ $order->package_name ?? 'Kustom' }}</p>
-                        <p class="text-slate-500">Klien: {{ $order->customer_name }} • WhatsApp: {{ $order->customer_phone }}</p>
-                        
-                        @if($order->addons && count($order->addons) > 0)
-                            <div class="pt-2 flex flex-wrap justify-center gap-1.5">
-                                @foreach($order->addons as $addon)
-                                    <span class="bg-white border border-slate-200 px-2.5 py-0.5 rounded-md text-[10px] font-semibold text-slate-700">
-                                        ✓ {{ is_array($addon) ? ($addon['title'] ?? '-') : $addon }}
-                                    </span>
-                                @endforeach
-                            </div>
-                        @endif
-
-                        <div class="pt-2">
-                            <span class="inline-block text-[11px] font-bold px-3 py-1 rounded-full {{ $order->project_status == 'completed' ? 'bg-blue-100 text-blue-800' : ($order->project_status == 'in_progress' ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-200 text-slate-800') }}">
-                                Status Proyek: {{ $order->project_status == 'completed' ? 'Selesai' : ($order->project_status == 'in_progress' ? 'Dalam Pengerjaan' : 'Antrean Menunggu') }}
+                    <!-- Key-Value Transaction Details -->
+                    <div class="py-2 space-y-2.5 text-xs text-slate-700">
+                        <div class="flex justify-between items-start gap-4">
+                            <span class="text-slate-500 font-medium shrink-0">Waktu Transaksi</span>
+                            <span class="rec-date font-semibold text-slate-900 text-right">
+                                {{ $order->created_at ? $order->created_at->format('Y-m-d H:i:s') . ' WIB' : date('Y-m-d H:i:s') . ' WIB' }}
                             </span>
                         </div>
 
+                        <div class="flex justify-between items-start gap-4">
+                            <span class="text-slate-500 font-medium shrink-0">Nomor Referensi</span>
+                            <span class="rec-inv font-mono font-black text-slate-900 text-right">
+                                #{{ $order->invoice_number }}
+                            </span>
+                        </div>
+
+                        <div class="flex justify-between items-start gap-4">
+                            <span class="text-slate-500 font-medium shrink-0">Nama Pelanggan</span>
+                            <div class="text-right">
+                                <div class="rec-name font-bold text-slate-900 uppercase">{{ $order->customer_name }}</div>
+                                <div class="rec-phone font-mono text-[11px] text-slate-500 font-medium">
+                                    @php
+                                        $phone = $order->customer_phone;
+                                        $masked = (strlen($phone) >= 8) ? substr($phone, 0, 4) . ' **** **** ' . substr($phone, -3) : $phone;
+                                    @endphp
+                                    {{ $masked }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-start gap-4">
+                            <span class="text-slate-500 font-medium shrink-0">Jenis Transaksi</span>
+                            <span class="rec-trx-type font-bold text-slate-900 text-right">
+                                @if($order->payment_status === 'fully_paid')
+                                    {{ $order->payment_scheme === 'full_100' ? 'Pelunasan Langsung (100%)' : 'Pelunasan Sisa Proyek (100%)' }}
+                                @elseif($order->payment_status === 'dp_paid')
+                                    Pembayaran Uang Muka (DP 50%)
+                                @else
+                                    Tagihan Menunggu Pembayaran
+                                @endif
+                            </span>
+                        </div>
+
+                        <div class="flex justify-between items-start gap-4">
+                            <span class="text-slate-500 font-medium shrink-0">Metode Pembayaran</span>
+                            <span class="rec-method font-semibold text-slate-900 text-right">QRIS / Virtual Account Pakasir</span>
+                        </div>
+
+                        <div class="flex justify-between items-start gap-4">
+                            <span class="text-slate-500 font-medium shrink-0">Penyedia Jasa</span>
+                            <span class="font-bold text-slate-900 text-right">JUANG SOLUSI DIGITAL</span>
+                        </div>
+
+                        <div class="flex justify-between items-start gap-4">
+                            <span class="text-slate-500 font-medium shrink-0">Layanan &amp; Paket</span>
+                            <div class="text-right">
+                                <span class="rec-service font-bold text-slate-900">{{ $order->service_name }}</span>
+                                @if($order->package_name)
+                                    <span class="rec-pkg block text-[11px] text-slate-500">Paket: {{ $order->package_name }}</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-start gap-4">
+                            <span class="text-slate-500 font-medium shrink-0">Nama Proyek</span>
+                            <span class="rec-notes font-bold text-slate-900 text-right">
+                                {{ $order->project_name ?? $order->service_name }}
+                            </span>
+                        </div>
+
+                        <div class="flex justify-between items-start gap-4">
+                            <span class="text-slate-500 font-medium shrink-0">Status Pengerjaan</span>
+                            <span class="inline-block text-[10px] font-bold px-2.5 py-0.5 rounded-full {{ $order->project_status == 'completed' ? 'bg-blue-100 text-blue-800' : ($order->project_status == 'in_progress' ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-200 text-slate-800') }}">
+                                {{ $order->project_status == 'completed' ? 'Selesai' : ($order->project_status == 'in_progress' ? 'Dalam Pengerjaan' : 'Antrean Menunggu') }}
+                            </span>
+                        </div>
+
+                        @if($order->addons && count($order->addons) > 0)
+                            <div class="pt-2 border-t border-slate-100 flex justify-between items-start gap-4">
+                                <span class="text-slate-500 font-medium shrink-0">Fitur Tambahan</span>
+                                <div class="text-right flex flex-wrap justify-end gap-1">
+                                    @foreach($order->addons as $addon)
+                                        <span class="bg-slate-50 border border-slate-200 px-2 py-0.5 rounded text-[10px] font-semibold text-slate-700">
+                                            ✓ {{ is_array($addon) ? ($addon['title'] ?? '-') : $addon }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
                         @if($order->notes)
-                            <div class="pt-3 border-t border-slate-200/80 text-left">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Catatan / Kebutuhan Klien</span>
-                                <p class="p-3 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-medium leading-relaxed">
+                            <div class="pt-2 border-t border-slate-100 text-left">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Catatan Klien:</span>
+                                <p class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 text-xs font-medium leading-relaxed">
                                     "{{ $order->notes }}"
                                 </p>
                             </div>
                         @endif
 
                         @if($order->attachment_path)
-                            <div class="pt-3 border-t border-slate-200/80 text-left">
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">Berkas Lampiran Proyek</span>
-                                <div class="p-3 rounded-xl bg-white border border-blue-200 flex items-center justify-between gap-3 shadow-2xs">
-                                    <div class="flex items-center gap-2.5 min-w-0">
-                                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0">
-                                            <i data-lucide="paperclip" class="w-4 h-4"></i>
-                                        </div>
+                            <div class="pt-2 border-t border-slate-100 text-left">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Lampiran File Proyek:</span>
+                                <div class="p-2.5 rounded-xl bg-slate-50 border border-blue-200 flex items-center justify-between gap-3 shadow-2xs">
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <i data-lucide="paperclip" class="w-4 h-4 text-[#2563EB] shrink-0"></i>
                                         <div class="min-w-0">
                                             <p class="font-bold text-slate-900 text-xs truncate">{{ $order->attachment_name }}</p>
                                             <p class="text-[10px] text-slate-400 font-medium">{{ $order->formatted_attachment_size }}</p>
@@ -203,15 +290,73 @@
                                     <a 
                                         href="{{ $order->attachment_url }}" 
                                         target="_blank" 
-                                        class="px-3 py-1.5 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all shrink-0"
+                                        class="px-3 py-1 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-xs font-bold flex items-center gap-1 shrink-0 transition-colors shadow-2xs"
                                     >
-                                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                                        <i data-lucide="download" class="w-3 h-3"></i>
                                         <span>Buka File</span>
                                     </a>
                                 </div>
                             </div>
                         @endif
                     </div>
+
+                    <!-- Dotted Separator -->
+                    <div class="border-t-2 border-dashed border-slate-300 my-3"></div>
+
+                    <!-- Amount Breakdown Table -->
+                    <div class="py-2 space-y-2 text-xs text-slate-700">
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-500 font-medium">Total Nilai Kontrak Proyek</span>
+                            <span class="rec-total-cost font-bold text-slate-900">
+                                {{ $order->formatted_total }}
+                            </span>
+                        </div>
+
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-500 font-medium">Tagihan Uang Muka (DP 50%)</span>
+                            <span class="rec-dp font-semibold text-slate-900">
+                                {{ $order->formatted_dp }}
+                            </span>
+                        </div>
+
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-500 font-medium">Sisa Pelunasan (50%)</span>
+                            <span class="rec-rem font-semibold text-slate-900">
+                                {{ $order->payment_status === 'fully_paid' ? 'Rp 0 (LUNAS ✓)' : $order->formatted_remaining }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Solid Separator -->
+                    <div class="border-t-2 border-slate-900 my-3"></div>
+
+                    <!-- Total Paid Highlight -->
+                    <div class="py-2 flex justify-between items-center">
+                        <div>
+                            <span class="text-xs font-black text-slate-900 uppercase tracking-wider block">Total Tagihan / Pembayaran</span>
+                            <span class="text-[10px] text-slate-500">Termasuk Pajak &amp; Biaya Layanan</span>
+                        </div>
+                        <span class="rec-total-highlight text-xl sm:text-2xl font-black text-[#2563EB] tracking-tight">
+                            @if($order->payment_status === 'fully_paid')
+                                {{ $order->formatted_total }}
+                            @elseif($order->payment_status === 'dp_paid')
+                                {{ $order->formatted_dp }}
+                            @else
+                                {{ $order->formatted_dp }}
+                            @endif
+                        </span>
+                    </div>
+
+                    <!-- Corporate Footer Disclaimer -->
+                    <div class="mt-4 pt-4 border-t border-slate-200 text-center space-y-1">
+                        <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                            &copy; {{ date('Y') }} JUANG SOLUSI DIGITAL (JUANGDEV)
+                        </p>
+                        <p class="text-[9px] text-slate-400 leading-relaxed">
+                            Bukti transaksi ini diterbitkan secara elektronik dan sah secara hukum perundang-undangan Republik Indonesia.
+                        </p>
+                    </div>
+
                 </div>
 
                 <!-- Bottom Actions: Print & Komplain/WhatsApp (Gambar 5 Style) -->
@@ -219,7 +364,7 @@
                     <button 
                         type="button" 
                         onclick="printThermalReceipt()"
-                        class="w-full sm:w-1/2 py-3 px-4 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-800 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer"
+                        class="w-full sm:w-1/2 py-3 px-4 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-800 text-xs font-bold flex items-center justify-center gap-2 transition-all cursor-pointer shadow-2xs"
                     >
                         <i data-lucide="printer" class="w-4 h-4"></i>
                         <span>Cetak Bukti Resi</span>
@@ -402,8 +547,6 @@
     </div>
 </div>
 
-<!-- Formal E-Receipt Component -->
-@include('partials.receipt-modal')
 
 <script>
 function formatRupiah(num) {
