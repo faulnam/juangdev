@@ -114,9 +114,8 @@
                     @forelse($orders as $ord)
                         <tr class="hover:bg-slate-50/80 transition-colors">
                             <td class="py-4 px-6 font-mono font-bold text-[#2563EB]">
-                                <a href="{{ route('invoice.show', $ord->invoice_number) }}" target="_blank" class="hover:underline flex items-center gap-1">
+                                <a href="{{ route('admin.orders.show', $ord->id) }}" class="hover:underline flex items-center gap-1">
                                     <span>#{{ $ord->invoice_number }}</span>
-                                    <i data-lucide="external-link" class="w-3 h-3 text-slate-400"></i>
                                 </a>
                                 <p class="text-[10px] text-slate-400 font-normal mt-0.5">{{ $ord->created_at ? $ord->created_at->format('d M Y, H:i') : '-' }}</p>
                             </td>

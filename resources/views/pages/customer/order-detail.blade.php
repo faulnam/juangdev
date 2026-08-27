@@ -359,29 +359,6 @@
                                 </p>
                             </div>
                         @endif
-
-                        @if($order->attachment_path)
-                            <div class="pt-1.5 border-t border-dashed border-slate-200 text-left">
-                                <span class="text-[10px] font-bold uppercase tracking-tight text-slate-400 block mb-0.5">LAMPIRAN FILE PROYEK:</span>
-                                <div class="p-2 rounded bg-slate-50 border border-blue-200 flex items-center justify-between gap-3">
-                                    <div class="flex items-center gap-2 min-w-0">
-                                        <i data-lucide="paperclip" class="w-3.5 h-3.5 text-[#2563EB] shrink-0"></i>
-                                        <div class="min-w-0">
-                                            <p class="font-bold text-slate-900 text-xs truncate">{{ $order->attachment_name }}</p>
-                                            <p class="text-[10px] text-slate-400 font-medium">{{ $order->formatted_attachment_size }}</p>
-                                        </div>
-                                    </div>
-                                    <a 
-                                        href="{{ $order->attachment_url }}" 
-                                        target="_blank" 
-                                        class="px-2.5 py-1 rounded bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-[11px] font-bold flex items-center gap-1 shrink-0 transition-colors shadow-2xs"
-                                    >
-                                        <i data-lucide="download" class="w-3 h-3"></i>
-                                        <span>Buka File</span>
-                                    </a>
-                                </div>
-                            </div>
-                        @endif
                     </div>
 
                     <!-- Dotted Separator -->

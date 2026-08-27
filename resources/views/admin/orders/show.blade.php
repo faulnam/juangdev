@@ -45,10 +45,14 @@
                 </button>
             </form>
 
-            <a href="{{ route('invoice.show', $order->invoice_number) }}" target="_blank" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs flex items-center gap-2">
-                <i data-lucide="external-link" class="w-4 h-4"></i>
-                <span>Buka Invoice</span>
-            </a>
+            <button 
+                type="button" 
+                onclick="downloadReceiptPdf(this)" 
+                class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-2 shadow-xs transition-all cursor-pointer"
+            >
+                <i data-lucide="download" class="w-4 h-4"></i>
+                <span>Download Resi PDF</span>
+            </button>
         </div>
     </div>
 
@@ -222,4 +226,115 @@
 
     </div>
 </div>
+
+<!-- Formal E-Receipt Component for Print / PDF Generation -->
+@include('partials.receipt-modal')
+
+@push('scripts')
+<!-- HTML2PDF Library for Direct 1-Page PDF Downloads -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script>
+function downloadReceiptPdf(btn) {
+    var receiptEl = document.getElementById('receipt-print-area');
+    if (!receiptEl) {
+        window.print();
+        return;
+    }
+
+    var originalText = btn ? btn.innerHTML : '';
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="inline-block animate-spin mr-1">⏳</span> Menyiapkan PDF...';
+    }
+
+    // Create a perfectly formatted tailored receipt slip container (No outer box border)
+    var clone = receiptEl.cloneNode(true);
+    clone.classList.remove('hidden', 'print:block');
+    clone.style.display = 'block';
+    clone.style.width = '480px';
+    clone.style.maxWidth = '480px';
+    clone.style.padding = '10px 14px';
+    clone.style.margin = '0 auto';
+    clone.style.background = '#ffffff';
+    clone.style.border = 'none';
+    clone.style.boxShadow = 'none';
+    clone.style.borderRadius = '0px';
+    clone.style.boxSizing = 'border-box';
+    clone.style.fontSize = '12px';
+    clone.style.lineHeight = '1.4';
+    clone.style.fontFamily = "'Courier New', Courier, 'Courier Prime', SFMono-Regular, Consolas, monospace";
+    clone.style.color = '#0f172a';
+
+    var container = document.createElement('div');
+    container.style.position = 'fixed';
+    container.style.left = '-9999px';
+    container.style.top = '0';
+    container.style.width = '500px';
+    container.style.background = '#ffffff';
+    container.appendChild(clone);
+    document.body.appendChild(container);
+
+    // Calculate dynamic slip height in mm so the PDF page fits the receipt without huge blank bottom space
+    var slipWidthMm = 135; // Formal e-receipt slip standard width
+    var contentRatio = clone.offsetHeight / (clone.offsetWidth || 480);
+    var slipHeightMm = Math.ceil(slipWidthMm * contentRatio) + 10;
+
+    var invNum = '{{ $order->invoice_number }}';
+    var opt = {
+        margin: [4, 4, 4, 4],
+        filename: 'Resi-JuangDev-' + invNum + '.pdf',
+        image: { type: 'jpeg', quality: 1.0 },
+        html2canvas: { 
+            scale: 2.5, 
+            useCORS: true, 
+            logging: false,
+            letterRendering: true,
+            scrollX: 0,
+            scrollY: 0
+        },
+        jsPDF: { 
+            unit: 'mm', 
+            format: [slipWidthMm, slipHeightMm], 
+            orientation: 'portrait' 
+        },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+
+    if (typeof html2pdf !== 'undefined') {
+        html2pdf().set(opt).from(clone).save().then(function() {
+            if (document.body.contains(container)) {
+                document.body.removeChild(container);
+            }
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                if (window.lucide) lucide.createIcons();
+            }
+        }).catch(function(err) {
+            console.error('PDF generation error:', err);
+            if (document.body.contains(container)) {
+                document.body.removeChild(container);
+            }
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                if (window.lucide) lucide.createIcons();
+            }
+            window.print();
+        });
+    } else {
+        if (document.body.contains(container)) {
+            document.body.removeChild(container);
+        }
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+            if (window.lucide) lucide.createIcons();
+        }
+        window.print();
+    }
+}
+</script>
+@endpush
 @endsection
