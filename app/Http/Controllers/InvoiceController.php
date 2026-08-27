@@ -30,6 +30,8 @@ class InvoiceController extends Controller
             'project_name' => 'nullable|string|max:255',
             'service_name' => 'required|string|max:255',
             'package_name' => 'nullable|string|max:255',
+            'boilerplate_id' => 'nullable|integer|exists:portfolios,id',
+            'boilerplate_name' => 'nullable|string|max:255',
             'addons' => 'nullable|array',
             'original_amount' => 'nullable|numeric|min:0',
             'discount_amount' => 'nullable|numeric|min:0',
@@ -60,6 +62,15 @@ class InvoiceController extends Controller
             $existingUser = \App\Models\User::where('email', $validated['customer_email'])->first();
             if ($existingUser) {
                 $userId = $existingUser->id;
+            }
+        }
+
+        $boilerplateId = $validated['boilerplate_id'] ?? null;
+        $boilerplateName = $validated['boilerplate_name'] ?? null;
+        if ($boilerplateId && !$boilerplateName) {
+            $bpModel = \App\Models\Portfolio::find($boilerplateId);
+            if ($bpModel) {
+                $boilerplateName = $bpModel->title;
             }
         }
 
@@ -95,6 +106,8 @@ class InvoiceController extends Controller
             'project_name' => $validated['project_name'] ?? null,
             'service_name' => $validated['service_name'],
             'package_name' => $validated['package_name'] ?? null,
+            'boilerplate_id' => $boilerplateId,
+            'boilerplate_name' => $boilerplateName,
             'addons' => $validated['addons'] ?? [],
             'original_amount' => $originalAmount,
             'discount_amount' => $discountAmount,
@@ -128,6 +141,15 @@ class InvoiceController extends Controller
                 'project_name' => $order->project_name,
                 'service_name' => $order->service_name,
                 'package_name' => $order->package_name,
+                'boilerplate_id' => $order->boilerplate_id,
+                'boilerplate_name' => $order->boilerplate_name,
+                'boilerplate' => $order->boilerplate ? [
+                    'id' => $order->boilerplate->id,
+                    'title' => $order->boilerplate->title,
+                    'image_url' => $order->boilerplate->image_url,
+                    'package_tier' => $order->boilerplate->package_tier,
+                    'live_url' => $order->boilerplate->live_url,
+                ] : null,
                 'original_amount' => $order->original_amount,
                 'discount_amount' => $order->discount_amount,
                 'total_amount' => $order->total_amount,

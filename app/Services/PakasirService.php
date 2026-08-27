@@ -214,6 +214,7 @@ class PakasirService
      */
     public static function sendCustomerInvoiceWa(Order $order): void
     {
+        $bpText = $order->boilerplate_name ? ("\n- Template Desain: " . $order->boilerplate_name) : '';
         $msg = "TAGIHAN RESMI DAN KONFIRMASI PESANAN\n"
             . "JuangDev Digital Solutions\n\n"
             . "Kepada Yth. Bapak/Ibu " . $order->customer_name . ",\n\n"
@@ -222,7 +223,8 @@ class PakasirService
             . "- Nomor Tagihan: " . $order->invoice_number . "\n"
             . "- Nama Proyek: " . ($order->project_name ?? $order->service_name) . "\n"
             . "- Layanan Utama: " . $order->service_name . "\n"
-            . "- Paket Pilihan: " . ($order->package_name ?? '-') . "\n"
+            . "- Paket Pilihan: " . ($order->package_name ?? '-')
+            . $bpText . "\n"
             . "- Total Nilai Proyek: " . $order->formatted_total . "\n"
             . "- Tagihan Uang Muka (DP 50%): " . $order->formatted_dp . "\n"
             . "- Sisa Pelunasan (50%): " . $order->formatted_remaining . "\n\n"
@@ -242,6 +244,7 @@ class PakasirService
     {
         $adminPhone = env('ADMIN_WA_NUMBER') ?? SiteSetting::where('key', 'whatsapp_number')->value('value') ?? '62859171681988';
 
+        $bpText = $order->boilerplate_name ? ("\n- Template Desain: " . $order->boilerplate_name) : '';
         $notesText = $order->notes ? ("\n- Catatan / Brief Klien: \"" . $order->notes . "\"") : '';
         $attachmentText = $order->attachment_name ? ("\n- Lampiran File: " . $order->attachment_name . " (" . $order->formatted_attachment_size . ")\n  Link Lampiran: " . $order->attachment_url) : '';
 
@@ -255,7 +258,8 @@ class PakasirService
             . "- Alamat Email: " . $order->customer_email . "\n"
             . "- Nama Proyek: " . ($order->project_name ?? '-') . "\n"
             . "- Layanan: " . $order->service_name . "\n"
-            . "- Paket: " . ($order->package_name ?? '-') . "\n"
+            . "- Paket: " . ($order->package_name ?? '-')
+            . $bpText . "\n"
             . "- Total Nilai Proyek: " . $order->formatted_total . "\n"
             . "- Tagihan DP (50%): " . $order->formatted_dp . "\n"
             . "- Sisa Pelunasan (50%): " . $order->formatted_remaining

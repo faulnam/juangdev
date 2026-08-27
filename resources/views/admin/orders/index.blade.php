@@ -128,6 +128,11 @@
                                 @if($ord->package_name)
                                     <span class="block text-[10px] text-slate-400 font-normal">{{ $ord->package_name }}</span>
                                 @endif
+                                @if($ord->boilerplate_name || $ord->boilerplate_id)
+                                    <span class="inline-block text-[9px] font-bold text-[#2563EB] bg-blue-50 px-1.5 py-0.2 rounded border border-blue-200 mt-0.5" title="Template Boilerplate">
+                                        Template: {{ Str::limit($ord->boilerplate_name ?? ($ord->boilerplate->title ?? '-'), 22) }}
+                                    </span>
+                                @endif
                             </td>
                             <td class="py-4 px-6 text-right font-bold text-slate-900">
                                 {{ $ord->formatted_total }}

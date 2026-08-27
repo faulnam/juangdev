@@ -88,9 +88,32 @@
                     </div>
 
                     <div>
-                        <p class="text-slate-400 font-bold uppercase text-[10px]">Nama Proyek</p>
-                        <p class="font-medium text-[#2563EB] mt-0.5">{{ $order->project_name ?? '-' }}</p>
+                        <p class="text-slate-400 font-bold uppercase text-[10px]">Nama Proyek Klien</p>
+                        <p class="font-bold text-[#2563EB] mt-0.5">{{ $order->project_name ?? '-' }}</p>
                     </div>
+
+                    @if($order->boilerplate_name || $order->boilerplate_id)
+                        <div class="col-span-2 p-3 rounded-xl bg-blue-50/70 border border-blue-200/80 flex items-center justify-between">
+                            <div class="flex items-center gap-2.5">
+                                @if($order->boilerplate && $order->boilerplate->image_url)
+                                    <img src="{{ $order->boilerplate->image_url }}" alt="Template" class="w-10 h-10 rounded-lg object-cover border border-blue-200 bg-white shadow-2xs" onerror="this.src='/placeholder.png'">
+                                @endif
+                                <div>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase">Template Desain Boilerplate Terpilih</p>
+                                    <p class="font-black text-slate-900 text-xs">{{ $order->boilerplate_name ?? ($order->boilerplate->title ?? '-') }}</p>
+                                    @if($order->boilerplate && $order->boilerplate->package_tier)
+                                        <span class="text-[9px] font-bold text-[#2563EB] bg-white border border-blue-200 px-1.5 py-0.2 rounded inline-block mt-0.5">Paket {{ $order->boilerplate->package_tier }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                            @if($order->boilerplate && $order->boilerplate->live_url)
+                                <a href="{{ $order->boilerplate->live_url }}" target="_blank" class="px-2.5 py-1 rounded-lg bg-white border border-blue-200 text-[#2563EB] text-xs font-bold hover:bg-blue-50 transition-all flex items-center gap-1 shadow-2xs">
+                                    <span>Demo</span>
+                                    <i data-lucide="external-link" class="w-3 h-3"></i>
+                                </a>
+                            @endif
+                        </div>
+                    @endif
                 </div>
 
                 @if($order->notes)
@@ -145,6 +168,13 @@
                         <div class="flex items-center justify-between">
                             <span class="text-slate-500 font-medium">Paket Pilihan:</span>
                             <span class="font-bold text-slate-900">{{ $order->package_name }}</span>
+                        </div>
+                    @endif
+
+                    @if($order->boilerplate_name || $order->boilerplate_id)
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-500 font-medium">Template Desain:</span>
+                            <span class="font-bold text-[#2563EB]">{{ $order->boilerplate_name ?? ($order->boilerplate->title ?? '-') }}</span>
                         </div>
                     @endif
 

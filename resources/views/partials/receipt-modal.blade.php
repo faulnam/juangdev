@@ -109,6 +109,19 @@
             </div>
 
             <div class="flex justify-between items-start gap-4">
+                <span class="text-slate-500 shrink-0 uppercase tracking-tight">TEMPLATE DESAIN</span>
+                <span class="rec-boilerplate font-bold text-slate-900 text-right uppercase">
+                    @php
+                        $bpTitle = '-';
+                        if (isset($order)) {
+                            $bpTitle = $order->boilerplate_name ?? ($order->boilerplate->title ?? ($order->service_name ? 'KUSTOM / SESUAI BRIEF' : '-'));
+                        }
+                    @endphp
+                    {{ $bpTitle }}
+                </span>
+            </div>
+
+            <div class="flex justify-between items-start gap-4">
                 <span class="text-slate-500 shrink-0 uppercase tracking-tight">NAMA PROYEK</span>
                 <span class="rec-notes font-bold text-slate-900 text-right uppercase">
                     {{ isset($order) && $order->project_name ? $order->project_name : 'PROYEK DIGITAL JUANGDEV' }}

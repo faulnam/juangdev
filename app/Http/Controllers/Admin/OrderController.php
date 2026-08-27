@@ -32,6 +32,7 @@ class OrderController extends Controller
                   ->orWhere('customer_phone', 'like', "%{$search}%")
                   ->orWhere('customer_email', 'like', "%{$search}%")
                   ->orWhere('project_name', 'like', "%{$search}%")
+                  ->orWhere('boilerplate_name', 'like', "%{$search}%")
                   ->orWhere('service_name', 'like', "%{$search}%");
             });
         }
@@ -72,7 +73,8 @@ class OrderController extends Controller
                 $q->where('invoice_number', 'like', "%{$search}%")
                   ->orWhere('customer_name', 'like', "%{$search}%")
                   ->orWhere('customer_phone', 'like', "%{$search}%")
-                  ->orWhere('project_name', 'like', "%{$search}%");
+                  ->orWhere('project_name', 'like', "%{$search}%")
+                  ->orWhere('boilerplate_name', 'like', "%{$search}%");
             });
         }
 
@@ -95,6 +97,7 @@ class OrderController extends Controller
             'Email',
             'Layanan',
             'Paket',
+            'Template Boilerplate',
             'Nama Proyek',
             'Total Nilai (Rp)',
             'Tagihan DP 50% (Rp)',
@@ -119,6 +122,7 @@ class OrderController extends Controller
                     $ord->customer_email,
                     $ord->service_name,
                     $ord->package_name ?? '-',
+                    $ord->boilerplate_name ?? ($ord->boilerplate->title ?? '-'),
                     $ord->project_name ?? '-',
                     $ord->total_amount,
                     $ord->dp_amount,

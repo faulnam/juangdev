@@ -91,7 +91,16 @@
                             <p class="text-slate-600 font-normal">{{ $order->customer_email }}</p>
                             <p class="text-slate-600 font-normal">{{ $order->customer_phone }}</p>
                             @if($order->project_name)
-                                <p class="text-[#2563EB] font-bold mt-2">Proyek: {{ $order->project_name }}</p>
+                                <p class="text-[#2563EB] font-bold mt-2">Nama Proyek: {{ $order->project_name }}</p>
+                            @endif
+                            @if($order->boilerplate_name || $order->boilerplate_id)
+                                <p class="text-slate-700 font-medium text-xs mt-1">
+                                    <span class="text-slate-400 font-bold uppercase text-[10px]">Template Desain:</span> 
+                                    <span class="font-bold text-[#2563EB]">{{ $order->boilerplate_name ?? ($order->boilerplate->title ?? '-') }}</span>
+                                    @if($order->boilerplate && $order->boilerplate->package_tier)
+                                        <span class="text-[10px] text-slate-500 font-semibold bg-slate-100 px-1.5 py-0.5 rounded ml-1">Paket {{ $order->boilerplate->package_tier }}</span>
+                                    @endif
+                                </p>
                             @endif
                         </div>
                     </div>
@@ -167,6 +176,11 @@
                                         <p class="font-bold text-slate-900">{{ $order->service_name }}</p>
                                         @if($order->package_name)
                                             <p class="text-xs text-slate-500 mt-0.5">Paket: {{ $order->package_name }}</p>
+                                        @endif
+                                        @if($order->boilerplate_name || $order->boilerplate_id)
+                                            <p class="text-xs text-[#2563EB] font-semibold mt-0.5">
+                                                Template Desain: {{ $order->boilerplate_name ?? ($order->boilerplate->title ?? '-') }}
+                                            </p>
                                         @endif
                                     </td>
                                     <td class="py-4 px-6 text-right font-bold text-slate-900">

@@ -99,9 +99,32 @@
                         </div>
                     </div>
 
+                    @if($order->boilerplate_name || $order->boilerplate_id)
+                        <div class="flex justify-between items-center p-3.5 bg-blue-50/60 border-y border-blue-100/80">
+                            <span class="text-slate-600 font-medium">Template Boilerplate</span>
+                            <div class="flex items-center gap-2.5 text-right">
+                                @if($order->boilerplate && $order->boilerplate->image_url)
+                                    <img src="{{ $order->boilerplate->image_url }}" alt="Template" class="w-8 h-8 rounded-lg object-cover border border-blue-200 bg-white shrink-0 shadow-2xs" onerror="this.src='/placeholder.png'">
+                                @endif
+                                <div>
+                                    <span class="font-bold text-[#2563EB] text-xs block">{{ $order->boilerplate_name ?? ($order->boilerplate->title ?? 'Template Pilihan') }}</span>
+                                    @if($order->boilerplate && $order->boilerplate->package_tier)
+                                        <span class="text-[10px] font-bold text-slate-500 bg-white border border-blue-200 px-1.5 py-0.2 rounded inline-block">Paket {{ $order->boilerplate->package_tier }}</span>
+                                    @endif
+                                    @if($order->boilerplate && $order->boilerplate->live_url)
+                                        <a href="{{ $order->boilerplate->live_url }}" target="_blank" class="text-[10px] text-[#2563EB] font-bold hover:underline inline-flex items-center gap-0.5 ml-1">
+                                            <span>Demo</span>
+                                            <i data-lucide="external-link" class="w-2.5 h-2.5"></i>
+                                        </a>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
                     <div class="flex justify-between items-center p-3.5 bg-slate-50/70">
-                        <span class="text-slate-500 font-medium">Nama Proyek</span>
-                        <span class="font-bold text-slate-900">{{ $order->project_name ?? $order->service_name }}</span>
+                        <span class="text-slate-500 font-medium">Nama Proyek Klien</span>
+                        <span class="font-bold text-slate-900">{{ $order->project_name ?? '-' }}</span>
                     </div>
 
                     <div class="flex justify-between items-center p-3.5 bg-white">
@@ -325,9 +348,16 @@
                         </div>
 
                         <div class="flex justify-between items-start gap-4">
+                            <span class="text-slate-500 shrink-0 uppercase tracking-tight">TEMPLATE DESAIN</span>
+                            <span class="rec-boilerplate font-bold text-slate-900 text-right uppercase">
+                                {{ $order->boilerplate_name ?? ($order->boilerplate->title ?? 'KUSTOM / SESUAI BRIEF') }}
+                            </span>
+                        </div>
+
+                        <div class="flex justify-between items-start gap-4">
                             <span class="text-slate-500 shrink-0 uppercase tracking-tight">NAMA PROYEK</span>
                             <span class="rec-notes font-bold text-slate-900 text-right uppercase">
-                                {{ $order->project_name ?? $order->service_name }}
+                                {{ $order->project_name ?? 'PROYEK DIGITAL JUANGDEV' }}
                             </span>
                         </div>
 

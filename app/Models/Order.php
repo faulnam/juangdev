@@ -16,6 +16,8 @@ class Order extends Model
         'project_name',
         'service_name',
         'package_name',
+        'boilerplate_id',
+        'boilerplate_name',
         'addons',
         'original_amount',
         'discount_amount',
@@ -35,6 +37,11 @@ class Order extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function boilerplate()
+    {
+        return $this->belongsTo(Portfolio::class, 'boilerplate_id');
     }
 
     protected $casts = [

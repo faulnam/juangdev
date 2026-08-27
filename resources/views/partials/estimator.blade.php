@@ -234,10 +234,6 @@
             this.selectedBoilerplateId = bp.id;
             this.boilerplateDropdownOpen = false;
             
-            if (!this.formData.projectName || this.portfolios.some(p => p.title === this.formData.projectName)) {
-                this.formData.projectName = bp.title;
-            }
-            
             const bpCat = this.normalizeCategory(bp.category);
             const srv = this.services.find(s => this.normalizeCategory(s.slug) === bpCat);
             if (srv && srv.id !== this.selectedServiceId) {
@@ -462,13 +458,9 @@
                 return f ? { id: f.id, title: f.title, price: f.price } : null;
             }).filter(Boolean);
 
-            let projName = this.formData.projectName;
+            let projName = this.formData.projectName ? this.formData.projectName.trim() : '';
             if (!projName) {
-                if (this.selectedBoilerplate) {
-                    projName = this.selectedBoilerplate.title;
-                } else {
-                    projName = (this.formData.name || 'Pelanggan') + ' Project';
-                }
+                projName = (this.formData.name || 'Pelanggan') + ' Project';
             }
 
             const fd = new FormData();
@@ -478,6 +470,12 @@
             fd.append('project_name', projName);
             fd.append('service_name', sName);
             fd.append('package_name', pName);
+            if (this.selectedBoilerplateId) {
+                fd.append('boilerplate_id', this.selectedBoilerplateId);
+            }
+            if (this.selectedBoilerplate) {
+                fd.append('boilerplate_name', this.selectedBoilerplate.title);
+            }
             fd.append('addons', JSON.stringify(selectedAddons));
             fd.append('original_amount', this.originalTotalPrice);
             fd.append('discount_amount', this.discountSavings);
@@ -1146,13 +1144,14 @@
                                 >
                             </div>
                             <div>
-                                <label class="block text-[11px] font-bold text-slate-600 mb-1">Nama Proyek / Bisnis</label>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1">Nama Proyek / Bisnis Anda</label>
                                 <input 
                                     type="text" 
                                     x-model="formData.projectName"
-                                    placeholder="Contoh: Toko Kopi Sejahtera"
+                                    placeholder="Contoh: Toko Kopi Sejahtera, PT Maju Bersama"
                                     class="w-full px-5 py-3.5 rounded-xl border-2 border-slate-100 bg-[#f8f9fc] text-[0.95rem] font-medium text-[#1a1f3c] placeholder:text-slate-400 focus:outline-none focus:border-[#2563EB]"
                                 >
+                                <p class="text-[10px] text-slate-400 font-medium mt-1">Isi sesuai nama bisnis / website Anda (bebas diisi manual)</p>
                             </div>
                         </div>
 
@@ -1860,9 +1859,22 @@
                     <!-- Order Summary Table -->
                     <div class="bg-slate-50 border-2 border-slate-100 rounded-2xl p-5 space-y-3">
                         <div class="flex justify-between text-xs">
-                            <span class="text-slate-500 font-medium">Nama Proyek / Layanan:</span>
-                            <span class="font-bold text-slate-900" x-text="createdOrder?.project_name || createdOrder?.service_name"></span>
+                            <span class="text-slate-500 font-medium">Layanan &amp; Paket:</span>
+                            <span class="font-bold text-slate-900" x-text="(createdOrder?.service_name || '-') + (createdOrder?.package_name ? ' (' + createdOrder.package_name + ')' : '')"></span>
                         </div>
+
+                        <template x-if="createdOrder?.boilerplate_name || createdOrder?.boilerplate?.title">
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-slate-500 font-medium">Template Desain:</span>
+                                <span class="font-bold text-[#2563EB] bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-md" x-text="createdOrder?.boilerplate_name || createdOrder?.boilerplate?.title"></span>
+                            </div>
+                        </template>
+
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-500 font-medium">Nama Proyek Klien:</span>
+                            <span class="font-bold text-slate-900" x-text="createdOrder?.project_name || '-'"></span>
+                        </div>
+
                         <div class="flex justify-between text-xs">
                             <span class="text-slate-500 font-medium">Total Investasi Proyek:</span>
                             <span class="font-black text-slate-900" x-text="'Rp ' + formatRupiah(createdOrder?.total_amount || 0)"></span>
@@ -2115,7 +2127,7 @@ function printThermalReceipt() {
     }
 
     // Default values
-    var inv = '', name = '', phone = '', maskedPhone = '', proj = '-', service = '-', pkg = '', dateStr = '';
+    var inv = '', name = '', phone = '', maskedPhone = '', proj = '-', bpName = '-', service = '-', pkg = '', dateStr = '';
     var total = 'Rp 0', dp = 'Rp 0', rem = 'Rp 0', currentPaid = 'Rp 0';
     var status = 'MENUNGGU PEMBAYARAN';
     var title = 'Tagihan Transaksi Resmi';
@@ -2129,6 +2141,7 @@ function printThermalReceipt() {
     name = @json($order->customer_name);
     phone = @json($order->customer_phone);
     proj = @json($order->project_name ?? '-');
+    bpName = @json($order->boilerplate_name ?? ($order->boilerplate->title ?? '-'));
     service = @json($order->service_name ?? '-');
     pkg = @json($order->package_name ?? '');
     dateStr = @json($order->created_at->format('Y-m-d H:i:s') . ' WIB');
@@ -2148,6 +2161,8 @@ function printThermalReceipt() {
                 if (o.customer_name) name = o.customer_name;
                 if (o.customer_phone) phone = o.customer_phone;
                 if (o.project_name) proj = o.project_name;
+                if (o.boilerplate_name) bpName = o.boilerplate_name;
+                else if (o.boilerplate && o.boilerplate.title) bpName = o.boilerplate.title;
                 if (o.service_name) service = o.service_name;
                 if (o.package_name) pkg = o.package_name;
                 if (o.total_amount !== undefined) totalNum = Number(o.total_amount);
@@ -2172,8 +2187,11 @@ function printThermalReceipt() {
             if (alpineData && (!proj || proj === '-')) {
                 if (alpineData.formData && alpineData.formData.projectName) {
                     proj = alpineData.formData.projectName;
-                } else if (alpineData.selectedBoilerplate) {
-                    proj = alpineData.selectedBoilerplate.title;
+                }
+            }
+            if (alpineData && (!bpName || bpName === '-')) {
+                if (alpineData.selectedBoilerplate) {
+                    bpName = alpineData.selectedBoilerplate.title;
                 }
             }
             if (alpineData && alpineData.selectedService && (!service || service === '-')) {
@@ -2243,6 +2261,7 @@ function printThermalReceipt() {
     setEl('.rec-phone', maskedPhone);
     setEl('.rec-trx-type', trxType);
     setEl('.rec-proj', proj || '-');
+    setEl('.rec-boilerplate', bpName && bpName !== '-' ? bpName : 'KUSTOM / SESUAI BRIEF');
     setEl('.rec-service', service || '-');
     if (pkg) setEl('.rec-pkg', 'Paket: ' + pkg);
     setEl('.rec-notes', proj && proj !== '-' ? proj : 'Pembayaran Resmi Proyek JuangDev');
