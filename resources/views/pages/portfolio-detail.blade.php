@@ -199,8 +199,20 @@
                                 </a>
                             @endif
 
+                            @php
+                                $catSlug = \Illuminate\Support\Str::slug($portfolio->category ?? '');
+                                if ($catSlug === 'aplikasi-web') $catSlug = 'custom-app';
+                                if ($catSlug === 'toko-online') $catSlug = 'ecommerce';
+                                $estimatorParams = [
+                                    'service' => $catSlug,
+                                    'tier' => strtolower($portfolio->package_tier ?? ''),
+                                    'boilerplate' => $portfolio->id,
+                                ];
+                                $estimatorRedirectUrl = route('estimator', array_filter($estimatorParams));
+                            @endphp
+
                             <a 
-                                href="{{ route('estimator') }}?service={{ \Illuminate\Support\Str::slug($portfolio->category) }}" 
+                                href="{{ $estimatorRedirectUrl }}" 
                                 class="w-full inline-flex items-center justify-center gap-2 bg-[#C7F236] hover:bg-[#b5dd2a] text-[#0A1E5E] font-bold text-sm py-3 px-5 rounded-xl transition-all duration-200 shadow-sm"
                             >
                                 <i data-lucide="calculator" class="w-4 h-4"></i>

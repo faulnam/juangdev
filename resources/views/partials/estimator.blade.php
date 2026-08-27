@@ -16,8 +16,11 @@
         services: {{ json_encode($services) }},
         pricingPlans: {{ json_encode($pricingPlans ?? []) }},
         serviceFeatures: {{ json_encode($serviceFeatures) }},
+        portfolios: {{ json_encode($portfolios ?? []) }},
         selectedServiceId: {{ $services->first()->id ?? 'null' }},
         selectedPlanId: null,
+        selectedBoilerplateId: null,
+        boilerplateDropdownOpen: false,
         selectedFeatureIds: [],
         formData: {
             name: {{ json_encode(auth()->check() ? auth()->user()->name : '') }},
@@ -43,6 +46,17 @@
         attachmentPreview: null,
         isDragging: false,
         attachmentError: null,
+
+        normalizeCategory(cat) {
+            if (!cat) return '';
+            let s = cat.toString().toLowerCase().trim();
+            if (s === 'aplikasi-web' || s === 'aplikasi web' || s === 'custom web app' || s === 'custom-app') return 'custom-app';
+            if (s === 'toko-online' || s === 'toko online' || s === 'e-commerce' || s === 'ecommerce') return 'ecommerce';
+            if (s === 'landing-page' || s === 'landing page') return 'landing-page';
+            if (s === 'company-profile' || s === 'company profile') return 'company-profile';
+            if (s === 'sistem-informasi' || s === 'sistem informasi') return 'sistem-informasi';
+            return s.replace(/\s+/g, '-');
+        },
 
         init() {
             if (this.currentUser) {
@@ -70,6 +84,16 @@
                 if (this.selectedService && this.selectedService.slug === 'custom-app') {
                     this.customPriceInput = this.currentPlanRange.min;
                 }
+                this.$nextTick(() => {
+                    const bps = this.availableBoilerplates;
+                    if (bps.length > 0) {
+                        if (!this.selectedBoilerplateId || !bps.some(b => b.id === this.selectedBoilerplateId)) {
+                            this.selectBoilerplate(bps[0]);
+                        }
+                    } else {
+                        this.selectedBoilerplateId = null;
+                    }
+                });
             });
 
             this.$watch('selectedServiceId', (val) => {
@@ -82,6 +106,16 @@
                 } else {
                     this.selectedPlanId = null;
                 }
+                this.$nextTick(() => {
+                    const bps = this.availableBoilerplates;
+                    if (bps.length > 0) {
+                        if (!this.selectedBoilerplateId || !bps.some(b => b.id === this.selectedBoilerplateId)) {
+                            this.selectBoilerplate(bps[0]);
+                        }
+                    } else {
+                        this.selectedBoilerplateId = null;
+                    }
+                });
             });
 
             const plans = this.activePlans;
@@ -92,17 +126,37 @@
                 }
             }
 
+            this.$nextTick(() => {
+                const bps = this.availableBoilerplates;
+                if (bps.length > 0 && !this.selectedBoilerplateId) {
+                    this.selectBoilerplate(bps[0]);
+                }
+            });
+
             const urlParams = new URLSearchParams(window.location.search);
             const paramCategory = urlParams.get('category') || urlParams.get('service');
             const paramPlan = urlParams.get('plan');
+            const paramTier = urlParams.get('tier');
+            const paramBoilerplate = urlParams.get('boilerplate') || urlParams.get('portfolio');
+
             if (paramCategory) {
-                this.selectPlanFromCategory(paramCategory, paramPlan ? parseInt(paramPlan) : null);
+                this.selectPlanFromCategory(paramCategory, paramPlan ? parseInt(paramPlan) : null, paramTier);
+            }
+
+            if (paramBoilerplate) {
+                this.$nextTick(() => {
+                    const targetBp = this.portfolios.find(p => p.id == paramBoilerplate || p.slug === paramBoilerplate);
+                    if (targetBp) {
+                        this.selectBoilerplate(targetBp);
+                    }
+                });
             }
         },
 
-        selectPlanFromCategory(category, planId) {
+        selectPlanFromCategory(category, planId, tierName) {
             if (!category) return;
-            const service = this.services.find(s => s.slug === category);
+            const normalized = this.normalizeCategory(category);
+            const service = this.services.find(s => this.normalizeCategory(s.slug) === normalized);
             if (service) {
                 this.selectedServiceId = service.id;
                 this.$nextTick(() => {
@@ -110,6 +164,11 @@
                         const targetPlan = this.pricingPlans.find(p => p.id === planId);
                         if (targetPlan) {
                             this.selectedPlanId = targetPlan.id;
+                        }
+                    } else if (tierName) {
+                        const matchingPlan = this.activePlans.find(p => p.name.toLowerCase() === tierName.toLowerCase());
+                        if (matchingPlan) {
+                            this.selectedPlanId = matchingPlan.id;
                         }
                     }
                 });
@@ -137,6 +196,63 @@
             }
             const plans = this.activePlans;
             return plans.length > 0 ? plans[0] : null;
+        },
+        get availableBoilerplates() {
+            if (!this.selectedService) return [];
+            const currentServiceSlug = this.normalizeCategory(this.selectedService.slug);
+            const currentPlanName = this.selectedPlan ? (this.selectedPlan.name || '').toLowerCase() : '';
+            
+            return this.portfolios.filter(p => {
+                const pCat = this.normalizeCategory(p.category);
+                if (pCat !== currentServiceSlug) return false;
+                
+                if (currentPlanName && p.package_tier) {
+                    const pTier = (p.package_tier || '').toLowerCase();
+                    if (currentPlanName.includes('basic') && pTier !== 'basic') return false;
+                    if (currentPlanName.includes('rekomendasi') && pTier !== 'rekomendasi') return false;
+                    if (currentPlanName.includes('premium') && pTier !== 'premium') return false;
+                }
+                return true;
+            });
+        },
+        get allCategoryBoilerplates() {
+            if (!this.selectedService) return [];
+            const currentServiceSlug = this.normalizeCategory(this.selectedService.slug);
+            return this.portfolios.filter(p => this.normalizeCategory(p.category) === currentServiceSlug);
+        },
+        get selectedBoilerplate() {
+            if (!this.selectedBoilerplateId) return null;
+            return this.portfolios.find(p => p.id === this.selectedBoilerplateId) || null;
+        },
+        selectBoilerplate(bp) {
+            if (!bp) {
+                this.selectedBoilerplateId = null;
+                this.boilerplateDropdownOpen = false;
+                return;
+            }
+            this.selectedBoilerplateId = bp.id;
+            this.boilerplateDropdownOpen = false;
+            
+            if (!this.formData.projectName || this.portfolios.some(p => p.title === this.formData.projectName)) {
+                this.formData.projectName = bp.title;
+            }
+            
+            const bpCat = this.normalizeCategory(bp.category);
+            const srv = this.services.find(s => this.normalizeCategory(s.slug) === bpCat);
+            if (srv && srv.id !== this.selectedServiceId) {
+                this.selectedServiceId = srv.id;
+            }
+            
+            if (bp.package_tier) {
+                const matchingPlan = this.activePlans.find(pl => pl.name.toLowerCase() === bp.package_tier.toLowerCase());
+                if (matchingPlan && matchingPlan.id !== this.selectedPlanId) {
+                    this.selectedPlanId = matchingPlan.id;
+                }
+            }
+
+            this.$nextTick(() => {
+                if (window.lucide) window.lucide.createIcons();
+            });
         },
         parsePriceString(str) {
             if (!str) return 0;
@@ -345,11 +461,20 @@
                 return f ? { id: f.id, title: f.title, price: f.price } : null;
             }).filter(Boolean);
 
+            let projName = this.formData.projectName;
+            if (!projName) {
+                if (this.selectedBoilerplate) {
+                    projName = this.selectedBoilerplate.title;
+                } else {
+                    projName = (this.formData.name || 'Pelanggan') + ' Project';
+                }
+            }
+
             const fd = new FormData();
             fd.append('customer_name', this.formData.name);
             fd.append('customer_email', this.formData.email);
             fd.append('customer_phone', this.formData.phone);
-            fd.append('project_name', this.formData.projectName || this.formData.name + ' Project');
+            fd.append('project_name', projName);
             fd.append('service_name', sName);
             fd.append('package_name', pName);
             fd.append('addons', JSON.stringify(selectedAddons));
@@ -497,6 +622,21 @@
                         <span>Uang Muka (DP 50%):</span>
                         <span>Rp <span x-text="formatRupiah(dpPrice)">0</span></span>
                     </div>
+
+                    <!-- Selected Boilerplate Badge & Thumbnail Preview in Total Box -->
+                    <template x-if="selectedBoilerplate">
+                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-3 bg-blue-50/50 p-2.5 rounded-xl border border-blue-100">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <img :src="selectedBoilerplate.image_url || '/placeholder.png'" class="w-10 h-10 rounded-lg object-cover border border-blue-200 shrink-0 bg-white shadow-2xs" onerror="this.src='/placeholder.png'">
+                                <div class="min-w-0 text-left">
+                                    <span class="block text-[9px] font-black uppercase tracking-wider text-[#2563EB]">Template Terpilih</span>
+                                    <p class="text-xs font-bold text-slate-800 truncate" x-text="selectedBoilerplate.title"></p>
+                                    <span class="text-[10px] text-slate-500 font-semibold" x-text="'Paket ' + (selectedBoilerplate.package_tier || 'Standar')"></span>
+                                </div>
+                            </div>
+                            <span class="text-[10px] font-bold text-[#2563EB] bg-white border border-blue-200 px-2 py-1 rounded-lg shrink-0" x-text="'Paket ' + (selectedBoilerplate.package_tier || 'Standar')"></span>
+                        </div>
+                    </template>
                 </div>
 
                 <!-- Free Consultation Card -->
@@ -669,10 +809,233 @@
                         </div>
                     </div>
 
-                    <!-- Step 3: Add-on Features -->
+                    <!-- Step 3: Select Boilerplate / Template (Dropdown with Images & Titles) -->
+                    <div class="relative" x-data="{ searchBp: '' }">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+                            <label class="flex items-center gap-2 text-xs sm:text-sm font-black text-[#1e2547] uppercase tracking-wider">
+                                <span class="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-black shadow-xs shrink-0">3</span> 
+                                <span>Pilih Template Boilerplate Desain</span>
+                            </label>
+                            <template x-if="availableBoilerplates.length > 0">
+                                <span class="text-[10px] sm:text-[11px] font-bold text-[#2563EB] bg-blue-50 border border-blue-200/80 px-2.5 py-0.5 rounded-full" x-text="availableBoilerplates.length + ' Template Sesuai Paket'"></span>
+                            </template>
+                        </div>
+
+                        <p class="text-xs text-slate-500 font-medium mb-3">
+                            Pilih model template boilerplate yang ingin Anda gunakan untuk proyek website ini.
+                        </p>
+
+                        <!-- Trigger Dropdown Button -->
+                        <div class="relative">
+                            <!-- If Boilerplate IS selected -->
+                            <template x-if="selectedBoilerplate">
+                                <div 
+                                    @click="boilerplateDropdownOpen = !boilerplateDropdownOpen"
+                                    class="w-full flex items-center justify-between p-3 sm:p-3.5 rounded-2xl border-2 border-[#2563EB] bg-blue-50/50 hover:bg-blue-50/80 ring-2 ring-[#2563EB]/15 cursor-pointer transition-all shadow-xs gap-3"
+                                >
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <img 
+                                            :src="selectedBoilerplate.image_url || '/placeholder.png'" 
+                                            :alt="selectedBoilerplate.title" 
+                                            class="w-12 h-12 sm:w-14 sm:h-14 object-cover rounded-xl border border-blue-200 shadow-2xs shrink-0 bg-white"
+                                            onerror="this.src='/placeholder.png'"
+                                        >
+                                        <div class="min-w-0 text-left">
+                                            <div class="flex items-center gap-1.5 flex-wrap">
+                                                <span class="text-xs sm:text-sm font-black text-slate-900 truncate" x-text="selectedBoilerplate.title"></span>
+                                                <span 
+                                                    x-show="selectedBoilerplate.package_tier" 
+                                                    class="text-[9px] sm:text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-[#2563EB] text-white" 
+                                                    x-text="'Paket ' + selectedBoilerplate.package_tier"
+                                                ></span>
+                                            </div>
+                                            <div class="flex items-center gap-2 mt-1">
+                                                <template x-if="selectedBoilerplate.live_url">
+                                                    <a 
+                                                        :href="selectedBoilerplate.live_url" 
+                                                        target="_blank" 
+                                                        @click.stop 
+                                                        class="text-[11px] font-bold text-[#2563EB] hover:underline inline-flex items-center gap-1"
+                                                    >
+                                                        <span>Lihat Demo Live</span>
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                                    </a>
+                                                </template>
+                                                <span class="text-[10px] text-slate-400 font-medium hidden sm:inline">• Klik untuk ganti pilihan</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex items-center gap-2 shrink-0">
+                                        <span class="text-xs font-bold text-[#2563EB] bg-white border border-blue-200 px-2.5 py-1 rounded-xl hidden sm:inline-block shadow-2xs">Pilih Template Lain</span>
+                                        <div class="w-8 h-8 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-[#2563EB] shadow-2xs">
+                                            <svg class="w-4 h-4 transition-transform duration-200" :class="boilerplateDropdownOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <!-- If NO Boilerplate is selected (Fallback) -->
+                            <template x-if="!selectedBoilerplate">
+                                <button 
+                                    type="button" 
+                                    @click="boilerplateDropdownOpen = !boilerplateDropdownOpen"
+                                    class="w-full flex items-center justify-between p-3.5 sm:p-4 rounded-2xl border-2 border-slate-200 bg-white hover:border-blue-400 hover:bg-slate-50 transition-all text-left shadow-2xs cursor-pointer gap-3"
+                                >
+                                    <div class="min-w-0">
+                                        <p class="text-xs sm:text-sm font-bold text-slate-700">
+                                            Pilih Model Template Boilerplate...
+                                        </p>
+                                        <p class="text-[11px] text-slate-400 font-medium mt-0.5">
+                                            Klik untuk membuka katalog template yang tersedia
+                                        </p>
+                                    </div>
+
+                                    <div class="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600 shrink-0">
+                                        <svg class="w-4 h-4 transition-transform duration-200" :class="boilerplateDropdownOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                    </div>
+                                </button>
+                            </template>
+
+                            <!-- Dropdown Menu Options Panel -->
+                            <div 
+                                x-show="boilerplateDropdownOpen" 
+                                @click.outside="boilerplateDropdownOpen = false"
+                                x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="opacity-0 translate-y-2"
+                                x-transition:enter-end="opacity-100 translate-y-0"
+                                x-transition:leave="transition ease-in duration-150"
+                                x-transition:leave-start="opacity-100 translate-y-0"
+                                x-transition:leave-end="opacity-0 translate-y-2"
+                                class="absolute left-0 right-0 top-full mt-2 z-50 bg-white rounded-2xl border-2 border-slate-200 shadow-2xl p-2.5 sm:p-3.5 space-y-2.5 max-h-[460px] overflow-y-auto w-full"
+                                style="display: none;"
+                            >
+                                <!-- Search bar inside dropdown -->
+                                <div class="sticky top-0 bg-white pt-1 pb-2 z-10 border-b border-slate-100">
+                                    <div class="relative">
+                                        <div class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                                        </div>
+                                        <input 
+                                            type="text" 
+                                            x-model="searchBp" 
+                                            placeholder="Cari nama template..."
+                                            class="w-full pl-9 pr-8 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs sm:text-sm font-medium focus:outline-none focus:border-[#2563EB] focus:bg-white transition-colors"
+                                        >
+                                        <button 
+                                            type="button" 
+                                            x-show="searchBp" 
+                                            @click="searchBp = ''" 
+                                            class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs font-bold p-1"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Header for Matching Tier Boilerplates -->
+                                <template x-if="availableBoilerplates.length > 0">
+                                    <div class="px-2 pt-1 text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400 flex items-center justify-between">
+                                        <span>Template Paket <span class="text-[#2563EB]" x-text="selectedPlan ? selectedPlan.name : ''"></span></span>
+                                        <span x-text="availableBoilerplates.length + ' item'"></span>
+                                    </div>
+                                </template>
+
+                                <!-- Loop Matching Boilerplates -->
+                                <template x-for="bp in availableBoilerplates.filter(p => !searchBp || p.title.toLowerCase().includes(searchBp.toLowerCase()) || (p.description || '').toLowerCase().includes(searchBp.toLowerCase()))" :key="bp.id">
+                                    <div 
+                                        @click="selectBoilerplate(bp)"
+                                        :class="selectedBoilerplateId === bp.id ? 'bg-blue-50/90 border-[#2563EB] ring-1 ring-[#2563EB]' : 'border-slate-100 hover:bg-slate-50 hover:border-slate-200'"
+                                        class="flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all group text-left gap-2.5"
+                                    >
+                                        <div class="flex items-center gap-3 min-w-0">
+                                            <img 
+                                                :src="bp.image_url || '/placeholder.png'" 
+                                                :alt="bp.title"
+                                                class="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-xl border border-slate-200 bg-slate-100 shrink-0 shadow-2xs group-hover:scale-105 transition-transform"
+                                                onerror="this.src='/placeholder.png'"
+                                            >
+                                            <div class="min-w-0">
+                                                <div class="flex items-center gap-1.5 flex-wrap">
+                                                    <p class="text-xs sm:text-sm font-black text-slate-900 truncate" x-text="bp.title"></p>
+                                                    <span 
+                                                        x-show="bp.package_tier" 
+                                                        class="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-blue-100 text-blue-800" 
+                                                        x-text="'Paket ' + bp.package_tier"
+                                                    ></span>
+                                                </div>
+                                                <p class="text-[11px] text-slate-500 font-medium mt-0.5 line-clamp-1" x-text="bp.description || bp.overview"></p>
+                                                <div class="flex items-center gap-2 mt-1">
+                                                    <template x-if="bp.live_url">
+                                                        <a 
+                                                            :href="bp.live_url" 
+                                                            target="_blank" 
+                                                            @click.stop 
+                                                            class="text-[10px] sm:text-[11px] font-bold text-[#2563EB] hover:underline inline-flex items-center gap-0.5"
+                                                        >
+                                                            <span>Lihat Demo</span>
+                                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                                        </a>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div 
+                                            :class="selectedBoilerplateId === bp.id ? 'bg-[#2563EB] text-white border-[#2563EB]' : 'border-2 border-slate-300 bg-white'"
+                                            class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ml-2 shadow-2xs"
+                                        >
+                                            <svg x-show="selectedBoilerplateId === bp.id" class="w-3 h-3 stroke-[3]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <!-- Other Tier Boilerplates in Same Category (If user wants to explore/switch tier) -->
+                                <template x-if="allCategoryBoilerplates.filter(p => !availableBoilerplates.some(ab => ab.id === p.id)).length > 0">
+                                    <div class="pt-3 border-t border-slate-100">
+                                        <p class="px-2 pb-1.5 text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-400">
+                                            Template di Paket Layanan Lain (Klik untuk beralih paket):
+                                        </p>
+                                        <template x-for="bp in allCategoryBoilerplates.filter(p => !availableBoilerplates.some(ab => ab.id === p.id) && (!searchBp || p.title.toLowerCase().includes(searchBp.toLowerCase())))" :key="'other-' + bp.id">
+                                            <div 
+                                                @click="selectBoilerplate(bp)"
+                                                class="flex items-center justify-between p-2.5 rounded-xl border border-dashed border-slate-200 hover:border-blue-300 hover:bg-blue-50/50 cursor-pointer transition-all mb-1.5 text-left opacity-85 hover:opacity-100 gap-2"
+                                            >
+                                                <div class="flex items-center gap-2.5 min-w-0">
+                                                    <img 
+                                                        :src="bp.image_url || '/placeholder.png'" 
+                                                        :alt="bp.title"
+                                                        class="w-11 h-11 object-cover rounded-lg border border-slate-200 bg-slate-100 shrink-0"
+                                                        onerror="this.src='/placeholder.png'"
+                                                    >
+                                                    <div class="min-w-0">
+                                                        <div class="flex items-center gap-1.5 flex-wrap">
+                                                            <p class="text-xs font-bold text-slate-800 truncate" x-text="bp.title"></p>
+                                                            <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-100 text-slate-700" x-text="'Paket ' + (bp.package_tier || 'Lain')"></span>
+                                                        </div>
+                                                        <p class="text-[10px] text-slate-400 font-medium truncate" x-text="bp.description || bp.overview"></p>
+                                                    </div>
+                                                </div>
+                                                <span class="text-[10px] font-bold text-[#2563EB] whitespace-nowrap ml-2">Pilih &amp; Ubah Paket →</span>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
+
+                                <!-- Empty Search State -->
+                                <template x-if="allCategoryBoilerplates.length === 0 || (searchBp && availableBoilerplates.filter(p => p.title.toLowerCase().includes(searchBp.toLowerCase())).length === 0)">
+                                    <div class="p-4 text-center text-xs text-slate-400">
+                                        Tidak ada template yang cocok dengan pencarian.
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Add-on Features -->
                     <div>
                         <label class="flex items-center gap-2 text-[0.8rem] font-black text-[#1e2547] uppercase tracking-wider mb-4">
-                            <span class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs">3</span> 
+                            <span class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs">4</span> 
                             Fitur Tambahan / Add-on (Opsional)
                         </label>
                         <div class="space-y-2.5">
@@ -707,10 +1070,10 @@
 
                     <hr class="border-slate-100">
 
-                    <!-- Step 4: Contact & Payment Scheme -->
+                    <!-- Step 5: Contact & Payment Scheme -->
                     <div>
                         <label class="flex items-center gap-2 text-[0.8rem] font-black text-[#1e2547] uppercase tracking-wider mb-4">
-                            <span class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs">4</span> 
+                            <span class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs">5</span> 
                             Informasi Pemesan &amp; Skema Pembayaran
                         </label>
                         
@@ -1804,7 +2167,13 @@ function printThermalReceipt() {
             if (alpineData && alpineData.formData && !name) {
                 if (alpineData.formData.name) name = alpineData.formData.name;
                 if (alpineData.formData.phone) phone = alpineData.formData.phone;
-                if (alpineData.formData.projectName) proj = alpineData.formData.projectName;
+            }
+            if (alpineData && (!proj || proj === '-')) {
+                if (alpineData.formData && alpineData.formData.projectName) {
+                    proj = alpineData.formData.projectName;
+                } else if (alpineData.selectedBoilerplate) {
+                    proj = alpineData.selectedBoilerplate.title;
+                }
             }
             if (alpineData && alpineData.selectedService && (!service || service === '-')) {
                 service = alpineData.selectedService.name || service;
