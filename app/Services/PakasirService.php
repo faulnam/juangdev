@@ -242,6 +242,9 @@ class PakasirService
     {
         $adminPhone = env('ADMIN_WA_NUMBER') ?? SiteSetting::where('key', 'whatsapp_number')->value('value') ?? '62859171681988';
 
+        $notesText = $order->notes ? ("\n- Catatan / Brief Klien: \"" . $order->notes . "\"") : '';
+        $attachmentText = $order->attachment_name ? ("\n- Lampiran File: " . $order->attachment_name . " (" . $order->formatted_attachment_size . ")\n  Link Lampiran: " . $order->attachment_url) : '';
+
         $msg = "PEMBERITAHUAN PESANAN PROYEK BARU\n"
             . "JuangDev Digital Solutions\n\n"
             . "Kepada Tim Admin JuangDev,\n\n"
@@ -255,7 +258,9 @@ class PakasirService
             . "- Paket: " . ($order->package_name ?? '-') . "\n"
             . "- Total Nilai Proyek: " . $order->formatted_total . "\n"
             . "- Tagihan DP (50%): " . $order->formatted_dp . "\n"
-            . "- Sisa Pelunasan (50%): " . $order->formatted_remaining . "\n\n"
+            . "- Sisa Pelunasan (50%): " . $order->formatted_remaining
+            . $notesText
+            . $attachmentText . "\n\n"
             . "Tautan Invoice Resmi:\n"
             . $order->invoice_url . "\n\n"
             . "Pesan ini disampaikan secara otomatis oleh sistem JuangDev.";

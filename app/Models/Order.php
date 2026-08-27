@@ -25,6 +25,9 @@ class Order extends Model
         'project_status',
         'pakasir_trx_id',
         'notes',
+        'attachment_path',
+        'attachment_name',
+        'attachment_size',
     ];
 
     public function user()
@@ -37,6 +40,7 @@ class Order extends Model
         'total_amount' => 'integer',
         'dp_amount' => 'integer',
         'remaining_amount' => 'integer',
+        'attachment_size' => 'integer',
     ];
 
     public function getFormattedTotalAttribute()
@@ -57,5 +61,34 @@ class Order extends Model
     public function getInvoiceUrlAttribute()
     {
         return route('invoice.show', $this->invoice_number);
+    }
+
+    public function getAttachmentUrlAttribute()
+    {
+        if (!$this->attachment_path) {
+            return null;
+        }
+
+        if (str_starts_with($this->attachment_path, 'http://') || str_starts_with($this->attachment_path, 'https://')) {
+            return $this->attachment_path;
+        }
+
+        return asset($this->attachment_path);
+    }
+
+    public function getFormattedAttachmentSizeAttribute()
+    {
+        if (!$this->attachment_size) {
+            return null;
+        }
+
+        $bytes = (int) $this->attachment_size;
+        if ($bytes >= 1048576) {
+            return number_format($bytes / 1048576, 2) . ' MB';
+        } elseif ($bytes >= 1024) {
+            return number_format($bytes / 1024, 1) . ' KB';
+        }
+
+        return $bytes . ' B';
     }
 }

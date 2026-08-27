@@ -16,6 +16,13 @@ class InvoiceController extends Controller
      */
     public function store(Request $request)
     {
+        if ($request->has('addons') && is_string($request->input('addons'))) {
+            $decoded = json_decode($request->input('addons'), true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $request->merge(['addons' => $decoded]);
+            }
+        }
+
         $validated = $request->validate([
             'customer_name' => 'required|string|max:255',
             'customer_email' => 'required|email|max:255',
@@ -28,6 +35,7 @@ class InvoiceController extends Controller
             'payment_scheme' => 'required|string|in:dp_50,full_100',
             'payment_channel' => 'nullable|string|max:50',
             'notes' => 'nullable|string',
+            'attachment' => 'nullable|file|mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,txt,zip,rar,7z,png,jpg,jpeg,webp|max:20480',
         ]);
 
         $invNumber = 'INV-' . date('Ymd') . '-' . strtoupper(Str::random(5));
@@ -44,6 +52,27 @@ class InvoiceController extends Controller
             if ($existingUser) {
                 $userId = $existingUser->id;
             }
+        }
+
+        $attachmentPath = null;
+        $attachmentName = null;
+        $attachmentSize = null;
+
+        if ($request->hasFile('attachment') && $request->file('attachment')->isValid()) {
+            $file = $request->file('attachment');
+            $attachmentName = $file->getClientOriginalName();
+            $attachmentSize = $file->getSize();
+
+            $destinationFolder = 'uploads/orders/attachments';
+            $destinationPath = public_path($destinationFolder);
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+
+            $ext = strtolower($file->getClientOriginalExtension());
+            $safeName = time() . '_' . Str::random(8) . ($ext ? '.' . $ext : '');
+            $file->move($destinationPath, $safeName);
+            $attachmentPath = '/' . $destinationFolder . '/' . $safeName;
         }
 
         // INITIAL ORDER IS ALWAYS UNPAID AND PROJECT PENDING
@@ -65,6 +94,9 @@ class InvoiceController extends Controller
             'payment_status' => 'unpaid',
             'project_status' => 'pending',
             'notes' => $validated['notes'] ?? null,
+            'attachment_path' => $attachmentPath,
+            'attachment_name' => $attachmentName,
+            'attachment_size' => $attachmentSize,
         ]);
 
         // WA notification is strictly sent ONLY after payment is completed (DP 50% or Full)
@@ -91,6 +123,11 @@ class InvoiceController extends Controller
                 'payment_scheme' => $order->payment_scheme,
                 'payment_status' => $order->payment_status,
                 'project_status' => $order->project_status,
+                'notes' => $order->notes,
+                'attachment_path' => $order->attachment_path,
+                'attachment_name' => $order->attachment_name,
+                'attachment_url' => $order->attachment_url,
+                'formatted_attachment_size' => $order->formatted_attachment_size,
                 'pakasir' => $pakasirData,
                 'created_at' => $order->created_at->toISOString(),
             ]);

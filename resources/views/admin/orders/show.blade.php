@@ -75,6 +75,34 @@
                         </p>
                     </div>
                 @endif
+
+                @if($order->attachment_path)
+                    <div class="pt-3 border-t border-slate-100">
+                        <p class="text-slate-400 font-bold uppercase text-[10px] mb-2">Berkas Lampiran dari Klien</p>
+                        <div class="p-3.5 rounded-xl bg-blue-50/70 border border-blue-200/80 flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-9 h-9 rounded-lg bg-[#2563EB] text-white flex items-center justify-center shrink-0">
+                                    <i data-lucide="paperclip" class="w-4 h-4"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="font-bold text-slate-900 text-xs truncate">{{ $order->attachment_name ?? 'Berkas Lampiran' }}</p>
+                                    <p class="text-[11px] text-slate-500 font-medium mt-0.5">{{ $order->formatted_attachment_size ?? 'Dokumen' }}</p>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2 shrink-0">
+                                <a 
+                                    href="{{ $order->attachment_url }}" 
+                                    target="_blank" 
+                                    class="px-3 py-1.5 rounded-lg bg-white hover:bg-blue-50 text-[#2563EB] border border-blue-200 text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all"
+                                >
+                                    <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                    <span>Buka / Unduh</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
 
             <!-- Financial Breakdown Card -->

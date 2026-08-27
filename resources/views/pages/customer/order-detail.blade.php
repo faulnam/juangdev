@@ -177,6 +177,40 @@
                                 Status Proyek: {{ $order->project_status == 'completed' ? 'Selesai' : ($order->project_status == 'in_progress' ? 'Dalam Pengerjaan' : 'Antrean Menunggu') }}
                             </span>
                         </div>
+
+                        @if($order->notes)
+                            <div class="pt-3 border-t border-slate-200/80 text-left">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1">Catatan / Kebutuhan Klien</span>
+                                <p class="p-3 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-medium leading-relaxed">
+                                    "{{ $order->notes }}"
+                                </p>
+                            </div>
+                        @endif
+
+                        @if($order->attachment_path)
+                            <div class="pt-3 border-t border-slate-200/80 text-left">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">Berkas Lampiran Proyek</span>
+                                <div class="p-3 rounded-xl bg-white border border-blue-200 flex items-center justify-between gap-3 shadow-2xs">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <div class="w-8 h-8 rounded-lg bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0">
+                                            <i data-lucide="paperclip" class="w-4 h-4"></i>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="font-bold text-slate-900 text-xs truncate">{{ $order->attachment_name }}</p>
+                                            <p class="text-[10px] text-slate-400 font-medium">{{ $order->formatted_attachment_size }}</p>
+                                        </div>
+                                    </div>
+                                    <a 
+                                        href="{{ $order->attachment_url }}" 
+                                        target="_blank" 
+                                        class="px-3 py-1.5 rounded-lg bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs transition-all shrink-0"
+                                    >
+                                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                                        <span>Buka File</span>
+                                    </a>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
 

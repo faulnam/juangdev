@@ -36,6 +36,13 @@
         isSubmitting: false,
         isJustPaid: false,
         customPriceInput: null,
+        attachmentFile: null,
+        attachmentName: '',
+        attachmentSize: '',
+        attachmentType: '',
+        attachmentPreview: null,
+        isDragging: false,
+        attachmentError: null,
 
         init() {
             if (this.currentUser) {
@@ -222,6 +229,77 @@
             }
             this.estimatorStep = 'payment_methods';
         },
+        handleFileSelect(event) {
+            const file = event.target.files && event.target.files[0];
+            this.processSelectedFile(file);
+        },
+        handleFileDrop(event) {
+            this.isDragging = false;
+            if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
+                this.processSelectedFile(event.dataTransfer.files[0]);
+            }
+        },
+        processSelectedFile(file) {
+            this.attachmentError = null;
+            if (!file) return;
+
+            // Maximum size: 20MB
+            const maxSize = 20 * 1024 * 1024;
+            if (file.size > maxSize) {
+                this.attachmentError = 'Ukuran berkas melebihi batas maksimum 20MB.';
+                alert(this.attachmentError);
+                return;
+            }
+
+            // Allowed extensions
+            const allowedExtensions = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'zip', 'rar', '7z', 'png', 'jpg', 'jpeg', 'webp'];
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (!allowedExtensions.includes(ext)) {
+                this.attachmentError = 'Format berkas tidak didukung. Harap unggah format PDF, Word, Excel, ZIP/RAR, atau Gambar.';
+                alert(this.attachmentError);
+                return;
+            }
+
+            this.attachmentFile = file;
+            this.attachmentName = file.name;
+            this.attachmentSize = this.formatBytes(file.size);
+            this.attachmentType = ext;
+
+            // Image preview
+            if (['png', 'jpg', 'jpeg', 'webp'].includes(ext)) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.attachmentPreview = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                this.attachmentPreview = null;
+            }
+
+            this.$nextTick(() => {
+                if (window.lucide) window.lucide.createIcons();
+            });
+        },
+        removeAttachment() {
+            this.attachmentFile = null;
+            this.attachmentName = '';
+            this.attachmentSize = '';
+            this.attachmentType = '';
+            this.attachmentPreview = null;
+            this.attachmentError = null;
+            const input = document.getElementById('estimator-file-input');
+            if (input) input.value = '';
+            this.$nextTick(() => {
+                if (window.lucide) window.lucide.createIcons();
+            });
+        },
+        formatBytes(bytes) {
+            if (bytes === 0) return '0 B';
+            const k = 1024;
+            const sizes = ['B', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        },
         processFinalPayment() {
             if (this.isSubmitting) return;
             this.isSubmitting = true;
@@ -240,26 +318,29 @@
                 return f ? { id: f.id, title: f.title, price: f.price } : null;
             }).filter(Boolean);
 
+            const fd = new FormData();
+            fd.append('customer_name', this.formData.name);
+            fd.append('customer_email', this.formData.email);
+            fd.append('customer_phone', this.formData.phone);
+            fd.append('project_name', this.formData.projectName || this.formData.name + ' Project');
+            fd.append('service_name', sName);
+            fd.append('package_name', pName);
+            fd.append('addons', JSON.stringify(selectedAddons));
+            fd.append('total_amount', this.totalPrice);
+            fd.append('payment_scheme', this.formData.paymentScheme);
+            fd.append('payment_channel', this.selectedPaymentChannel);
+            fd.append('notes', this.formData.details || '');
+            if (this.attachmentFile) {
+                fd.append('attachment', this.attachmentFile);
+            }
+
             fetch('/orders', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                     'Accept': 'application/json'
                 },
-                body: JSON.stringify({
-                    customer_name: this.formData.name,
-                    customer_email: this.formData.email,
-                    customer_phone: this.formData.phone,
-                    project_name: this.formData.projectName || this.formData.name + ' Project',
-                    service_name: sName,
-                    package_name: pName,
-                    addons: selectedAddons,
-                    total_amount: this.totalPrice,
-                    payment_scheme: this.formData.paymentScheme,
-                    payment_channel: this.selectedPaymentChannel,
-                    notes: this.formData.details
-                })
+                body: fd
             })
             .then(res => res.json())
             .then(data => {
@@ -688,12 +769,108 @@
                             </div>
                         </div>
 
-                        <textarea 
-                            x-model="formData.details"
-                            rows="3"
-                            placeholder="Jelaskan secara ringkas kebutuhan atau spesifikasi khusus proyek Anda..."
-                            class="w-full px-5 py-3.5 rounded-xl border-2 border-slate-100 bg-[#f8f9fc] text-[0.95rem] font-medium text-[#1a1f3c] placeholder:text-slate-400 focus:outline-none focus:border-[#2563EB] resize-none mb-6"
-                        ></textarea>
+                        <div class="mb-6">
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1.5 flex items-center justify-between">
+                                <span>Catatan / Spesifikasi Proyek (Opsional)</span>
+                                <span class="text-[10px] text-slate-400 font-medium">Jelaskan kebutuhan khusus atau referensi</span>
+                            </label>
+                            <textarea 
+                                x-model="formData.details"
+                                rows="3"
+                                placeholder="Jelaskan secara ringkas kebutuhan, alur sistem, atau referensi proyek Anda..."
+                                class="w-full px-5 py-3.5 rounded-xl border-2 border-slate-100 bg-[#f8f9fc] text-[0.95rem] font-medium text-[#1a1f3c] placeholder:text-slate-400 focus:outline-none focus:border-[#2563EB] resize-none"
+                            ></textarea>
+
+                            <!-- Interactive File Attachment Component (From Device) -->
+                            <div class="mt-3">
+                                <!-- Hidden File Input -->
+                                <input 
+                                    type="file" 
+                                    id="estimator-file-input"
+                                    @change="handleFileSelect($event)"
+                                    accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.zip,.rar,.7z,.png,.jpg,.jpeg,.webp"
+                                    class="hidden"
+                                >
+
+                                <!-- Dropzone / Attach Button State (When NO file selected) -->
+                                <div 
+                                    x-show="!attachmentFile"
+                                    @dragover.prevent="isDragging = true"
+                                    @dragleave.prevent="isDragging = false"
+                                    @drop.prevent="handleFileDrop($event)"
+                                    @click="document.getElementById('estimator-file-input').click()"
+                                    :class="isDragging ? 'border-[#2563EB] bg-blue-50/70 ring-2 ring-[#2563EB]/20' : 'border-slate-200 hover:border-[#2563EB]/60 hover:bg-slate-50/80 bg-white'"
+                                    class="border-2 border-dashed rounded-2xl p-4 transition-all duration-200 cursor-pointer text-center group"
+                                >
+                                    <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                                        <div class="w-10 h-10 rounded-xl bg-blue-50 text-[#2563EB] group-hover:bg-[#2563EB] group-hover:text-white flex items-center justify-center transition-colors shrink-0 shadow-2xs">
+                                            <i data-lucide="paperclip" class="w-5 h-5"></i>
+                                        </div>
+                                        <div class="text-center sm:text-left">
+                                            <p class="text-xs font-bold text-slate-800 group-hover:text-[#2563EB] transition-colors flex items-center justify-center sm:justify-start gap-1.5 flex-wrap">
+                                                <span>Sisipkan Berkas / Dokumen dari Perangkat</span>
+                                                <span class="text-[10px] font-semibold text-slate-400">(PDF, DOC, ZIP, Gambar)</span>
+                                            </p>
+                                            <p class="text-[11px] text-slate-500 font-medium mt-0.5">
+                                                Klik untuk memilih berkas dari HP / Komputer, atau seret ke sini (Maks. 20MB)
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Selected File Preview Card (When file IS selected) -->
+                                <div 
+                                    x-show="attachmentFile" 
+                                    x-cloak
+                                    class="rounded-2xl border-2 border-blue-200 bg-blue-50/60 p-4 flex items-center justify-between gap-3 shadow-xs"
+                                >
+                                    <div class="flex items-center gap-3 min-w-0">
+                                        <!-- Thumbnail or File Type Badge -->
+                                        <template x-if="attachmentPreview">
+                                            <img :src="attachmentPreview" alt="Preview" class="w-12 h-12 object-cover rounded-xl border border-blue-200 shadow-2xs shrink-0">
+                                        </template>
+                                        <template x-if="!attachmentPreview">
+                                            <div class="w-12 h-12 rounded-xl bg-[#2563EB] text-white flex flex-col items-center justify-center shrink-0 shadow-2xs">
+                                                <i data-lucide="file-text" class="w-5 h-5"></i>
+                                                <span class="text-[8px] font-black uppercase tracking-wider" x-text="attachmentType"></span>
+                                            </div>
+                                        </template>
+
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-2">
+                                                <p class="text-xs font-bold text-slate-900 truncate" x-text="attachmentName"></p>
+                                                <span class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 shrink-0">Siap Diunggah</span>
+                                            </div>
+                                            <p class="text-[11px] text-slate-500 font-medium mt-0.5 flex items-center gap-1.5">
+                                                <span x-text="attachmentSize"></span>
+                                                <span>&bull;</span>
+                                                <span class="text-[#2563EB] font-bold uppercase text-[10px]" x-text="attachmentType + ' Document'"></span>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Actions: Change or Remove -->
+                                    <div class="flex items-center gap-1.5 shrink-0">
+                                        <button 
+                                            type="button" 
+                                            @click.stop="document.getElementById('estimator-file-input').click()"
+                                            class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:text-[#2563EB] hover:border-blue-300 text-[11px] font-bold shadow-2xs transition-all cursor-pointer"
+                                            title="Ganti Berkas"
+                                        >
+                                            Ganti
+                                        </button>
+                                        <button 
+                                            type="button" 
+                                            @click.stop="removeAttachment()"
+                                            class="p-1.5 rounded-lg bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 hover:border-rose-300 text-xs font-bold shadow-2xs transition-all cursor-pointer"
+                                            title="Hapus Berkas"
+                                        >
+                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         <!-- Single Submit Button: "Pilih Metode Pembayaran" -->
                         <button 
@@ -1278,6 +1455,31 @@
                                 <span x-text="createdOrder?.payment_status === 'fully_paid' ? 'Rp 0 (LUNAS ✓)' : 'Rp ' + formatRupiah(createdOrder?.remaining_amount || 0)"></span>
                             </span>
                         </div>
+
+                        <template x-if="createdOrder?.notes">
+                            <div class="pt-2 border-t border-slate-200 text-xs">
+                                <span class="text-slate-500 font-medium block mb-1">Catatan / Kebutuhan Klien:</span>
+                                <p class="p-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 font-medium text-[11px]" x-text="createdOrder?.notes"></p>
+                            </div>
+                        </template>
+
+                        <template x-if="createdOrder?.attachment_name">
+                            <div class="pt-2 border-t border-slate-200 text-xs flex items-center justify-between gap-2">
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <i data-lucide="paperclip" class="w-3.5 h-3.5 text-[#2563EB] shrink-0"></i>
+                                    <span class="text-slate-600 font-bold truncate text-[11px]" x-text="createdOrder?.attachment_name"></span>
+                                    <span class="text-[10px] text-slate-400 shrink-0" x-text="'(' + (createdOrder?.formatted_attachment_size || '') + ')'"></span>
+                                </div>
+                                <a 
+                                    :href="createdOrder?.attachment_url" 
+                                    target="_blank" 
+                                    class="text-[11px] font-bold text-[#2563EB] hover:underline flex items-center gap-1 shrink-0"
+                                >
+                                    <span>Lihat File</span>
+                                    <i data-lucide="external-link" class="w-3 h-3"></i>
+                                </a>
+                            </div>
+                        </template>
                     </div>
 
                     <!-- Payment Gateway Section for Unpaid or DP Paid Orders -->
