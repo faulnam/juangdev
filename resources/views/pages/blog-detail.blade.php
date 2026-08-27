@@ -16,6 +16,163 @@
     $shareTitle = urlencode($blog->title);
 @endphp
 
+@push('styles')
+<style>
+    .blog-article-content {
+        color: #334155;
+        font-size: 1.05rem;
+        line-height: 1.85;
+    }
+    .blog-article-content p {
+        margin-bottom: 1.35rem;
+        line-height: 1.85;
+    }
+    .blog-article-content h2 {
+        font-size: 1.65rem !important;
+        font-weight: 800 !important;
+        color: #0f172a !important;
+        margin-top: 2.25rem !important;
+        margin-bottom: 0.85rem !important;
+        line-height: 1.3 !important;
+        letter-spacing: -0.02em !important;
+    }
+    .blog-article-content h3 {
+        font-size: 1.35rem !important;
+        font-weight: 700 !important;
+        color: #1e293b !important;
+        margin-top: 1.85rem !important;
+        margin-bottom: 0.75rem !important;
+        line-height: 1.35 !important;
+    }
+    .blog-article-content h4 {
+        font-size: 1.15rem !important;
+        font-weight: 700 !important;
+        color: #1e293b !important;
+        margin-top: 1.5rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    .blog-article-content ul {
+        list-style-type: disc !important;
+        padding-left: 1.85rem !important;
+        margin-top: 0.75rem !important;
+        margin-bottom: 1.35rem !important;
+    }
+    .blog-article-content ol {
+        list-style-type: decimal !important;
+        padding-left: 1.85rem !important;
+        margin-top: 0.75rem !important;
+        margin-bottom: 1.35rem !important;
+    }
+    .blog-article-content li {
+        display: list-item !important;
+        margin-bottom: 0.5rem !important;
+        line-height: 1.75 !important;
+        color: #334155 !important;
+    }
+    .blog-article-content li strong {
+        color: #0f172a !important;
+        font-weight: 700 !important;
+    }
+    .blog-article-content ul ul {
+        list-style-type: circle !important;
+        margin-top: 0.35rem !important;
+        margin-bottom: 0.35rem !important;
+    }
+    .blog-article-content ol ol {
+        list-style-type: lower-latin !important;
+        margin-top: 0.35rem !important;
+        margin-bottom: 0.35rem !important;
+    }
+    .blog-article-content blockquote {
+        border-left: 4px solid #2563EB !important;
+        background: #f8fafc !important;
+        padding: 1.15rem 1.4rem !important;
+        margin: 1.5rem 0 !important;
+        border-radius: 0 0.75rem 0.75rem 0 !important;
+        font-style: italic !important;
+        color: #475569 !important;
+        font-size: 1.05rem !important;
+        line-height: 1.75 !important;
+    }
+    .blog-article-content a {
+        color: #2563EB !important;
+        font-weight: 600 !important;
+        text-decoration: underline !important;
+        text-underline-offset: 3px !important;
+        transition: color 0.15s ease-in-out;
+    }
+    .blog-article-content a:hover {
+        color: #1d4ed8 !important;
+    }
+    .blog-article-content strong, .blog-article-content b {
+        color: #0f172a !important;
+        font-weight: 700 !important;
+    }
+    .blog-article-content em, .blog-article-content i {
+        font-style: italic !important;
+    }
+    .blog-article-content u {
+        text-decoration: underline !important;
+        text-underline-offset: 2px !important;
+    }
+    .blog-article-content code {
+        background: #f1f5f9;
+        color: #0f172a;
+        padding: 0.2rem 0.45rem;
+        border-radius: 0.375rem;
+        font-size: 0.875em;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-weight: 600;
+    }
+    .blog-article-content pre {
+        background: #0f172a;
+        color: #f8fafc;
+        padding: 1.25rem 1.5rem;
+        border-radius: 0.75rem;
+        overflow-x: auto;
+        margin: 1.5rem 0;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.875rem;
+        line-height: 1.65;
+    }
+    .blog-article-content pre code {
+        background: transparent;
+        color: inherit;
+        padding: 0;
+        font-weight: normal;
+    }
+    .blog-article-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1.75rem 0;
+        font-size: 0.925rem;
+    }
+    .blog-article-content th, .blog-article-content td {
+        border: 1px solid #e2e8f0;
+        padding: 0.75rem 1rem;
+        text-align: left;
+    }
+    .blog-article-content th {
+        background: #f8fafc;
+        font-weight: 700;
+        color: #0f172a;
+    }
+    .blog-article-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 0.75rem;
+        margin: 1.5rem auto;
+        display: block;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+    }
+    .blog-article-content hr {
+        border: 0;
+        border-top: 1px solid #e2e8f0;
+        margin: 2rem 0;
+    }
+</style>
+@endpush
+
 @section('content')
     <!-- Main Article Page Section -->
     <section class="pt-28 pb-16 md:pt-36 md:pb-24 bg-[#f8f9fc]">
@@ -150,8 +307,15 @@
                     @endif
 
                     <!-- Article Body Content -->
-                    <article class="prose prose-slate max-w-none text-slate-700 text-base sm:text-lg leading-relaxed font-normal space-y-6 bg-white p-8 sm:p-10 rounded-2xl border-2 border-slate-200 shadow-sm">
-                        {!! nl2br(e($blog->content)) !!}
+                    <article class="blog-article-content bg-white p-8 sm:p-10 rounded-2xl border-2 border-slate-200 shadow-sm">
+                        @php
+                            $hasHtml = strip_tags($blog->content) !== $blog->content;
+                        @endphp
+                        @if($hasHtml)
+                            {!! $blog->content !!}
+                        @else
+                            {!! nl2br(e($blog->content)) !!}
+                        @endif
                     </article>
 
                     <!-- Article Hashtags Footer -->
@@ -333,7 +497,7 @@
                                     {{ $rel->title }}
                                 </h4>
                                 <p class="text-slate-600 text-xs font-normal line-clamp-2 mb-4 flex-grow">
-                                    {{ $rel->excerpt }}
+                                    {{ $rel->excerpt ? strip_tags($rel->excerpt) : Str::limit(strip_tags($rel->content), 120) }}
                                 </p>
                                 <div class="flex items-center justify-between pt-3 border-t border-slate-100 mt-auto">
                                     <a 

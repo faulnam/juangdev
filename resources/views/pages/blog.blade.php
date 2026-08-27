@@ -150,7 +150,7 @@
                                     </a>
 
                                     <p class="text-slate-600 text-sm sm:text-base leading-relaxed mb-6 font-normal line-clamp-3">
-                                        {{ $featuredBlog->excerpt }}
+                                        {{ $featuredBlog->excerpt ? strip_tags($featuredBlog->excerpt) : Str::limit(strip_tags($featuredBlog->content), 180) }}
                                     </p>
                                 </div>
 
@@ -223,7 +223,7 @@
                                 </a>
 
                                 <p class="text-slate-600 text-xs sm:text-sm leading-relaxed mb-4 flex-grow line-clamp-3 font-normal">
-                                    {{ $blog->excerpt }}
+                                    {{ $blog->excerpt ? strip_tags($blog->excerpt) : Str::limit(strip_tags($blog->content), 120) }}
                                 </p>
 
                                 <div class="border-t border-slate-100 pt-4 mt-auto flex items-center justify-between">

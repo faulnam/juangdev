@@ -94,7 +94,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="py-12 text-center text-slate-400 text-sm font-medium">
+                                <td colspan="7" class="py-12 text-center text-slate-400 text-sm font-medium">
                                     Belum ada artikel blog.
                                 </td>
                             </tr>

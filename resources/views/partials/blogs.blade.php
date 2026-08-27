@@ -65,7 +65,7 @@
                         </a>
 
                         <p class="text-slate-600 text-xs leading-relaxed mb-4 flex-grow line-clamp-3 font-normal">
-                            {{ $article->excerpt }}
+                            {{ $article->excerpt ? strip_tags($article->excerpt) : Str::limit(strip_tags($article->content), 120) }}
                         </p>
 
                         <div class="border-t border-slate-100 pt-3 mt-auto flex items-center justify-between">

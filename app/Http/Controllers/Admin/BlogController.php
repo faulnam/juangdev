@@ -53,20 +53,21 @@ class BlogController extends Controller
             $count++;
         }
 
-        $status = $request->status ?? ($request->is_published == '1' ? 'published' : 'draft');
+        $status = $request->status ?? 'published';
         
         $isPublished = true;
         $publishedAt = now();
 
         if ($status === 'draft') {
             $isPublished = false;
-            $publishedAt = $request->filled('published_at') ? Carbon::parse($request->published_at) : null;
+            $publishedAt = null;
         } elseif ($status === 'scheduled') {
             $isPublished = true;
             $publishedAt = $request->filled('published_at') ? Carbon::parse($request->published_at) : now()->addDay();
         } else {
+            // Langsung publish
             $isPublished = true;
-            $publishedAt = $request->filled('published_at') ? Carbon::parse($request->published_at) : now();
+            $publishedAt = now();
         }
 
         Blog::create([
@@ -129,20 +130,24 @@ class BlogController extends Controller
             }
         }
 
-        $status = $request->status ?? ($request->is_published == '1' ? 'published' : 'draft');
+        $status = $request->status ?? 'published';
         
         $isPublished = true;
-        $publishedAt = $blog->published_at ?? now();
+        $publishedAt = now();
 
         if ($status === 'draft') {
             $isPublished = false;
-            $publishedAt = $request->filled('published_at') ? Carbon::parse($request->published_at) : null;
+            $publishedAt = null;
         } elseif ($status === 'scheduled') {
             $isPublished = true;
-            $publishedAt = $request->filled('published_at') ? Carbon::parse($request->published_at) : ($blog->published_at && $blog->published_at->isFuture() ? $blog->published_at : now()->addDay());
+            $publishedAt = $request->filled('published_at') 
+                ? Carbon::parse($request->published_at) 
+                : ($blog->published_at && $blog->published_at->isFuture() ? $blog->published_at : now()->addDay());
         } else {
+            // Langsung publish
             $isPublished = true;
-            $publishedAt = $request->filled('published_at') ? Carbon::parse($request->published_at) : ($blog->published_at ?? now());
+            // Jika sebelumnya sudah pernah rilis di masa lalu, pertahankan tanggal rilis aslinya; jika belum / masa depan, set ke now()
+            $publishedAt = ($blog->published_at && $blog->published_at->isPast()) ? $blog->published_at : now();
         }
 
         $blog->update([
