@@ -196,9 +196,9 @@ class InvoiceController extends Controller
                 ->with('success', 'Pembayaran DP sudah diterima sebelumnya.');
         }
 
-        // Direct user to official Pakasir payment gateway
-        $pakasirData = PakasirService::createTransaction($order, 'qris', $type);
-        return redirect($pakasirData['payment_url']);
+        // Keep customer directly on website order details with live QRIS
+        PakasirService::createTransaction($order, 'qris', $type);
+        return redirect()->route('customer.orders.show', $order->invoice_number);
     }
 
     /**

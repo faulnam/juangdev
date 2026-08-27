@@ -32,17 +32,17 @@
 
 <!-- Formal Corporate E-Receipt Component -->
 <div id="receipt-print-area" class="hidden print:block font-sans text-slate-900 bg-white max-w-lg mx-auto">
-    <div class="receipt-card bg-white rounded-2xl border-2 border-slate-300 p-8 relative text-slate-800 shadow-none">
+    <div class="receipt-card bg-white rounded-2xl border-2 border-slate-300 p-5 sm:p-6 relative text-slate-800 shadow-none">
         
         <!-- Header: Brand Logo & Company Info -->
-        <div class="text-center pb-5 border-b-2 border-slate-200">
-            <div class="inline-flex items-center justify-center gap-2 mb-1">
-                <span class="text-2xl font-black tracking-tight text-slate-900">Juang<span class="text-[#2563EB]">Dev</span></span>
+        <div class="text-center pb-4 border-b-2 border-slate-200">
+            <div class="inline-flex items-center justify-center gap-2 mb-0.5">
+                <span class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900">Juang<span class="text-[#2563EB]">Dev</span></span>
             </div>
-            <p class="text-[11px] font-bold tracking-widest text-slate-500 uppercase">JUANG SOLUSI DIGITAL</p>
-            <p class="text-[10px] text-slate-400 mt-0.5">Software House & Digital Solution Partner</p>
+            <p class="text-[10px] font-bold tracking-widest text-slate-500 uppercase">JUANG SOLUSI DIGITAL</p>
+            <p class="text-[9px] text-slate-400 mt-0.5">Software House &amp; Digital Solution Partner</p>
 
-            <div class="mt-4 pt-3 border-t border-slate-100">
+            <div class="mt-3 pt-2.5 border-t border-slate-100">
                 <h2 class="rec-title text-base sm:text-lg font-black text-slate-900 uppercase tracking-wide">
                     @if($isPaidFull)
                         Bukti Transaksi Resmi (Lunas 100%)
@@ -52,14 +52,14 @@
                         Tagihan Transaksi Resmi (Invoice)
                     @endif
                 </h2>
-                <p class="rec-status-subtitle text-[11px] font-semibold text-slate-500 mt-0.5">
+                <p class="rec-status-subtitle text-[10px] font-semibold text-slate-500 mt-0.5">
                     Bukti Pembayaran Elektronik Resmi JuangDev
                 </p>
             </div>
         </div>
 
         <!-- Key-Value Transaction Details -->
-        <div class="py-4 space-y-2.5 text-xs text-slate-700">
+        <div class="py-2 space-y-2 text-xs text-slate-700">
             <div class="flex justify-between items-start">
                 <span class="text-slate-500 font-medium">Waktu Transaksi</span>
                 <span class="rec-date font-semibold text-slate-900 text-right">
@@ -116,10 +116,10 @@
         </div>
 
         <!-- Dotted Separator -->
-        <div class="border-t-2 border-dashed border-slate-300 my-3"></div>
+        <div class="border-t-2 border-dashed border-slate-300 my-2.5"></div>
 
         <!-- Amount Breakdown Table -->
-        <div class="py-2 space-y-2 text-xs text-slate-700">
+        <div class="py-1 space-y-1.5 text-xs text-slate-700">
             <div class="flex justify-between items-center">
                 <span class="text-slate-500 font-medium">Total Nilai Kontrak Proyek</span>
                 <span class="rec-total-cost font-bold text-slate-900">
@@ -141,30 +141,32 @@
                 </span>
             </div>
 
-            <div class="flex justify-between items-center">
-                <span class="text-slate-500 font-medium">Biaya Layanan / Admin Gateway</span>
-                <span class="rec-fee font-semibold text-slate-900">
-                    {{ $feeFormatted }}
-                </span>
-            </div>
+            @if($feeAmount > 0)
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-500 font-medium">Biaya Layanan / Admin Gateway</span>
+                    <span class="rec-fee font-semibold text-slate-900">
+                        {{ $feeFormatted }}
+                    </span>
+                </div>
+            @endif
         </div>
 
         <!-- Solid Separator -->
-        <div class="border-t-2 border-slate-900 my-3"></div>
+        <div class="border-t-2 border-slate-900 my-2.5"></div>
 
         <!-- Total Paid Highlight -->
-        <div class="py-2 flex justify-between items-center">
+        <div class="py-1 flex justify-between items-center">
             <div>
                 <span class="text-xs font-black text-slate-900 uppercase tracking-wider block">Total Tagihan / Pembayaran</span>
                 <span class="text-[10px] text-slate-500">Termasuk Pajak &amp; Biaya Layanan</span>
             </div>
-            <span class="rec-total-highlight text-2xl font-black text-[#2563EB] tracking-tight">
+            <span class="rec-total-highlight text-xl sm:text-2xl font-black text-[#2563EB] tracking-tight">
                 {{ $currentPaidAmount }}
             </span>
         </div>
 
         <!-- Corporate Footer Disclaimer -->
-        <div class="mt-5 pt-4 border-t border-slate-200 text-center space-y-1">
+        <div class="mt-3 pt-3 border-t border-slate-200 text-center space-y-0.5">
             <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
                 &copy; {{ date('Y') }} JUANG SOLUSI DIGITAL (JUANGDEV)
             </p>

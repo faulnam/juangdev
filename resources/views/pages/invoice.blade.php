@@ -69,11 +69,11 @@
 
                         <button 
                             type="button" 
-                            onclick="printThermalReceipt()" 
+                            onclick="downloadReceiptPdf(this)" 
                             class="inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-3.5 py-1.5 rounded-full transition-all print:hidden cursor-pointer"
                         >
-                            <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-                            <span>Cetak Resi Formal</span>
+                            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                            <span>Download Resi PDF</span>
                         </button>
                     </div>
                 </div>
@@ -220,21 +220,17 @@
                                     Bayar DP 50% sebesar {{ $order->formatted_dp }}
                                 </h3>
                                 <p class="text-white/80 text-xs mt-1 font-medium leading-relaxed max-w-xl">
-                                    Pembayaran dapat dilakukan secara instan via Pakasir Payment Gateway (QRIS BCA/GoPay/OVO/ShopeePay &amp; Virtual Account Bank).
+                                    Pembayaran dapat dilakukan secara instan via QRIS (BCA, Mandiri, BRI, BNI, GoPay, OVO, ShopeePay, DANA) 24 jam terkonfirmasi otomatis.
                                 </p>
                             </div>
 
-                            <form action="{{ route('invoice.pay', $order->invoice_number) }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="type" value="dp">
-                                <button 
-                                    type="submit"
-                                    class="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-[#C7F236] hover:bg-[#b5dd2a] text-[#0A1E5E] font-black text-base transition-all shadow-xl shadow-[#C7F236]/20"
-                                >
-                                    <span>Bayar DP 50% Instant via Pakasir</span>
-                                    <i data-lucide="credit-card" class="w-5 h-5"></i>
-                                </button>
-                            </form>
+                            <a 
+                                href="{{ route('customer.orders.show', $order->invoice_number) }}"
+                                class="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-[#C7F236] hover:bg-[#b5dd2a] text-[#0A1E5E] font-black text-base transition-all shadow-xl shadow-[#C7F236]/20"
+                            >
+                                <span>Bayar DP 50% via QRIS Instan</span>
+                                <i data-lucide="qr-code" class="w-5 h-5"></i>
+                            </a>
 
                         @elseif($order->payment_status === 'dp_paid')
                             <div>
@@ -249,17 +245,13 @@
                                 </p>
                             </div>
 
-                            <form action="{{ route('invoice.pay', $order->invoice_number) }}" method="POST">
-                                @csrf
-                                <input type="hidden" name="type" value="remaining">
-                                <button 
-                                    type="submit"
-                                    class="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-[#C7F236] hover:bg-[#b5dd2a] text-[#0A1E5E] font-black text-base transition-all shadow-xl shadow-[#C7F236]/20"
-                                >
-                                    <span>Bayar Pelunasan 50% via Pakasir</span>
-                                    <i data-lucide="credit-card" class="w-5 h-5"></i>
-                                </button>
-                            </form>
+                            <a 
+                                href="{{ route('customer.orders.show', $order->invoice_number) }}"
+                                class="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-[#C7F236] hover:bg-[#b5dd2a] text-[#0A1E5E] font-black text-base transition-all shadow-xl shadow-[#C7F236]/20"
+                            >
+                                <span>Bayar Pelunasan 50% via QRIS Instan</span>
+                                <i data-lucide="qr-code" class="w-5 h-5"></i>
+                            </a>
 
                         @else
                             <div>
@@ -302,10 +294,105 @@
 <!-- Formal E-Receipt Component -->
 @include('partials.receipt-modal')
 
+<!-- HTML2PDF Library for Direct 1-Page PDF Downloads -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 <script>
 function formatRupiah(num) {
     if (!num && num !== 0) return 'Rp 0';
     return 'Rp ' + Number(num).toLocaleString('id-ID');
+}
+
+function downloadReceiptPdf(btn) {
+    var receiptEl = document.getElementById('receipt-print-area');
+    if (!receiptEl) {
+        printThermalReceipt();
+        return;
+    }
+
+    var originalText = btn ? btn.innerHTML : '';
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="inline-block animate-spin mr-1">⏳</span> Menyiapkan PDF...';
+    }
+
+    // Create a perfectly formatted single-page receipt container
+    var clone = receiptEl.cloneNode(true);
+    clone.classList.remove('hidden', 'print:block');
+    clone.style.display = 'block';
+    clone.style.width = '480px';
+    clone.style.maxWidth = '480px';
+    clone.style.padding = '18px 22px';
+    clone.style.margin = '0 auto';
+    clone.style.background = '#ffffff';
+    clone.style.border = '2px solid #cbd5e1';
+    clone.style.borderRadius = '14px';
+    clone.style.boxSizing = 'border-box';
+    clone.style.fontSize = '11.5px';
+    clone.style.lineHeight = '1.35';
+    clone.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+    clone.style.color = '#0f172a';
+
+    var container = document.createElement('div');
+    container.style.position = 'fixed';
+    container.style.left = '-9999px';
+    container.style.top = '0';
+    container.style.width = '490px';
+    container.style.background = '#ffffff';
+    container.appendChild(clone);
+    document.body.appendChild(container);
+
+    var invNum = '{{ $order->invoice_number }}';
+    var opt = {
+        margin: [6, 6, 6, 6],
+        filename: 'Resi-JuangDev-' + invNum + '.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { 
+            scale: 2, 
+            useCORS: true, 
+            logging: false,
+            letterRendering: true,
+            scrollX: 0,
+            scrollY: 0
+        },
+        jsPDF: { 
+            unit: 'mm', 
+            format: 'a4', 
+            orientation: 'portrait' 
+        },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+
+    if (typeof html2pdf !== 'undefined') {
+        html2pdf().set(opt).from(clone).save().then(function() {
+            if (document.body.contains(container)) {
+                document.body.removeChild(container);
+            }
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }).catch(function(err) {
+            console.error('PDF generation error:', err);
+            if (document.body.contains(container)) {
+                document.body.removeChild(container);
+            }
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+            printThermalReceipt();
+        });
+    } else {
+        if (document.body.contains(container)) {
+            document.body.removeChild(container);
+        }
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
+        }
+        printThermalReceipt();
+    }
 }
 
 function printThermalReceipt() {
@@ -326,21 +413,21 @@ function printThermalReceipt() {
     }
 
     var css = [
-        '@page { size: A4 portrait; margin: 20mm 15mm; }',
+        '@page { size: A4 portrait; margin: 8mm 10mm; }',
         '* { box-sizing: border-box; margin: 0; padding: 0; }',
-        'body {',
+        'html, body {',
         '  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;',
-        '  background: #f8fafc; color: #0f172a;',
-        '  padding: 40px 20px; display: flex; justify-content: center; align-items: flex-start;',
-        '  min-height: 100vh;',
+        '  background: #ffffff; color: #0f172a;',
+        '  padding: 0; margin: 0; display: flex; justify-content: center; align-items: flex-start;',
+        '  min-height: 100%;',
         '}',
-        '.receipt-container { width: 100%; max-width: 520px; margin: 0 auto; }',
+        '.receipt-container { width: 100%; max-width: 480px; margin: 0 auto; page-break-inside: avoid; page-break-after: avoid; page-break-before: avoid; }',
         '.receipt-card {',
-        '  background: #ffffff; border-radius: 16px;',
-        '  padding: 36px 32px;',
-        '  border: 2px solid #cbd5e1;',
-        '  box-shadow: 0 10px 25px rgba(0,0,0,0.06);',
+        '  background: #ffffff; border-radius: 12px;',
+        '  padding: 18px 22px;',
+        '  border: 1.5px solid #cbd5e1;',
         '  position: relative;',
+        '  page-break-inside: avoid; page-break-after: avoid; page-break-before: avoid;',
         '}',
         '.text-center { text-align: center; }',
         '.flex { display: flex; justify-content: space-between; align-items: flex-start; }',
@@ -351,11 +438,11 @@ function printThermalReceipt() {
         '.font-medium { font-weight: 500; }',
         '.font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }',
         '.uppercase { text-transform: uppercase; }',
-        '.text-xs { font-size: 13px; }',
-        '.text-sm { font-size: 14px; }',
-        '.text-base { font-size: 16px; }',
-        '.text-lg { font-size: 18px; }',
-        '.text-2xl { font-size: 24px; }',
+        '.text-xs { font-size: 11.5px; }',
+        '.text-sm { font-size: 13px; }',
+        '.text-base { font-size: 15px; }',
+        '.text-lg { font-size: 16px; }',
+        '.text-2xl { font-size: 20px; }',
         '.text-slate-900 { color: #0f172a; }',
         '.text-slate-800 { color: #1e293b; }',
         '.text-slate-700 { color: #334155; }',
@@ -364,22 +451,21 @@ function printThermalReceipt() {
         '.text-blue { color: #2563EB; }',
         '.text-right { text-align: right; }',
         '.border-b { border-bottom: 1px solid #e2e8f0; }',
-        '.border-b-2 { border-bottom: 2px solid #cbd5e1; }',
+        '.border-b-2 { border-bottom: 1.5px solid #cbd5e1; }',
         '.border-t { border-top: 1px solid #e2e8f0; }',
-        '.border-t-2 { border-top: 2px solid #0f172a; }',
-        '.py-2 { padding-top: 8px; padding-bottom: 8px; }',
-        '.py-4 { padding-top: 16px; padding-bottom: 16px; }',
-        '.pb-5 { padding-bottom: 20px; }',
-        '.mt-4 { margin-top: 16px; }',
-        '.mt-5 { margin-top: 20px; }',
-        '.pt-3 { padding-top: 12px; }',
-        '.pt-4 { padding-top: 16px; }',
-        '.space-y-2 > * + * { margin-top: 8px; }',
-        '.space-y-2\\.5 > * + * { margin-top: 10px; }',
-        '.my-3 { margin-top: 14px; margin-bottom: 14px; }',
-        '.rec-total-highlight { color: #2563EB; font-weight: 900; font-size: 26px; }',
+        '.border-t-2 { border-top: 1.5px solid #0f172a; }',
+        '.py-1 { padding-top: 4px; padding-bottom: 4px; }',
+        '.py-2 { padding-top: 6px; padding-bottom: 6px; }',
+        '.pb-4 { padding-bottom: 12px; }',
+        '.mt-3 { margin-top: 10px; }',
+        '.pt-2 { padding-top: 8px; }',
+        '.pt-3 { padding-top: 10px; }',
+        '.space-y-1\\.5 > * + * { margin-top: 6px; }',
+        '.space-y-2 > * + * { margin-top: 7px; }',
+        '.my-2\\.5 { margin-top: 10px; margin-bottom: 10px; }',
+        '.rec-total-highlight { color: #2563EB; font-weight: 900; font-size: 20px; }',
         '@media print {',
-        '  body { background: #ffffff !important; padding: 0 !important; }',
+        '  body { background: #ffffff !important; padding: 0 !important; margin: 0 !important; }',
         '  .receipt-card { box-shadow: none !important; border: 1.5px solid #0f172a !important; border-radius: 8px !important; }',
         '}'
     ].join('\n');
