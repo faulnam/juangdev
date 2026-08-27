@@ -316,39 +316,46 @@ function downloadReceiptPdf(btn) {
         btn.innerHTML = '<span class="inline-block animate-spin mr-1">⏳</span> Menyiapkan PDF...';
     }
 
-    // Create a perfectly formatted single-page receipt container
+    // Create a perfectly formatted tailored receipt slip container
+    // Create a perfectly formatted tailored receipt slip container (No outer box border)
     var clone = receiptEl.cloneNode(true);
     clone.classList.remove('hidden', 'print:block');
     clone.style.display = 'block';
     clone.style.width = '480px';
     clone.style.maxWidth = '480px';
-    clone.style.padding = '18px 22px';
+    clone.style.padding = '10px 14px';
     clone.style.margin = '0 auto';
     clone.style.background = '#ffffff';
-    clone.style.border = '2px solid #cbd5e1';
-    clone.style.borderRadius = '14px';
+    clone.style.border = 'none';
+    clone.style.boxShadow = 'none';
+    clone.style.borderRadius = '0px';
     clone.style.boxSizing = 'border-box';
-    clone.style.fontSize = '11.5px';
-    clone.style.lineHeight = '1.35';
-    clone.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif';
+    clone.style.fontSize = '12px';
+    clone.style.lineHeight = '1.4';
+    clone.style.fontFamily = "'Courier New', Courier, 'Courier Prime', SFMono-Regular, Consolas, monospace";
     clone.style.color = '#0f172a';
 
     var container = document.createElement('div');
     container.style.position = 'fixed';
     container.style.left = '-9999px';
     container.style.top = '0';
-    container.style.width = '490px';
+    container.style.width = '500px';
     container.style.background = '#ffffff';
     container.appendChild(clone);
     document.body.appendChild(container);
 
+    // Calculate dynamic slip height in mm so the PDF page fits the receipt without huge blank bottom space
+    var slipWidthMm = 135; // Formal e-receipt slip standard width
+    var contentRatio = clone.offsetHeight / (clone.offsetWidth || 480);
+    var slipHeightMm = Math.ceil(slipWidthMm * contentRatio) + 10;
+
     var invNum = '{{ $order->invoice_number }}';
     var opt = {
-        margin: [6, 6, 6, 6],
+        margin: [4, 4, 4, 4],
         filename: 'Resi-JuangDev-' + invNum + '.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
+        image: { type: 'jpeg', quality: 1.0 },
         html2canvas: { 
-            scale: 2, 
+            scale: 2.5, 
             useCORS: true, 
             logging: false,
             letterRendering: true,
@@ -357,7 +364,7 @@ function downloadReceiptPdf(btn) {
         },
         jsPDF: { 
             unit: 'mm', 
-            format: 'a4', 
+            format: [slipWidthMm, slipHeightMm], 
             orientation: 'portrait' 
         },
         pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
@@ -416,16 +423,18 @@ function printThermalReceipt() {
         '@page { size: A4 portrait; margin: 8mm 10mm; }',
         '* { box-sizing: border-box; margin: 0; padding: 0; }',
         'html, body {',
-        '  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;',
+        "  font-family: 'Courier New', Courier, 'Courier Prime', SFMono-Regular, Consolas, monospace;",
         '  background: #ffffff; color: #0f172a;',
         '  padding: 0; margin: 0; display: flex; justify-content: center; align-items: flex-start;',
         '  min-height: 100%;',
         '}',
         '.receipt-container { width: 100%; max-width: 480px; margin: 0 auto; page-break-inside: avoid; page-break-after: avoid; page-break-before: avoid; }',
         '.receipt-card {',
-        '  background: #ffffff; border-radius: 12px;',
-        '  padding: 18px 22px;',
-        '  border: 1.5px solid #cbd5e1;',
+        '  background: #ffffff;',
+        '  border: none !important;',
+        '  box-shadow: none !important;',
+        '  border-radius: 0 !important;',
+        '  padding: 10px 14px;',
         '  position: relative;',
         '  page-break-inside: avoid; page-break-after: avoid; page-break-before: avoid;',
         '}',
