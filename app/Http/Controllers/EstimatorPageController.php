@@ -18,7 +18,7 @@ class EstimatorPageController extends Controller
         $pricingPlans = PricingPlan::where('is_active', true)->orderBy('display_order')->get();
         $serviceFeatures = ServiceFeature::where('is_active', true)->orderBy('display_order')->get();
         $designTiers = DesignTier::orderBy('display_order')->get();
-        $portfolios = Portfolio::orderBy('display_order')->get();
+        $portfolios = Portfolio::where('is_boilerplate', true)->orderBy('display_order')->get();
         $settings = SiteSetting::pluck('value', 'key')->toArray();
 
         $selectedService = $request->query('service');

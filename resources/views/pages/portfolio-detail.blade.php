@@ -206,7 +206,7 @@
                                 $estimatorParams = [
                                     'service' => $catSlug,
                                     'tier' => strtolower($portfolio->package_tier ?? ''),
-                                    'boilerplate' => $portfolio->id,
+                                    'boilerplate' => $portfolio->is_boilerplate ? $portfolio->id : null,
                                 ];
                                 $estimatorRedirectUrl = route('estimator', array_filter($estimatorParams));
                             @endphp

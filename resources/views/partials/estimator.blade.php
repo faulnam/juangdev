@@ -145,7 +145,7 @@
 
             if (paramBoilerplate) {
                 this.$nextTick(() => {
-                    const targetBp = this.portfolios.find(p => p.id == paramBoilerplate || p.slug === paramBoilerplate);
+                    const targetBp = this.portfolios.find(p => (p.id == paramBoilerplate || p.slug === paramBoilerplate) && p.is_boilerplate);
                     if (targetBp) {
                         this.selectBoilerplate(targetBp);
                     }
@@ -203,6 +203,7 @@
             const currentPlanName = this.selectedPlan ? (this.selectedPlan.name || '').toLowerCase() : '';
             
             return this.portfolios.filter(p => {
+                if (!p.is_boilerplate) return false;
                 const pCat = this.normalizeCategory(p.category);
                 if (pCat !== currentServiceSlug) return false;
                 
@@ -218,14 +219,14 @@
         get allCategoryBoilerplates() {
             if (!this.selectedService) return [];
             const currentServiceSlug = this.normalizeCategory(this.selectedService.slug);
-            return this.portfolios.filter(p => this.normalizeCategory(p.category) === currentServiceSlug);
+            return this.portfolios.filter(p => p.is_boilerplate && this.normalizeCategory(p.category) === currentServiceSlug);
         },
         get selectedBoilerplate() {
             if (!this.selectedBoilerplateId) return null;
-            return this.portfolios.find(p => p.id === this.selectedBoilerplateId) || null;
+            return this.portfolios.find(p => p.id === this.selectedBoilerplateId && p.is_boilerplate) || null;
         },
         selectBoilerplate(bp) {
-            if (!bp) {
+            if (!bp || !bp.is_boilerplate) {
                 this.selectedBoilerplateId = null;
                 this.boilerplateDropdownOpen = false;
                 return;
