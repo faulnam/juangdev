@@ -31,6 +31,8 @@ class InvoiceController extends Controller
             'service_name' => 'required|string|max:255',
             'package_name' => 'nullable|string|max:255',
             'addons' => 'nullable|array',
+            'original_amount' => 'nullable|numeric|min:0',
+            'discount_amount' => 'nullable|numeric|min:0',
             'total_amount' => 'required|numeric|min:0',
             'payment_scheme' => 'required|string|in:dp_50,full_100',
             'payment_channel' => 'nullable|string|max:50',
@@ -42,6 +44,13 @@ class InvoiceController extends Controller
         $token = Str::random(32);
 
         $total = (int) $validated['total_amount'];
+        $originalAmount = isset($validated['original_amount']) && $validated['original_amount'] > 0 
+            ? (int) $validated['original_amount'] 
+            : $total;
+        $discountAmount = isset($validated['discount_amount']) 
+            ? (int) $validated['discount_amount'] 
+            : max(0, $originalAmount - $total);
+
         $isFull = ($validated['payment_scheme'] === 'full_100');
         $dp = $isFull ? $total : (int) round($total * 0.5);
         $remaining = $isFull ? 0 : ($total - $dp);
@@ -87,6 +96,8 @@ class InvoiceController extends Controller
             'service_name' => $validated['service_name'],
             'package_name' => $validated['package_name'] ?? null,
             'addons' => $validated['addons'] ?? [],
+            'original_amount' => $originalAmount,
+            'discount_amount' => $discountAmount,
             'total_amount' => $total,
             'dp_amount' => $dp,
             'remaining_amount' => $remaining,
@@ -117,6 +128,8 @@ class InvoiceController extends Controller
                 'project_name' => $order->project_name,
                 'service_name' => $order->service_name,
                 'package_name' => $order->package_name,
+                'original_amount' => $order->original_amount,
+                'discount_amount' => $order->discount_amount,
                 'total_amount' => $order->total_amount,
                 'dp_amount' => $order->dp_amount,
                 'remaining_amount' => $order->remaining_amount,

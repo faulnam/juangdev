@@ -181,6 +181,33 @@
             }
             return this.selectedPlan ? this.parsePriceString(this.selectedPlan.price) : 0;
         },
+        get originalPlanPriceNumber() {
+            if (this.selectedPlan && this.selectedPlan.original_price) {
+                return this.parsePriceString(this.selectedPlan.original_price);
+            }
+            return this.planPriceNumber;
+        },
+        get originalTotalPrice() {
+            let total = 0;
+            if (this.selectedPlan) {
+                total += this.originalPlanPriceNumber;
+            } else if (this.selectedService) {
+                total += parseInt(this.selectedService.base_price || 0);
+            }
+            this.selectedFeatureIds.forEach(fid => {
+                const feat = this.serviceFeatures.find(f => f.id === fid);
+                if (feat) {
+                    total += parseInt(feat.price || 0);
+                }
+            });
+            return total;
+        },
+        get discountSavings() {
+            if (this.originalTotalPrice > this.totalPrice) {
+                return this.originalTotalPrice - this.totalPrice;
+            }
+            return 0;
+        },
         get totalPrice() {
             let total = 0;
             if (this.selectedPlan) {
@@ -326,6 +353,8 @@
             fd.append('service_name', sName);
             fd.append('package_name', pName);
             fd.append('addons', JSON.stringify(selectedAddons));
+            fd.append('original_amount', this.originalTotalPrice);
+            fd.append('discount_amount', this.discountSavings);
             fd.append('total_amount', this.totalPrice);
             fd.append('payment_scheme', this.formData.paymentScheme);
             fd.append('payment_channel', this.selectedPaymentChannel);
@@ -446,6 +475,20 @@
                 <!-- Total Box -->
                 <div class="bg-white border-2 border-slate-100 rounded-[2rem] p-7 md:p-8 shadow-xl shadow-slate-200/50 space-y-3">
                     <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Estimasi Biaya Proyek</p>
+                    
+                    <template x-if="discountSavings > 0">
+                        <div class="flex items-center justify-between text-xs font-semibold text-slate-400">
+                            <span>Harga Normal:</span>
+                            <span class="line-through">Rp <span x-text="formatRupiah(originalTotalPrice)"></span></span>
+                        </div>
+                    </template>
+                    <template x-if="discountSavings > 0">
+                        <div class="flex items-center justify-between text-xs font-bold text-rose-600 pb-1 border-b border-slate-100">
+                            <span>Hemat Diskon:</span>
+                            <span>- Rp <span x-text="formatRupiah(discountSavings)"></span></span>
+                        </div>
+                    </template>
+
                     <div class="text-3xl sm:text-4xl lg:text-5xl font-black text-[#1a1f3c]">
                         <span class="text-xl font-bold text-slate-400">Rp</span> 
                         <span x-text="formatRupiah(totalPrice)">0</span>
@@ -528,8 +571,18 @@
                                             class="font-bold text-sm"
                                             x-text="plan.name"
                                         ></span>
-                                        <span x-show="plan.badge" class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-amber-100 text-amber-800" x-text="plan.badge"></span>
+                                        <div class="flex items-center gap-1">
+                                            <span x-show="plan.discount_percent" class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-rose-100 text-rose-700" x-text="'-' + plan.discount_percent + '%'"></span>
+                                            <span x-show="plan.badge" class="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-amber-100 text-amber-800" x-text="plan.badge"></span>
+                                        </div>
                                     </div>
+
+                                    <template x-if="plan.original_price">
+                                        <span class="text-[10px] text-slate-400 font-bold line-through">
+                                            Rp <span x-text="plan.original_price"></span>
+                                        </span>
+                                    </template>
+
                                     <span 
                                         class="text-xs font-black text-slate-700" 
                                         x-text="plan.price.includes('-') ? ('Rp ' + plan.price) : ('Rp ' + formatRupiah(parsePriceString(plan.price)))"
@@ -1816,6 +1869,19 @@ function printThermalReceipt() {
     setEl('.rec-dp', dp);
     setEl('.rec-rem', rem);
     setEl('.rec-total-highlight', currentPaid);
+
+    var origNum = 0, discNum = 0;
+    if (alpineData && alpineData.createdOrder) {
+        if (alpineData.createdOrder.original_amount !== undefined) origNum = Number(alpineData.createdOrder.original_amount);
+        if (alpineData.createdOrder.discount_amount !== undefined) discNum = Number(alpineData.createdOrder.discount_amount);
+    } else if (alpineData) {
+        if (alpineData.originalTotalPrice) origNum = Number(alpineData.originalTotalPrice);
+        if (alpineData.discountSavings) discNum = Number(alpineData.discountSavings);
+    }
+    if (discNum > 0 || origNum > totalNum) {
+        setEl('.rec-orig-cost', formatRupiah(origNum || totalNum));
+        setEl('.rec-disc-cost', '- ' + formatRupiah(discNum));
+    }
 
     // 5. Open print popup - BRImo Style Clean E-Receipt View
     var printWin = window.open('', '_blank', 'width=780,height=920');

@@ -15,7 +15,7 @@
             </div>
         @endif
 
-        @if($errors->any())
+        @if(isset($errors) && $errors->any())
             <div class="bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl p-4 text-xs sm:text-sm font-semibold space-y-1 shadow-xs">
                 @foreach($errors->all() as $error)
                     <div class="flex items-center gap-2">
@@ -160,9 +160,21 @@
                         <span class="font-bold text-slate-900">{{ $order->created_at->format('d/m/Y H:i') }} WIB</span>
                     </div>
 
+                    @if($order->has_discount)
+                        <div class="flex justify-between items-center p-3.5 bg-white">
+                            <span class="text-slate-500 font-medium">Harga Normal (Sebelum Diskon)</span>
+                            <span class="font-bold text-slate-400 line-through">{{ $order->formatted_original_amount }}</span>
+                        </div>
+
+                        <div class="flex justify-between items-center p-3.5 bg-rose-50/60">
+                            <span class="text-rose-700 font-bold">Hemat Potongan Diskon</span>
+                            <span class="font-black text-rose-600">- {{ $order->formatted_discount_amount }}</span>
+                        </div>
+                    @endif
+
                     <div class="flex justify-between items-center p-3.5 bg-slate-50/70">
-                        <span class="text-slate-500 font-medium">Total Nilai Proyek</span>
-                        <span class="font-black text-slate-900 text-sm">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</span>
+                        <span class="text-slate-500 font-medium">{{ $order->has_discount ? 'Total Nilai Proyek (Setelah Diskon)' : 'Total Nilai Proyek' }}</span>
+                        <span class="font-black text-slate-900 text-sm">{{ $order->formatted_total }}</span>
                     </div>
 
                     <div class="flex justify-between items-center p-3.5 bg-white">
@@ -377,8 +389,23 @@
 
                     <!-- Amount Breakdown Table -->
                     <div class="py-1 space-y-1.5 text-xs text-slate-800 font-medium">
+                        @if($order->has_discount)
+                            <div class="flex justify-between items-center text-slate-500">
+                                <span class="uppercase tracking-tight">NILAI ASLI (SEBELUM DISKON)</span>
+                                <span class="rec-orig-cost font-semibold line-through">
+                                    {{ $order->formatted_original_amount }}
+                                </span>
+                            </div>
+                            <div class="flex justify-between items-center text-emerald-700 font-bold">
+                                <span class="uppercase tracking-tight">POTONGAN DISKON PROMO</span>
+                                <span class="rec-disc-cost">
+                                    - {{ $order->formatted_discount_amount }}
+                                </span>
+                            </div>
+                        @endif
+
                         <div class="flex justify-between items-center">
-                            <span class="text-slate-500 uppercase tracking-tight">TOTAL NILAI KONTRAK</span>
+                            <span class="text-slate-500 uppercase tracking-tight">{{ $order->has_discount ? 'TOTAL NILAI KONTRAK (SETELAH DISKON)' : 'TOTAL NILAI KONTRAK' }}</span>
                             <span class="rec-total-cost font-bold text-slate-900">
                                 {{ $order->formatted_total }}
                             </span>

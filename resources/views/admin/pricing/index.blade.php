@@ -76,11 +76,21 @@
                                         {{ $categories[$plan->category] ?? $plan->category }}
                                     </span>
                                 </td>
-                                <td class="py-4 px-6 font-black text-slate-900">
-                                    Rp {{ $plan->price }}
-                                    @if($plan->period)
-                                        <span class="text-xs font-normal text-slate-400">/ {{ $plan->period }}</span>
+                                <td class="py-4 px-6">
+                                    @if($plan->original_price)
+                                        <div class="flex items-center gap-1.5 mb-0.5">
+                                            <span class="text-xs text-slate-400 line-through font-semibold">Rp {{ $plan->original_price }}</span>
+                                            @if($plan->discount_percent)
+                                                <span class="text-[9px] font-black text-rose-700 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">-{{ $plan->discount_percent }}%</span>
+                                            @endif
+                                        </div>
                                     @endif
+                                    <div class="font-black text-slate-900">
+                                        Rp {{ $plan->price }}
+                                        @if($plan->period)
+                                            <span class="text-xs font-normal text-slate-400">/ {{ $plan->period }}</span>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="py-4 px-6 text-xs text-slate-500 max-w-xs truncate">
                                     {{ is_array($plan->features) ? implode(', ', $plan->features) : $plan->features }}

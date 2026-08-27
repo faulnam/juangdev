@@ -14,6 +14,8 @@ class PricingPlan extends Model
         'name',
         'badge',
         'price',
+        'original_price',
+        'discount_percent',
         'period',
         'description',
         'features',
@@ -32,7 +34,13 @@ class PricingPlan extends Model
             'is_active' => 'boolean',
             'features' => 'array',
             'not_included' => 'array',
+            'discount_percent' => 'integer',
             'display_order' => 'integer',
         ];
+    }
+
+    public function getHasDiscountAttribute(): bool
+    {
+        return !empty($this->original_price) || ($this->discount_percent && $this->discount_percent > 0);
     }
 }

@@ -17,6 +17,8 @@ class Order extends Model
         'service_name',
         'package_name',
         'addons',
+        'original_amount',
+        'discount_amount',
         'total_amount',
         'dp_amount',
         'remaining_amount',
@@ -37,11 +39,30 @@ class Order extends Model
 
     protected $casts = [
         'addons' => 'array',
+        'original_amount' => 'integer',
+        'discount_amount' => 'integer',
         'total_amount' => 'integer',
         'dp_amount' => 'integer',
         'remaining_amount' => 'integer',
         'attachment_size' => 'integer',
     ];
+
+    public function getHasDiscountAttribute(): bool
+    {
+        return ($this->discount_amount && $this->discount_amount > 0) || 
+               ($this->original_amount && $this->original_amount > $this->total_amount);
+    }
+
+    public function getFormattedOriginalAmountAttribute()
+    {
+        $amt = $this->original_amount ?: $this->total_amount;
+        return 'Rp ' . number_format($amt, 0, ',', '.');
+    }
+
+    public function getFormattedDiscountAmountAttribute()
+    {
+        return 'Rp ' . number_format($this->discount_amount ?: 0, 0, ',', '.');
+    }
 
     public function getFormattedTotalAttribute()
     {

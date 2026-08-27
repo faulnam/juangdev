@@ -109,7 +109,20 @@
                                     {{ $plan->description }}
                                 </p>
 
-                                <div class="mt-6 flex items-baseline gap-1.5 flex-wrap">
+                                @if($plan->original_price)
+                                    <div class="mt-5 flex items-center gap-2">
+                                        <span class="text-sm sm:text-base font-bold line-through {{ $isPopular ? 'text-[#0A1E5E]/60' : 'text-slate-400' }}">
+                                            <span class="text-xs mr-0.5">Rp</span>{{ $plan->original_price }}
+                                        </span>
+                                        @if($plan->discount_percent)
+                                            <span class="text-[10px] sm:text-[11px] font-black uppercase px-2.5 py-0.5 rounded-full {{ $isPopular ? 'bg-[#0A1E5E] text-[#C7F236]' : 'bg-rose-500 text-white' }} shadow-xs">
+                                                Diskon {{ $plan->discount_percent }}%
+                                            </span>
+                                        @endif
+                                    </div>
+                                @endif
+
+                                <div class="{{ $plan->original_price ? 'mt-1.5' : 'mt-6' }} flex items-baseline gap-1.5 flex-wrap">
                                     <span class="font-black tracking-tight leading-none text-[1.85rem] sm:text-[2.25rem] {{ $isPopular ? 'text-[#0A1E5E]' : 'text-[#1a1f3c]' }}">
                                         <span class="text-base sm:text-lg font-bold mr-1">Rp</span>{{ $plan->price }}
                                     </span>

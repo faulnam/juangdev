@@ -146,8 +146,20 @@
 
                     <hr class="border-slate-100">
 
+                    @if($order->has_discount)
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="text-slate-500 font-medium">Harga Normal (Sebelum Diskon):</span>
+                            <span class="font-semibold text-slate-400 line-through">{{ $order->formatted_original_amount }}</span>
+                        </div>
+
+                        <div class="flex items-center justify-between text-xs text-rose-600 font-bold">
+                            <span>Potongan Diskon Promo:</span>
+                            <span>- {{ $order->formatted_discount_amount }}</span>
+                        </div>
+                    @endif
+
                     <div class="flex items-center justify-between text-sm">
-                        <span class="font-bold text-slate-700">Total Investasi Proyek:</span>
+                        <span class="font-bold text-slate-700">{{ $order->has_discount ? 'Total Investasi (Setelah Diskon):' : 'Total Investasi Proyek:' }}</span>
                         <span class="font-black text-slate-900 text-base">{{ $order->formatted_total }}</span>
                     </div>
 

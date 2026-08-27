@@ -121,8 +121,23 @@
 
         <!-- Amount Breakdown Table -->
         <div class="py-1 space-y-1.5 text-xs text-slate-800 font-medium">
+            @if(isset($order) && $order->has_discount)
+                <div class="flex justify-between items-center text-slate-500">
+                    <span class="uppercase tracking-tight">NILAI ASLI (SEBELUM DISKON)</span>
+                    <span class="rec-orig-cost font-semibold line-through">
+                        {{ $order->formatted_original_amount }}
+                    </span>
+                </div>
+                <div class="flex justify-between items-center text-emerald-700 font-bold">
+                    <span class="uppercase tracking-tight">POTONGAN DISKON PROMO</span>
+                    <span class="rec-disc-cost">
+                        - {{ $order->formatted_discount_amount }}
+                    </span>
+                </div>
+            @endif
+
             <div class="flex justify-between items-center">
-                <span class="text-slate-500 uppercase tracking-tight">TOTAL NILAI KONTRAK</span>
+                <span class="text-slate-500 uppercase tracking-tight">{{ isset($order) && $order->has_discount ? 'TOTAL NILAI KONTRAK (SETELAH DISKON)' : 'TOTAL NILAI KONTRAK' }}</span>
                 <span class="rec-total-cost font-bold text-slate-900">
                     {{ isset($order) ? $order->formatted_total : 'Rp 0' }}
                 </span>

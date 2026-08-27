@@ -170,7 +170,10 @@
                                         @endif
                                     </td>
                                     <td class="py-4 px-6 text-right font-bold text-slate-900">
-                                        {{ $order->formatted_total }}
+                                        @if($order->has_discount)
+                                            <span class="line-through text-slate-400 font-semibold text-xs block">{{ $order->formatted_original_amount }}</span>
+                                        @endif
+                                        <span>{{ $order->formatted_total }}</span>
                                     </td>
                                 </tr>
 
@@ -181,15 +184,27 @@
                                                 Fitur Tambahan: {{ is_array($addon) ? ($addon['title'] ?? '-') : $addon }}
                                             </td>
                                             <td class="py-3 px-6 text-right text-slate-600 font-medium">
-                                                Termaasuk
+                                                Termasuk
                                             </td>
                                         </tr>
                                     @endforeach
                                 @endif
                             </tbody>
                             <tfoot class="bg-slate-50 border-t-2 border-slate-100 font-bold text-slate-900">
+                                @if($order->has_discount)
+                                    <tr>
+                                        <td class="py-2.5 px-6 text-right uppercase text-xs text-slate-500">Harga Normal (Sebelum Diskon):</td>
+                                        <td class="py-2.5 px-6 text-right text-xs text-slate-400 font-bold line-through">{{ $order->formatted_original_amount }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-2.5 px-6 text-right uppercase text-xs text-rose-600 font-bold">Potongan Diskon Layanan:</td>
+                                        <td class="py-2.5 px-6 text-right text-xs text-rose-600 font-bold">- {{ $order->formatted_discount_amount }}</td>
+                                    </tr>
+                                @endif
                                 <tr>
-                                    <td class="py-3.5 px-6 text-right uppercase text-xs text-slate-500">Total Investasi Proyek:</td>
+                                    <td class="py-3.5 px-6 text-right uppercase text-xs text-slate-500">
+                                        {{ $order->has_discount ? 'Total Investasi Proyek (Setelah Diskon):' : 'Total Investasi Proyek:' }}
+                                    </td>
                                     <td class="py-3.5 px-6 text-right text-base text-slate-900 font-black">{{ $order->formatted_total }}</td>
                                 </tr>
                                 <tr>
