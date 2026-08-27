@@ -270,10 +270,10 @@
             this.attachmentError = null;
             if (!file) return;
 
-            // Maximum size: 20MB
-            const maxSize = 20 * 1024 * 1024;
+            // Maximum size: 50MB
+            const maxSize = 50 * 1024 * 1024;
             if (file.size > maxSize) {
-                this.attachmentError = 'Ukuran berkas melebihi batas maksimum 20MB.';
+                this.attachmentError = 'Ukuran berkas melebihi batas maksimum 50MB.';
                 alert(this.attachmentError);
                 return;
             }
@@ -876,7 +876,7 @@
                                                 <span class="text-[10px] font-semibold text-slate-400">(PDF, DOC, ZIP, Gambar)</span>
                                             </p>
                                             <p class="text-[11px] text-slate-500 font-medium mt-0.5">
-                                                Klik untuk memilih berkas dari HP / Komputer, atau seret ke sini (Maks. 20MB)
+                                                Klik untuk memilih berkas dari HP / Komputer, atau seret ke sini (Maks. 50MB)
                                             </p>
                                         </div>
                                     </div>
