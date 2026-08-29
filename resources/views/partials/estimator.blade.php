@@ -655,7 +655,7 @@
             </div>
 
             <!-- Right Column: Interactive Step-by-Step In-Place Form -->
-            <div class="bg-white rounded-[2rem] border-2 border-slate-100 shadow-xl shadow-slate-200/50 p-6 sm:p-8 md:p-10">
+            <div class="bg-white rounded-[2rem] border-2 border-slate-100 shadow-xl shadow-slate-200/50 p-6 sm:p-8 md:p-10 min-h-[600px]">
                 
                 <!-- VIEW 1: Form Inputs -->
                 <div x-show="estimatorStep === 'form'" class="space-y-8">
@@ -674,7 +674,7 @@
                                     :class="selectedServiceId === service.id 
                                         ? 'bg-[#f0f4fc] border-[#2563EB] ring-2 ring-[#2563EB]/20' 
                                         : 'bg-white border-slate-100 hover:border-slate-300 hover:bg-slate-50'"
-                                    class="flex flex-col text-left p-4 rounded-xl border-2 transition-all duration-200"
+                                    class="flex flex-col text-left p-4 rounded-xl border-2 transition-colors duration-200 min-h-[68px]"
                                 >
                                     <span 
                                         :class="selectedServiceId === service.id ? 'text-[#2563EB]' : 'text-slate-800'"
@@ -702,7 +702,7 @@
                                     :class="selectedPlanId === plan.id 
                                         ? 'bg-blue-50 border-[#2563EB] ring-2 ring-[#2563EB]/20' 
                                         : 'bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50'"
-                                    class="flex flex-col text-left p-3.5 rounded-xl border-2 transition-all duration-200"
+                                    class="flex flex-col text-left p-3.5 rounded-xl border-2 transition-colors duration-200 min-h-[90px]"
                                 >
                                     <div class="flex items-center justify-between w-full mb-1">
                                         <span 
