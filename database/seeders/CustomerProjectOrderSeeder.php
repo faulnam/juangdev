@@ -13,7 +13,45 @@ use Illuminate\Support\Str;
 class CustomerProjectOrderSeeder extends Seeder
 {
     /**
-     * Run the database seeds for 17 dummy customer project orders.
+     * Helper to get official JuangDev pricing for services and tiers.
+     */
+    private function getOfficialPackagePrice(string $category, string $tier): int
+    {
+        $cat = strtolower($category);
+        $t = strtolower($tier);
+
+        if (str_contains($cat, 'landing')) {
+            if (str_contains($t, 'basic')) return 99000;
+            if (str_contains($t, 'premium')) return 499000;
+            return 299000; // Rekomendasi
+        }
+
+        if (str_contains($cat, 'company') || str_contains($cat, 'profil')) {
+            if (str_contains($t, 'basic')) return 199000;
+            if (str_contains($t, 'premium')) return 899000;
+            return 499000; // Rekomendasi
+        }
+
+        if (str_contains($cat, 'commerce') || str_contains($cat, 'toko')) {
+            if (str_contains($t, 'basic')) return 499000;
+            if (str_contains($t, 'premium')) return 999000;
+            return 899000; // Rekomendasi
+        }
+
+        if (str_contains($cat, 'sistem') || str_contains($cat, 'informasi')) {
+            if (str_contains($t, 'basic')) return 399000;
+            if (str_contains($t, 'premium')) return 999000;
+            return 799000; // Rekomendasi
+        }
+
+        // Custom Web App / Aplikasi Web
+        if (str_contains($t, 'basic')) return 499000;
+        if (str_contains($t, 'premium')) return 999000;
+        return 799000; // Rekomendasi
+    }
+
+    /**
+     * Run the database seeds for 17 dummy customer project orders with exact official pricing.
      */
     public function run(): void
     {
@@ -140,207 +178,135 @@ class CustomerProjectOrderSeeder extends Seeder
             ],
         ];
 
+        // Clean up previous dummy orders to avoid duplicates
+        $dummyEmails = array_column($dummyCustomers, 'email');
+        Order::whereIn('customer_email', $dummyEmails)->delete();
+
         // Ensure we have available portfolios to associate
         $portfolios = Portfolio::all();
 
         // 17 Order configuration specifications (Randomized statuses: DP vs Selesai)
-        // 9 orders DP Paid (In Progress), 8 orders Selesai / Fully Paid (Completed)
+        // Staggered dates within the last few weeks/months
         $orderConfigs = [
-            // 1. DP (In Progress)
+            // 1. DP 50% (In Progress)
             [
                 'payment_scheme' => 'dp_50',
                 'payment_status' => 'dp_paid',
                 'project_status' => 'in_progress',
-                'original_amount' => 1999000,
-                'discount_amount' => 150000,
-                'days_ago' => 5,
-                'tier' => 'Rekomendasi',
-                'service' => 'Aplikasi Web',
+                'days_ago' => 4,
             ],
-            // 2. Selesai (Completed)
+            // 2. Selesai / Fully Paid (Completed)
             [
                 'payment_scheme' => 'dp_50',
                 'payment_status' => 'fully_paid',
                 'project_status' => 'completed',
-                'original_amount' => 2499000,
-                'discount_amount' => 0,
-                'days_ago' => 45,
-                'tier' => 'Premium',
-                'service' => 'Sistem Informasi',
+                'days_ago' => 38,
             ],
-            // 3. DP (In Progress)
+            // 3. DP 50% (In Progress)
             [
                 'payment_scheme' => 'dp_50',
                 'payment_status' => 'dp_paid',
                 'project_status' => 'in_progress',
-                'original_amount' => 1299000,
-                'discount_amount' => 100000,
-                'days_ago' => 8,
-                'tier' => 'Basic',
-                'service' => 'E-Commerce',
-            ],
-            // 4. Selesai (Completed)
-            [
-                'payment_scheme' => 'full_100',
-                'payment_status' => 'fully_paid',
-                'project_status' => 'completed',
-                'original_amount' => 1799000,
-                'discount_amount' => 100000,
-                'days_ago' => 60,
-                'tier' => 'Rekomendasi',
-                'service' => 'Sistem Informasi',
-            ],
-            // 5. DP (In Progress)
-            [
-                'payment_scheme' => 'dp_50',
-                'payment_status' => 'dp_paid',
-                'project_status' => 'in_progress',
-                'original_amount' => 899000,
-                'discount_amount' => 0,
-                'days_ago' => 3,
-                'tier' => 'Basic',
-                'service' => 'Company Profile',
-            ],
-            // 6. Selesai (Completed)
-            [
-                'payment_scheme' => 'dp_50',
-                'payment_status' => 'fully_paid',
-                'project_status' => 'completed',
-                'original_amount' => 2899000,
-                'discount_amount' => 200000,
-                'days_ago' => 75,
-                'tier' => 'Premium',
-                'service' => 'Aplikasi Web',
-            ],
-            // 7. DP (In Progress)
-            [
-                'payment_scheme' => 'dp_50',
-                'payment_status' => 'dp_paid',
-                'project_status' => 'in_progress',
-                'original_amount' => 1499000,
-                'discount_amount' => 0,
-                'days_ago' => 12,
-                'tier' => 'Rekomendasi',
-                'service' => 'Company Profile',
-            ],
-            // 8. Selesai (Completed)
-            [
-                'payment_scheme' => 'full_100',
-                'payment_status' => 'fully_paid',
-                'project_status' => 'completed',
-                'original_amount' => 1199000,
-                'discount_amount' => 50000,
-                'days_ago' => 90,
-                'tier' => 'Basic',
-                'service' => 'E-Commerce',
-            ],
-            // 9. DP (In Progress)
-            [
-                'payment_scheme' => 'dp_50',
-                'payment_status' => 'dp_paid',
-                'project_status' => 'in_progress',
-                'original_amount' => 2199000,
-                'discount_amount' => 200000,
-                'days_ago' => 7,
-                'tier' => 'Premium',
-                'service' => 'Sistem Informasi',
-            ],
-            // 10. Selesai (Completed)
-            [
-                'payment_scheme' => 'dp_50',
-                'payment_status' => 'fully_paid',
-                'project_status' => 'completed',
-                'original_amount' => 999000,
-                'discount_amount' => 0,
-                'days_ago' => 30,
-                'tier' => 'Basic',
-                'service' => 'Company Profile',
-            ],
-            // 11. DP (In Progress)
-            [
-                'payment_scheme' => 'dp_50',
-                'payment_status' => 'dp_paid',
-                'project_status' => 'in_progress',
-                'original_amount' => 1699000,
-                'discount_amount' => 100000,
-                'days_ago' => 14,
-                'tier' => 'Rekomendasi',
-                'service' => 'Company Profile',
-            ],
-            // 12. Selesai (Completed)
-            [
-                'payment_scheme' => 'full_100',
-                'payment_status' => 'fully_paid',
-                'project_status' => 'completed',
-                'original_amount' => 1599000,
-                'discount_amount' => 100000,
-                'days_ago' => 40,
-                'tier' => 'Rekomendasi',
-                'service' => 'Aplikasi Web',
-            ],
-            // 13. DP (In Progress)
-            [
-                'payment_scheme' => 'dp_50',
-                'payment_status' => 'dp_paid',
-                'project_status' => 'in_progress',
-                'original_amount' => 2599000,
-                'discount_amount' => 200000,
-                'days_ago' => 10,
-                'tier' => 'Premium',
-                'service' => 'Sistem Informasi',
-            ],
-            // 14. Selesai (Completed)
-            [
-                'payment_scheme' => 'dp_50',
-                'payment_status' => 'fully_paid',
-                'project_status' => 'completed',
-                'original_amount' => 499000,
-                'discount_amount' => 0,
-                'days_ago' => 15,
-                'tier' => 'Basic',
-                'service' => 'Landing Page',
-            ],
-            // 15. DP (In Progress)
-            [
-                'payment_scheme' => 'dp_50',
-                'payment_status' => 'dp_paid',
-                'project_status' => 'in_progress',
-                'original_amount' => 1899000,
-                'discount_amount' => 150000,
                 'days_ago' => 6,
-                'tier' => 'Rekomendasi',
-                'service' => 'Company Profile',
             ],
-            // 16. Selesai (Completed)
+            // 4. Selesai / Fully Paid (Completed)
             [
                 'payment_scheme' => 'full_100',
                 'payment_status' => 'fully_paid',
                 'project_status' => 'completed',
-                'original_amount' => 1399000,
-                'discount_amount' => 50000,
-                'days_ago' => 50,
-                'tier' => 'Basic',
-                'service' => 'E-Commerce',
+                'days_ago' => 45,
             ],
-            // 17. DP (In Progress)
+            // 5. DP 50% (In Progress)
             [
                 'payment_scheme' => 'dp_50',
                 'payment_status' => 'dp_paid',
                 'project_status' => 'in_progress',
-                'original_amount' => 2299000,
-                'discount_amount' => 150000,
                 'days_ago' => 2,
-                'tier' => 'Premium',
-                'service' => 'Aplikasi Web',
             ],
-        ];
-
-        $addonOptions = [
-            ['name' => 'Custom Domain .COM (1 Tahun)', 'price' => 175000],
-            ['name' => 'Cloud Hosting NVMe Speed Plus', 'price' => 250000],
-            ['name' => 'Integrasi WhatsApp Gateway Bot', 'price' => 300000],
-            ['name' => 'Multi-Language (ID & EN)', 'price' => 200000],
-            ['name' => 'Optimasi SEO On-Page Premium', 'price' => 150000],
+            // 6. Selesai / Fully Paid (Completed)
+            [
+                'payment_scheme' => 'dp_50',
+                'payment_status' => 'fully_paid',
+                'project_status' => 'completed',
+                'days_ago' => 52,
+            ],
+            // 7. DP 50% (In Progress)
+            [
+                'payment_scheme' => 'dp_50',
+                'payment_status' => 'dp_paid',
+                'project_status' => 'in_progress',
+                'days_ago' => 9,
+            ],
+            // 8. Selesai / Fully Paid (Completed)
+            [
+                'payment_scheme' => 'full_100',
+                'payment_status' => 'fully_paid',
+                'project_status' => 'completed',
+                'days_ago' => 60,
+            ],
+            // 9. DP 50% (In Progress)
+            [
+                'payment_scheme' => 'dp_50',
+                'payment_status' => 'dp_paid',
+                'project_status' => 'in_progress',
+                'days_ago' => 5,
+            ],
+            // 10. Selesai / Fully Paid (Completed)
+            [
+                'payment_scheme' => 'dp_50',
+                'payment_status' => 'fully_paid',
+                'project_status' => 'completed',
+                'days_ago' => 28,
+            ],
+            // 11. DP 50% (In Progress)
+            [
+                'payment_scheme' => 'dp_50',
+                'payment_status' => 'dp_paid',
+                'project_status' => 'in_progress',
+                'days_ago' => 11,
+            ],
+            // 12. Selesai / Fully Paid (Completed)
+            [
+                'payment_scheme' => 'full_100',
+                'payment_status' => 'fully_paid',
+                'project_status' => 'completed',
+                'days_ago' => 35,
+            ],
+            // 13. DP 50% (In Progress)
+            [
+                'payment_scheme' => 'dp_50',
+                'payment_status' => 'dp_paid',
+                'project_status' => 'in_progress',
+                'days_ago' => 8,
+            ],
+            // 14. Selesai / Fully Paid (Completed)
+            [
+                'payment_scheme' => 'dp_50',
+                'payment_status' => 'fully_paid',
+                'project_status' => 'completed',
+                'days_ago' => 14,
+            ],
+            // 15. DP 50% (In Progress)
+            [
+                'payment_scheme' => 'dp_50',
+                'payment_status' => 'dp_paid',
+                'project_status' => 'in_progress',
+                'days_ago' => 3,
+            ],
+            // 16. Selesai / Fully Paid (Completed)
+            [
+                'payment_scheme' => 'full_100',
+                'payment_status' => 'fully_paid',
+                'project_status' => 'completed',
+                'days_ago' => 42,
+            ],
+            // 17. DP 50% (In Progress)
+            [
+                'payment_scheme' => 'dp_50',
+                'payment_status' => 'dp_paid',
+                'project_status' => 'in_progress',
+                'days_ago' => 1,
+            ],
         ];
 
         $boilerplateSoldCountMap = [];
@@ -362,7 +328,7 @@ class CustomerProjectOrderSeeder extends Seeder
                 ]
             );
 
-            // Select portfolio
+            // Select portfolio from available list
             $portfolio = null;
             if ($portfolios->isNotEmpty()) {
                 $portfolio = $portfolios[$index % $portfolios->count()];
@@ -370,8 +336,9 @@ class CustomerProjectOrderSeeder extends Seeder
 
             $boilerplateId = $portfolio ? $portfolio->id : null;
             $boilerplateName = $portfolio ? $portfolio->title : ($customerData['company'] . ' System');
-            $serviceName = $portfolio && !empty($portfolio->category) ? $portfolio->category : $config['service'];
-            $packageName = 'Paket ' . ($portfolio->package_tier ?? $config['tier']);
+            $serviceCategory = $portfolio && !empty($portfolio->category) ? $portfolio->category : 'Aplikasi Web';
+            $packageTier = $portfolio && !empty($portfolio->package_tier) ? $portfolio->package_tier : 'Rekomendasi';
+            $packageName = 'Paket ' . $packageTier;
             $projectName = 'Proyek Website & Sistem ' . $customerData['company'];
 
             // Track boilerplate sold count
@@ -382,14 +349,12 @@ class CustomerProjectOrderSeeder extends Seeder
                 $boilerplateSoldCountMap[$portfolio->id]++;
             }
 
-            // Calculation
-            $originalAmount = $config['original_amount'];
-            $discountAmount = $config['discount_amount'];
-            $totalAmount = $originalAmount - $discountAmount;
+            // Get exact official JuangDev package price
+            $totalAmount = $this->getOfficialPackagePrice($serviceCategory, $packageTier);
+            $originalAmount = $totalAmount;
+            $discountAmount = 0;
 
             $isFull = $config['payment_scheme'] === 'full_100';
-            $isDp = !$isFull;
-
             if ($isFull) {
                 $dpAmount = $totalAmount;
                 $remainingAmount = 0;
@@ -398,21 +363,11 @@ class CustomerProjectOrderSeeder extends Seeder
                 $remainingAmount = $config['payment_status'] === 'fully_paid' ? 0 : ($totalAmount - $dpAmount);
             }
 
-            // Assign 1 or 2 addons randomly
-            $selectedAddons = [];
-            if ($index % 2 === 0) {
-                $selectedAddons[] = $addonOptions[$index % count($addonOptions)];
-            }
-            if ($index % 3 === 0) {
-                $selectedAddons[] = $addonOptions[($index + 2) % count($addonOptions)];
-            }
-
             // Invoice number format
             $invDate = $createdAt->format('Ymd');
             $invSuffix = strtoupper(Str::random(5));
             $invoiceNumber = 'INV-' . $invDate . '-' . $invSuffix;
 
-            // Check if existing dummy order for this user/invoice exists
             Order::create([
                 'user_id' => $user->id,
                 'invoice_number' => $invoiceNumber,
@@ -421,11 +376,11 @@ class CustomerProjectOrderSeeder extends Seeder
                 'customer_email' => $customerData['email'],
                 'customer_phone' => $customerData['phone'],
                 'project_name' => $projectName,
-                'service_name' => $serviceName,
+                'service_name' => $serviceCategory,
                 'package_name' => $packageName,
                 'boilerplate_id' => $boilerplateId,
                 'boilerplate_name' => $boilerplateName,
-                'addons' => $selectedAddons,
+                'addons' => [],
                 'original_amount' => $originalAmount,
                 'discount_amount' => $discountAmount,
                 'total_amount' => $totalAmount,
@@ -450,6 +405,6 @@ class CustomerProjectOrderSeeder extends Seeder
             }
         }
 
-        $this->command->info('Seeding berhasil: 17 Customer Dummy beserta Order & Status DP / Selesai telah dibuat.');
+        $this->command->info('Seeding berhasil: 17 Customer Dummy beserta Order dengan harga resmi JuangDev & status DP / Selesai telah dibuat.');
     }
 }

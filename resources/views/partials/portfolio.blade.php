@@ -96,15 +96,15 @@
                             </p>
 
                             @if($project->technologies && count($project->technologies) > 0)
-                                <div class="flex flex-wrap items-center gap-1 mb-3">
-                                    @foreach(array_slice($project->technologies, 0, 5) as $tech)
-                                        <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-medium">
+                                <div class="flex items-center gap-1 mb-3 overflow-hidden whitespace-nowrap">
+                                    @foreach(array_slice($project->technologies, 0, 2) as $tech)
+                                        <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-medium truncate max-w-[120px]">
                                             {{ $tech }}
                                         </span>
                                     @endforeach
-                                    @if(count($project->technologies) > 5)
-                                        <span class="text-[10px] bg-slate-100 text-slate-500 font-bold px-1.5 py-0.5 rounded">
-                                            +{{ count($project->technologies) - 5 }}
+                                    @if(count($project->technologies) > 2)
+                                        <span class="text-[10px] bg-slate-100 text-slate-500 font-bold px-1.5 py-0.5 rounded shrink-0">
+                                            +{{ count($project->technologies) - 2 }}
                                         </span>
                                     @endif
                                 </div>

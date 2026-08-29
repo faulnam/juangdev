@@ -275,14 +275,14 @@
                             <p class="text-slate-600 text-sm leading-relaxed mb-4 flex-grow line-clamp-3" x-text="project.description">
                             </p>
 
-                            <!-- Tech Stack Pills (Max 5 displayed) -->
-                            <div class="flex flex-wrap items-center gap-1.5 mb-4">
-                                <template x-for="tech in (Array.isArray(project.technologies) ? project.technologies.slice(0, 5) : [])" :key="tech">
-                                    <span class="text-[11px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-medium" x-text="tech">
+                            <!-- Tech Stack Pills (Cukup 1 Baris Rapi) -->
+                            <div class="flex items-center gap-1.5 mb-4 overflow-hidden whitespace-nowrap">
+                                <template x-for="(tech, tIdx) in (Array.isArray(project.technologies) ? project.technologies.slice(0, 2) : [])" :key="tech">
+                                    <span class="text-[11px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-medium truncate max-w-[130px]" x-text="tech">
                                     </span>
                                 </template>
-                                <template x-if="Array.isArray(project.technologies) && project.technologies.length > 5">
-                                    <span class="text-[10px] bg-slate-100 text-slate-500 font-bold px-1.5 py-0.5 rounded" x-text="'+' + (project.technologies.length - 5)">
+                                <template x-if="Array.isArray(project.technologies) && project.technologies.length > 2">
+                                    <span class="text-[10px] bg-slate-100 text-slate-500 font-bold px-1.5 py-0.5 rounded shrink-0" x-text="'+' + (project.technologies.length - 2)">
                                     </span>
                                 </template>
                             </div>
