@@ -9,17 +9,17 @@
     <!-- Filter Tabs & Search Bar -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div class="flex items-center gap-2 overflow-x-auto pb-1 hide-scrollbar">
-            <a href="{{ route('admin.contacts.index') }}" class="px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 {{ !request('status') ? 'bg-[#0A1E5E] text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50' }}">
+            <a href="{{ route('admin.contacts.index') }}" class="px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 {{ !request('status') ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:text-slate-900' }}">
                 Semua ({{ \App\Models\Contact::count() }})
             </a>
-            <a href="{{ route('admin.contacts.index', ['status' => 'unread']) }}" class="px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 {{ request('status') === 'unread' ? 'bg-red-600 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50' }}">
-                🔴 Belum Dibaca ({{ \App\Models\Contact::where('status', 'unread')->count() }})
+            <a href="{{ route('admin.contacts.index', ['status' => 'unread']) }}" class="px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 {{ request('status') === 'unread' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:text-slate-900' }}">
+                Belum Dibaca ({{ \App\Models\Contact::where('status', 'unread')->count() }})
             </a>
-            <a href="{{ route('admin.contacts.index', ['status' => 'read']) }}" class="px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 {{ request('status') === 'read' ? 'bg-blue-600 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50' }}">
-                🔵 Sudah Dibaca ({{ \App\Models\Contact::where('status', 'read')->count() }})
+            <a href="{{ route('admin.contacts.index', ['status' => 'read']) }}" class="px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 {{ request('status') === 'read' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:text-slate-900' }}">
+                Sudah Dibaca ({{ \App\Models\Contact::where('status', 'read')->count() }})
             </a>
-            <a href="{{ route('admin.contacts.index', ['status' => 'replied']) }}" class="px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 {{ request('status') === 'replied' ? 'bg-emerald-600 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50' }}">
-                🟢 Sudah Dibalas ({{ \App\Models\Contact::where('status', 'replied')->count() }})
+            <a href="{{ route('admin.contacts.index', ['status' => 'replied']) }}" class="px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs shrink-0 {{ request('status') === 'replied' ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:text-slate-900' }}">
+                Sudah Dibalas ({{ \App\Models\Contact::where('status', 'replied')->count() }})
             </a>
         </div>
 

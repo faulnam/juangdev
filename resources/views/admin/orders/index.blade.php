@@ -21,41 +21,41 @@
         </a>
     </div>
 
-    <!-- Quick Status Tabs -->
+    <!-- Quick Status Tabs (Clean & Neutral Monochromatic Style) -->
     <div class="flex flex-wrap gap-2 pt-1">
         <a 
             href="{{ route('admin.orders.index') }}" 
-            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all {{ !request('status') && !request('project_status') ? 'bg-slate-900 text-white shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200' }}"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all {{ !request('status') && !request('project_status') ? 'bg-slate-900 text-white shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-slate-200' }}"
         >
             Semua Pesanan ({{ $counts['all'] ?? 0 }})
         </a>
         <a 
             href="{{ route('admin.orders.index', ['status' => 'unpaid']) }}" 
-            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all {{ request('status') === 'unpaid' ? 'bg-rose-600 text-white shadow-xs' : 'bg-white text-rose-700 hover:bg-rose-50 border border-rose-200' }}"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all {{ request('status') === 'unpaid' ? 'bg-slate-900 text-white shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-slate-200' }}"
         >
             Belum Bayar ({{ $counts['unpaid'] ?? 0 }})
         </a>
         <a 
             href="{{ route('admin.orders.index', ['status' => 'dp_paid']) }}" 
-            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all {{ request('status') === 'dp_paid' ? 'bg-amber-600 text-white shadow-xs' : 'bg-white text-amber-700 hover:bg-amber-50 border border-amber-200' }}"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all {{ request('status') === 'dp_paid' ? 'bg-slate-900 text-white shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-slate-200' }}"
         >
             DP 50% Lunas ({{ $counts['dp_paid'] ?? 0 }})
         </a>
         <a 
             href="{{ route('admin.orders.index', ['status' => 'fully_paid']) }}" 
-            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all {{ request('status') === 'fully_paid' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-white text-emerald-700 hover:bg-emerald-50 border border-emerald-200' }}"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all {{ request('status') === 'fully_paid' ? 'bg-slate-900 text-white shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-slate-200' }}"
         >
             Lunas 100% ({{ $counts['fully_paid'] ?? 0 }})
         </a>
         <a 
             href="{{ route('admin.orders.index', ['project_status' => 'in_progress']) }}" 
-            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all {{ request('project_status') === 'in_progress' ? 'bg-indigo-600 text-white shadow-xs' : 'bg-white text-indigo-700 hover:bg-indigo-50 border border-indigo-200' }}"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all {{ request('project_status') === 'in_progress' ? 'bg-slate-900 text-white shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-slate-200' }}"
         >
             Dalam Pengerjaan ({{ $counts['in_progress'] ?? 0 }})
         </a>
         <a 
             href="{{ route('admin.orders.index', ['project_status' => 'completed']) }}" 
-            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all {{ request('project_status') === 'completed' ? 'bg-blue-600 text-white shadow-xs' : 'bg-white text-blue-700 hover:bg-blue-50 border border-blue-200' }}"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all {{ request('project_status') === 'completed' ? 'bg-slate-900 text-white shadow-xs' : 'bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-slate-200' }}"
         >
             Selesai ({{ $counts['completed'] ?? 0 }})
         </a>
