@@ -30,7 +30,8 @@
             paymentScheme: 'dp_50',
             details: ''
         },
-        selectedPaymentChannel: 'qris',
+        selectedPaymentChannel: {{ isset($order) && !empty($order->payment_channel) ? json_encode($order->payment_channel) : "'qris'" }},
+        vaCopied: false,
         createdOrder: {{ json_encode($order ?? null) }},
         pakasirData: null,
         isCheckingPayment: false,
@@ -46,6 +47,12 @@
         attachmentPreview: null,
         isDragging: false,
         attachmentError: null,
+
+        isVaPayment() {
+            const ch = (this.selectedPaymentChannel || this.createdOrder?.payment_channel || this.pakasirData?.payment_channel || '').toString();
+            const pm = (this.pakasirData?.payment_method || '').toString();
+            return ch.startsWith('va_') || ch.includes('va') || pm.endsWith('_va') || pm.includes('va');
+        },
 
         normalizeCategory(cat) {
             if (!cat) return '';
@@ -501,6 +508,11 @@
                 if (data.invoice_number) {
                     this.createdOrder = data;
                     this.pakasirData = data.pakasir;
+                    if (data.payment_channel) {
+                        this.selectedPaymentChannel = data.payment_channel;
+                    } else if (data.pakasir && data.pakasir.payment_channel) {
+                        this.selectedPaymentChannel = data.pakasir.payment_channel;
+                    }
                     this.isJustPaid = false;
                     this.estimatorStep = 'payment_instruction';
                     
@@ -583,10 +595,10 @@
     }"
 >
     <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8">
-        <div class="grid grid-cols-1 lg:grid-cols-[1fr_1.3fr] gap-12 lg:gap-16 items-start">
+        <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.35fr)] gap-8 lg:gap-12 items-start">
             
             <!-- Left Column: Estimator Summary & Free Consultation Badge -->
-            <div class="flex flex-col lg:sticky lg:top-28">
+            <div class="flex flex-col lg:sticky lg:top-28 min-w-0 w-full">
                 <h2 class="text-3xl md:text-4xl lg:text-[2.75rem] font-black text-[#1a1f3c] leading-tight tracking-tight mb-4">
                     Estimator Biaya<br>
                     <span class="font-serif italic text-[#2563EB]">Proyek Interaktif</span>
@@ -597,7 +609,7 @@
                 </p>
 
                 <!-- Total Box -->
-                <div class="bg-white border-2 border-slate-100 rounded-[2rem] p-7 md:p-8 shadow-xl shadow-slate-200/50 space-y-3">
+                <div class="bg-white border-2 border-slate-100 rounded-[2rem] p-7 md:p-8 shadow-xl shadow-slate-200/50 space-y-3 min-w-0">
                     <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Estimasi Biaya Proyek</p>
                     
                     <template x-if="discountSavings > 0">
@@ -624,16 +636,16 @@
 
                     <!-- Selected Boilerplate Badge & Thumbnail Preview in Total Box -->
                     <template x-if="selectedBoilerplate">
-                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-3 bg-blue-50/50 p-2.5 rounded-xl border border-blue-100">
-                            <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-3 bg-blue-50/50 p-2.5 rounded-xl border border-blue-100 min-w-0">
+                            <div class="flex items-center gap-2.5 min-w-0 flex-1">
                                 <img :src="selectedBoilerplate.image_url || '/placeholder.png'" class="w-10 h-10 rounded-lg object-cover border border-blue-200 shrink-0 bg-white shadow-2xs" onerror="this.src='/placeholder.png'">
-                                <div class="min-w-0 text-left">
+                                <div class="min-w-0 flex-1 text-left">
                                     <span class="block text-[9px] font-black uppercase tracking-wider text-[#2563EB]">Template Terpilih</span>
-                                    <p class="text-xs font-bold text-slate-800 truncate" x-text="selectedBoilerplate.title"></p>
+                                    <p class="text-xs font-bold text-slate-800 truncate min-w-0" :title="selectedBoilerplate.title" x-text="selectedBoilerplate.title"></p>
                                     <span class="text-[10px] text-slate-500 font-semibold" x-text="'Paket ' + (selectedBoilerplate.package_tier || 'Standar')"></span>
                                 </div>
                             </div>
-                            <span class="text-[10px] font-bold text-[#2563EB] bg-white border border-blue-200 px-2 py-1 rounded-lg shrink-0" x-text="'Paket ' + (selectedBoilerplate.package_tier || 'Standar')"></span>
+                            <span class="text-[10px] font-bold text-[#2563EB] bg-white border border-blue-200 px-2 py-1 rounded-lg shrink-0 whitespace-nowrap" x-text="'Paket ' + (selectedBoilerplate.package_tier || 'Standar')"></span>
                         </div>
                     </template>
                 </div>
@@ -655,7 +667,7 @@
             </div>
 
             <!-- Right Column: Interactive Step-by-Step In-Place Form -->
-            <div class="bg-white rounded-[2rem] border-2 border-slate-100 shadow-xl shadow-slate-200/50 p-6 sm:p-8 md:p-10 min-h-[600px]">
+            <div class="bg-white rounded-[2rem] border-2 border-slate-100 shadow-xl shadow-slate-200/50 p-6 sm:p-8 md:p-10 min-h-[600px] min-w-0 w-full">
                 
                 <!-- VIEW 1: Form Inputs -->
                 <div x-show="estimatorStep === 'form'" class="space-y-8">
@@ -830,44 +842,44 @@
                             <template x-if="selectedBoilerplate">
                                 <div 
                                     @click="boilerplateDropdownOpen = !boilerplateDropdownOpen"
-                                    class="w-full flex items-center justify-between p-3 sm:p-3.5 rounded-2xl border-2 border-[#2563EB] bg-blue-50/50 hover:bg-blue-50/80 ring-2 ring-[#2563EB]/15 cursor-pointer transition-all shadow-xs gap-3"
+                                    class="w-full flex items-center justify-between p-3 sm:p-3.5 rounded-2xl border-2 border-[#2563EB] bg-blue-50/50 hover:bg-blue-50/80 ring-2 ring-[#2563EB]/15 cursor-pointer transition-all shadow-xs gap-3 min-w-0"
                                 >
-                                    <div class="flex items-center gap-3 min-w-0">
+                                    <div class="flex items-center gap-3 min-w-0 flex-1">
                                         <img 
                                             :src="selectedBoilerplate.image_url || '/placeholder.png'" 
                                             :alt="selectedBoilerplate.title" 
                                             class="w-12 h-12 sm:w-14 sm:h-14 object-cover rounded-xl border border-blue-200 shadow-2xs shrink-0 bg-white"
                                             onerror="this.src='/placeholder.png'"
                                         >
-                                        <div class="min-w-0 text-left">
-                                            <div class="flex items-center gap-1.5 flex-wrap">
-                                                <span class="text-xs sm:text-sm font-black text-slate-900 truncate" x-text="selectedBoilerplate.title"></span>
+                                        <div class="min-w-0 flex-1 text-left">
+                                            <div class="flex items-center gap-1.5 min-w-0">
+                                                <span class="text-xs sm:text-sm font-black text-slate-900 truncate min-w-0" :title="selectedBoilerplate.title" x-text="selectedBoilerplate.title"></span>
                                                 <span 
                                                     x-show="selectedBoilerplate.package_tier" 
-                                                    class="text-[9px] sm:text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-[#2563EB] text-white" 
+                                                    class="text-[9px] sm:text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-[#2563EB] text-white shrink-0 whitespace-nowrap" 
                                                     x-text="'Paket ' + selectedBoilerplate.package_tier"
                                                 ></span>
                                             </div>
-                                            <div class="flex items-center gap-2 mt-1">
+                                            <div class="flex items-center gap-2 mt-1 min-w-0">
                                                 <template x-if="selectedBoilerplate.live_url">
                                                     <a 
                                                         :href="selectedBoilerplate.live_url" 
                                                         target="_blank" 
                                                         @click.stop 
-                                                        class="text-[11px] font-bold text-[#2563EB] hover:underline inline-flex items-center gap-1"
+                                                        class="text-[11px] font-bold text-[#2563EB] hover:underline inline-flex items-center gap-1 shrink-0"
                                                     >
                                                         <span>Lihat Demo Live</span>
                                                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                                                     </a>
                                                 </template>
-                                                <span class="text-[10px] text-slate-400 font-medium hidden sm:inline">• Klik untuk ganti pilihan</span>
+                                                <span class="text-[10px] text-slate-400 font-medium hidden sm:inline truncate">• Klik untuk ganti pilihan</span>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="flex items-center gap-2 shrink-0">
-                                        <span class="text-xs font-bold text-[#2563EB] bg-white border border-blue-200 px-2.5 py-1 rounded-xl hidden sm:inline-block shadow-2xs">Pilih Template Lain</span>
-                                        <div class="w-8 h-8 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-[#2563EB] shadow-2xs">
+                                        <span class="text-xs font-bold text-[#2563EB] bg-white border border-blue-200 px-2.5 py-1 rounded-xl hidden sm:inline-block shadow-2xs whitespace-nowrap">Pilih Template Lain</span>
+                                        <div class="w-8 h-8 rounded-xl bg-white border border-blue-200 flex items-center justify-center text-[#2563EB] shadow-2xs shrink-0">
                                             <svg class="w-4 h-4 transition-transform duration-200" :class="boilerplateDropdownOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                                         </div>
                                     </div>
@@ -879,13 +891,13 @@
                                 <button 
                                     type="button" 
                                     @click="boilerplateDropdownOpen = !boilerplateDropdownOpen"
-                                    class="w-full flex items-center justify-between p-3.5 sm:p-4 rounded-2xl border-2 border-slate-200 bg-white hover:border-blue-400 hover:bg-slate-50 transition-all text-left shadow-2xs cursor-pointer gap-3"
+                                    class="w-full flex items-center justify-between p-3.5 sm:p-4 rounded-2xl border-2 border-slate-200 bg-white hover:border-blue-400 hover:bg-slate-50 transition-all text-left shadow-2xs cursor-pointer gap-3 min-w-0"
                                 >
-                                    <div class="min-w-0">
-                                        <p class="text-xs sm:text-sm font-bold text-slate-700">
+                                    <div class="min-w-0 flex-1">
+                                        <p class="text-xs sm:text-sm font-bold text-slate-700 truncate">
                                             Pilih Model Template Boilerplate...
                                         </p>
-                                        <p class="text-[11px] text-slate-400 font-medium mt-0.5">
+                                        <p class="text-[11px] text-slate-400 font-medium mt-0.5 truncate">
                                             Klik untuk membuka katalog template yang tersedia
                                         </p>
                                     </div>
@@ -945,32 +957,32 @@
                                     <div 
                                         @click="selectBoilerplate(bp)"
                                         :class="selectedBoilerplateId === bp.id ? 'bg-blue-50/90 border-[#2563EB] ring-1 ring-[#2563EB]' : 'border-slate-100 hover:bg-slate-50 hover:border-slate-200'"
-                                        class="flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all group text-left gap-2.5"
+                                        class="flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all group text-left gap-2.5 min-w-0"
                                     >
-                                        <div class="flex items-center gap-3 min-w-0">
+                                        <div class="flex items-center gap-3 min-w-0 flex-1">
                                             <img 
                                                 :src="bp.image_url || '/placeholder.png'" 
                                                 :alt="bp.title"
                                                 class="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-xl border border-slate-200 bg-slate-100 shrink-0 shadow-2xs group-hover:scale-105 transition-transform"
                                                 onerror="this.src='/placeholder.png'"
                                             >
-                                            <div class="min-w-0">
-                                                <div class="flex items-center gap-1.5 flex-wrap">
-                                                    <p class="text-xs sm:text-sm font-black text-slate-900 truncate" x-text="bp.title"></p>
+                                            <div class="min-w-0 flex-1">
+                                                <div class="flex items-center gap-1.5 min-w-0">
+                                                    <p class="text-xs sm:text-sm font-black text-slate-900 truncate min-w-0" :title="bp.title" x-text="bp.title"></p>
                                                     <span 
                                                         x-show="bp.package_tier" 
-                                                        class="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-blue-100 text-blue-800" 
+                                                        class="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-blue-100 text-blue-800 shrink-0 whitespace-nowrap" 
                                                         x-text="'Paket ' + bp.package_tier"
                                                     ></span>
                                                 </div>
                                                 <p class="text-[11px] text-slate-500 font-medium mt-0.5 line-clamp-1" x-text="bp.description || bp.overview"></p>
-                                                <div class="flex items-center gap-2 mt-1">
+                                                <div class="flex items-center gap-2 mt-1 min-w-0">
                                                     <template x-if="bp.live_url">
                                                         <a 
                                                             :href="bp.live_url" 
                                                             target="_blank" 
                                                             @click.stop 
-                                                            class="text-[10px] sm:text-[11px] font-bold text-[#2563EB] hover:underline inline-flex items-center gap-0.5"
+                                                            class="text-[10px] sm:text-[11px] font-bold text-[#2563EB] hover:underline inline-flex items-center gap-0.5 shrink-0"
                                                         >
                                                             <span>Lihat Demo</span>
                                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
@@ -998,24 +1010,24 @@
                                         <template x-for="bp in allCategoryBoilerplates.filter(p => !availableBoilerplates.some(ab => ab.id === p.id) && (!searchBp || p.title.toLowerCase().includes(searchBp.toLowerCase())))" :key="'other-' + bp.id">
                                             <div 
                                                 @click="selectBoilerplate(bp)"
-                                                class="flex items-center justify-between p-2.5 rounded-xl border border-dashed border-slate-200 hover:border-blue-300 hover:bg-blue-50/50 cursor-pointer transition-all mb-1.5 text-left opacity-85 hover:opacity-100 gap-2"
+                                                class="flex items-center justify-between p-2.5 rounded-xl border border-dashed border-slate-200 hover:border-blue-300 hover:bg-blue-50/50 cursor-pointer transition-all mb-1.5 text-left opacity-85 hover:opacity-100 gap-2 min-w-0"
                                             >
-                                                <div class="flex items-center gap-2.5 min-w-0">
+                                                <div class="flex items-center gap-2.5 min-w-0 flex-1">
                                                     <img 
                                                         :src="bp.image_url || '/placeholder.png'" 
                                                         :alt="bp.title"
                                                         class="w-11 h-11 object-cover rounded-lg border border-slate-200 bg-slate-100 shrink-0"
                                                         onerror="this.src='/placeholder.png'"
                                                     >
-                                                    <div class="min-w-0">
-                                                        <div class="flex items-center gap-1.5 flex-wrap">
-                                                            <p class="text-xs font-bold text-slate-800 truncate" x-text="bp.title"></p>
-                                                            <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-100 text-slate-700" x-text="'Paket ' + (bp.package_tier || 'Lain')"></span>
+                                                    <div class="min-w-0 flex-1">
+                                                        <div class="flex items-center gap-1.5 min-w-0">
+                                                            <p class="text-xs font-bold text-slate-800 truncate min-w-0" :title="bp.title" x-text="bp.title"></p>
+                                                            <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-slate-100 text-slate-700 shrink-0 whitespace-nowrap" x-text="'Paket ' + (bp.package_tier || 'Lain')"></span>
                                                         </div>
                                                         <p class="text-[10px] text-slate-400 font-medium truncate" x-text="bp.description || bp.overview"></p>
                                                     </div>
                                                 </div>
-                                                <span class="text-[10px] font-bold text-[#2563EB] whitespace-nowrap ml-2">Pilih &amp; Ubah Paket →</span>
+                                                <span class="text-[10px] font-bold text-[#2563EB] whitespace-nowrap ml-2 shrink-0">Pilih &amp; Ubah Paket →</span>
                                             </div>
                                         </template>
                                     </div>
@@ -1689,7 +1701,7 @@
                     <div class="bg-slate-50 border-2 border-slate-200 rounded-2xl p-6 text-left space-y-4">
                         
                         <!-- 1. QRIS Display (Live Barcode from Pakasir) -->
-                        <template x-if="selectedPaymentChannel === 'qris' || ['gopay', 'ovo', 'shopeepay', 'dana'].includes(selectedPaymentChannel) || !selectedPaymentChannel.startsWith('va_')">
+                        <template x-if="!isVaPayment()">
                             <div class="text-center space-y-3">
                                 <div class="inline-flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-slate-200 shadow-2xs mb-1">
                                     <img src="{{ asset('images/payments/qris.svg') }}" alt="QRIS" class="h-4 w-auto">
@@ -1719,49 +1731,139 @@
                             </div>
                         </template>
 
-                        <!-- 2. Virtual Account Display (Live VA from Pakasir for BNI, BRI, Permata, etc.) -->
-                        <template x-if="selectedPaymentChannel.startsWith('va_')">
-                            <div class="space-y-3">
-                                <div class="flex items-center justify-between border-b border-slate-200 pb-2">
-                                    <span class="text-xs font-bold text-slate-700 uppercase">Nomor Virtual Account Resmi</span>
-                                    <div class="h-6 w-auto flex items-center">
-                                        <template x-if="selectedPaymentChannel === 'va_bca'"><img src="{{ asset('images/payments/bca.svg') }}" class="h-5 w-auto"></template>
-                                        <template x-if="selectedPaymentChannel === 'va_mandiri'"><img src="{{ asset('images/payments/mandiri.svg') }}" class="h-5 w-auto"></template>
-                                        <template x-if="selectedPaymentChannel === 'va_bri'"><img src="{{ asset('images/payments/bri.svg') }}" class="h-5 w-auto"></template>
-                                        <template x-if="selectedPaymentChannel === 'va_bni'"><img src="{{ asset('images/payments/bni.svg') }}" class="h-5 w-auto"></template>
-                                        <template x-if="selectedPaymentChannel === 'va_permata'"><img src="{{ asset('images/payments/permata.svg') }}" class="h-5 w-auto"></template>
-                                        <template x-if="selectedPaymentChannel === 'va_cimb'"><img src="{{ asset('images/payments/cimb.svg') }}" class="h-5 w-auto"></template>
-                                        <template x-if="selectedPaymentChannel === 'va_bsi'"><img src="{{ asset('images/payments/bsi.svg') }}" class="h-5 w-auto"></template>
+                        <!-- 2. Virtual Account Display (Live VA from Pakasir for BNI, BRI, Permata, BCA, Mandiri, etc.) -->
+                        <template x-if="isVaPayment()">
+                            <div class="space-y-4" x-data="{ vaGuideTab: 'mbanking', showQrisAlt: false }">
+                                <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                                    <div>
+                                        <span class="text-xs font-black text-slate-800 uppercase tracking-wide">Nomor Virtual Account Resmi</span>
+                                        <p class="text-[11px] text-slate-500 font-medium" x-text="pakasirData?.bank_info?.bank_name || 'Transfer Virtual Account'"></p>
+                                    </div>
+                                    <div class="h-7 w-auto flex items-center shrink-0">
+                                        <template x-if="selectedPaymentChannel === 'va_bca'"><img src="{{ asset('images/payments/bca.svg') }}" alt="BCA" class="h-6 w-auto object-contain"></template>
+                                        <template x-if="selectedPaymentChannel === 'va_mandiri'"><img src="{{ asset('images/payments/mandiri.svg') }}" alt="Mandiri" class="h-6 w-auto object-contain"></template>
+                                        <template x-if="selectedPaymentChannel === 'va_bri'"><img src="{{ asset('images/payments/bri.svg') }}" alt="BRI" class="h-6 w-auto object-contain"></template>
+                                        <template x-if="selectedPaymentChannel === 'va_bni'"><img src="{{ asset('images/payments/bni.svg') }}" alt="BNI" class="h-6 w-auto object-contain"></template>
+                                        <template x-if="selectedPaymentChannel === 'va_permata'"><img src="{{ asset('images/payments/permata.svg') }}" alt="Permata" class="h-6 w-auto object-contain"></template>
+                                        <template x-if="selectedPaymentChannel === 'va_cimb'"><img src="{{ asset('images/payments/cimb.svg') }}" alt="CIMB Niaga" class="h-6 w-auto object-contain"></template>
+                                        <template x-if="selectedPaymentChannel === 'va_bsi'"><img src="{{ asset('images/payments/bsi.svg') }}" alt="BSI" class="h-6 w-auto object-contain"></template>
                                     </div>
                                 </div>
 
-                                <div class="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200">
-                                    <div>
+                                <!-- VA Number Box with Instant Copy Feedback -->
+                                <div class="flex items-center justify-between bg-white p-4 rounded-2xl border-2 border-blue-100 shadow-xs gap-3">
+                                    <div class="min-w-0 flex-1">
                                         <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Nomor Rekening Virtual Account</p>
-                                        <p class="font-mono font-black text-xl text-slate-900 tracking-wider" x-text="pakasirData?.payment_number || '8801827399120019'"></p>
+                                        <p class="font-mono font-black text-lg sm:text-xl text-slate-900 tracking-wider truncate" x-text="pakasirData?.payment_number || 'Sedang memuat nomor VA...'"></p>
                                     </div>
                                     <button 
                                         type="button" 
-                                        @click="navigator.clipboard.writeText(pakasirData?.payment_number || '8801827399120019'); alert('Nomor Virtual Account berhasil disalin!');" 
-                                        class="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-[#2563EB] text-xs font-bold rounded-lg border border-blue-200 transition-colors cursor-pointer"
+                                        @click="if (pakasirData?.payment_number) { navigator.clipboard.writeText(pakasirData.payment_number); vaCopied = true; setTimeout(() => vaCopied = false, 2000); }" 
+                                        class="px-4 py-2.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer shadow-2xs"
+                                        :class="vaCopied ? 'bg-emerald-600 text-white' : 'bg-[#2563EB] hover:bg-[#1d4ed8] text-white'"
                                     >
-                                        Salin VA
+                                        <span x-text="vaCopied ? '✓ Tersalin!' : 'Salin VA'"></span>
                                     </button>
                                 </div>
 
-                                <div class="flex justify-between items-center text-xs text-slate-700 bg-amber-50/80 p-3 rounded-xl border border-amber-200">
-                                    <span>Nominal Transfer Tepat:</span>
-                                    <span class="font-black text-slate-900 text-sm" x-text="'Rp ' + formatRupiah(pakasirData?.total_payment || payableAmount)"></span>
+                                <!-- Bank Details Box -->
+                                <div class="grid grid-cols-2 gap-2 text-xs">
+                                    <div class="bg-white p-3 rounded-xl border border-slate-200">
+                                        <span class="text-[10px] text-slate-400 font-bold uppercase block">Bank Tujuan</span>
+                                        <span class="font-bold text-slate-800 text-xs" x-text="pakasirData?.bank_info?.bank_name || 'Bank Permata / VA'"></span>
+                                        <span class="text-[10px] text-[#2563EB] font-semibold block" x-show="pakasirData?.bank_info?.bank_code" x-text="'Kode Bank: ' + (pakasirData?.bank_info?.bank_code || '013')"></span>
+                                    </div>
+                                    <div class="bg-white p-3 rounded-xl border border-slate-200">
+                                        <span class="text-[10px] text-slate-400 font-bold uppercase block">Nama Penerima</span>
+                                        <span class="font-bold text-slate-800 text-xs">JUANGDEV / PAKASIR</span>
+                                        <span class="text-[10px] text-emerald-600 font-semibold block">Verifikasi 24 Jam</span>
+                                    </div>
                                 </div>
 
-                                <template x-if="pakasirData?.qr_image_url && selectedPaymentChannel !== 'va_bni' && selectedPaymentChannel !== 'va_bri' && selectedPaymentChannel !== 'va_permata'">
-                                    <div class="text-center pt-2 space-y-2">
-                                        <p class="text-[11px] font-bold text-slate-600">Atau Scan QRIS di Bawah Ini:</p>
-                                        <div class="bg-white p-2.5 inline-block rounded-xl border border-slate-200">
-                                            <img :src="pakasirData?.qr_image_url" class="w-44 h-44 mx-auto object-contain">
+                                <!-- Exact Amount Box -->
+                                <div class="flex justify-between items-center text-xs text-slate-700 bg-amber-50 p-3.5 rounded-xl border border-amber-200">
+                                    <div>
+                                        <span class="text-[10px] text-amber-800 font-bold uppercase block">Nominal Transfer Persis:</span>
+                                        <span class="font-black text-slate-900 text-base" x-text="'Rp ' + formatRupiah(pakasirData?.total_payment || payableAmount)"></span>
+                                    </div>
+                                    <button 
+                                        type="button" 
+                                        @click="navigator.clipboard.writeText(pakasirData?.total_payment || payableAmount); alert('Nominal transfer berhasil disalin!');"
+                                        class="px-2.5 py-1 bg-white hover:bg-amber-100 text-amber-900 text-[11px] font-bold rounded-lg border border-amber-300 transition-colors shrink-0 cursor-pointer"
+                                    >
+                                        Salin Nominal
+                                    </button>
+                                </div>
+
+                                <!-- Step-by-Step Transfer Guide -->
+                                <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-2.5">
+                                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                                        <span class="text-[11px] font-bold text-slate-800 uppercase tracking-wide">Panduan Cara Transfer:</span>
+                                        <div class="flex gap-1 text-[10px]">
+                                            <button 
+                                                type="button" 
+                                                @click="vaGuideTab = 'mbanking'"
+                                                :class="vaGuideTab === 'mbanking' ? 'bg-[#2563EB] text-white font-bold' : 'bg-slate-100 text-slate-600 font-semibold'"
+                                                class="px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                                            >
+                                                m-Banking
+                                            </button>
+                                            <button 
+                                                type="button" 
+                                                @click="vaGuideTab = 'atm'"
+                                                :class="vaGuideTab === 'atm' ? 'bg-[#2563EB] text-white font-bold' : 'bg-slate-100 text-slate-600 font-semibold'"
+                                                class="px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                                            >
+                                                ATM
+                                            </button>
                                         </div>
                                     </div>
+
+                                    <!-- M-Banking Guide -->
+                                    <div x-show="vaGuideTab === 'mbanking'" class="text-[11px] text-slate-600 space-y-1.5 leading-relaxed">
+                                        <p>1. Buka aplikasi m-Banking Anda (BCA Mobile, Livin Mandiri, BRImo, BNI Mobile, Permata, dll).</p>
+                                        <p>2. Pilih menu <strong>Transfer</strong> &gt; <strong>Virtual Account</strong> (atau <strong>Transfer Antar Bank</strong> dan pilih <span class="font-bold text-slate-800" x-text="pakasirData?.bank_info?.bank_name || 'Bank Permata (013)'"></span>).</p>
+                                        <p>3. Masukkan nomor Virtual Account: <strong class="font-mono text-slate-900" x-text="pakasirData?.payment_number"></strong>.</p>
+                                        <p>4. Masukkan nominal tagihan tepat <strong>Rp <span x-text="formatRupiah(pakasirData?.total_payment || payableAmount)"></span></strong>.</p>
+                                        <p>5. Konfirmasi pembayaran. Transaksi akan diverifikasi otomatis dalam beberapa detik.</p>
+                                    </div>
+
+                                    <!-- ATM Guide -->
+                                    <div x-show="vaGuideTab === 'atm'" class="text-[11px] text-slate-600 space-y-1.5 leading-relaxed" style="display:none;">
+                                        <p>1. Masukkan kartu ATM dan PIN Anda di mesin ATM terdekat.</p>
+                                        <p>2. Pilih menu <strong>Transaksi Lainnya</strong> &gt; <strong>Transfer</strong> &gt; <strong>Ke Rekening Bank Lain / Virtual Account</strong>.</p>
+                                        <p>3. Masukkan kode bank <strong x-text="pakasirData?.bank_info?.bank_code || '013'"></strong> diikuti nomor VA: <strong class="font-mono text-slate-900" x-text="pakasirData?.payment_number"></strong>.</p>
+                                        <p>4. Masukkan nominal pembayaran tepat dan selesaikan transaksi.</p>
+                                    </div>
+                                </div>
+
+                                <!-- External Gateway Portal Button -->
+                                <template x-if="pakasirData?.payment_url">
+                                    <a 
+                                        :href="pakasirData?.payment_url" 
+                                        target="_blank" 
+                                        class="w-full py-2.5 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 text-[#2563EB] text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors"
+                                    >
+                                        <span>Buka Halaman Checkout Resmi Pakasir</span>
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                    </a>
                                 </template>
+
+                                <!-- QRIS Alternate Accordion -->
+                                <div class="pt-1 text-center">
+                                    <button 
+                                        type="button" 
+                                        @click="showQrisAlt = !showQrisAlt"
+                                        class="text-xs font-bold text-[#2563EB] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                                    >
+                                        <span x-text="showQrisAlt ? '▲ Tutup Pilihan QRIS' : '▼ Atau Bayar Instan dengan Scan QRIS'"></span>
+                                    </button>
+                                    
+                                    <div x-show="showQrisAlt" class="mt-3 bg-white p-3 rounded-2xl border border-slate-200 inline-block shadow-xs" style="display:none;">
+                                        <p class="text-[10px] font-bold text-slate-500 uppercase mb-2">Scan QRIS dari Semua Bank &amp; E-Wallet</p>
+                                        <img :src="pakasirData?.qr_image_url || ('https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=' + encodeURIComponent(pakasirData?.payment_url || ''))" class="w-48 h-48 mx-auto object-contain rounded-xl">
+                                    </div>
+                                </div>
                             </div>
                         </template>
 

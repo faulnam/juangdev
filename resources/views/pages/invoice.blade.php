@@ -240,6 +240,11 @@
                 <div class="bg-gradient-to-br from-[#0A1E5E] to-[#122d78] text-white rounded-3xl p-8 sm:p-10 shadow-xl relative overflow-hidden">
                     <div class="relative z-10 space-y-6">
                         
+                        @php
+                            $ch = $order->payment_channel ?? 'qris';
+                            $isVa = str_starts_with($ch, 'va_') || str_contains($ch, 'va') || (isset($pakasirData['payment_method']) && str_ends_with($pakasirData['payment_method'], '_va'));
+                        @endphp
+
                         @if($order->payment_status === 'unpaid')
                             <div>
                                 <span class="bg-[#C7F236] text-[#0A1E5E] text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full mb-3 inline-block">
@@ -249,7 +254,7 @@
                                     Bayar DP 50% sebesar {{ $order->formatted_dp }}
                                 </h3>
                                 <p class="text-white/80 text-xs mt-1 font-medium leading-relaxed max-w-xl">
-                                    Pembayaran dapat dilakukan secara instan via QRIS (BCA, Mandiri, BRI, BNI, GoPay, OVO, ShopeePay, DANA) 24 jam terkonfirmasi otomatis.
+                                    {{ $isVa ? 'Pembayaran dapat dilakukan melalui Transfer Virtual Account (' . ($pakasirData['bank_info']['bank_name'] ?? 'Semua Bank') . ') atau QRIS dengan verifikasi otomatis 24 jam real-time.' : 'Pembayaran dapat dilakukan secara instan via QRIS (BCA, Mandiri, BRI, BNI, GoPay, OVO, ShopeePay, DANA) 24 jam terkonfirmasi otomatis.' }}
                                 </p>
                             </div>
 
@@ -257,8 +262,8 @@
                                 href="{{ route('customer.orders.show', $order->invoice_number) }}"
                                 class="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-[#C7F236] hover:bg-[#b5dd2a] text-[#0A1E5E] font-black text-base transition-all shadow-xl shadow-[#C7F236]/20"
                             >
-                                <span>Bayar DP 50% via QRIS Instan</span>
-                                <i data-lucide="qr-code" class="w-5 h-5"></i>
+                                <span>{{ $isVa ? 'Selesaikan Pembayaran via Virtual Account / QRIS' : 'Bayar DP 50% via QRIS Instan' }}</span>
+                                <i data-lucide="{{ $isVa ? 'credit-card' : 'qr-code' }}" class="w-5 h-5"></i>
                             </a>
 
                         @elseif($order->payment_status === 'dp_paid')
@@ -278,8 +283,8 @@
                                 href="{{ route('customer.orders.show', $order->invoice_number) }}"
                                 class="w-full sm:w-auto inline-flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-[#C7F236] hover:bg-[#b5dd2a] text-[#0A1E5E] font-black text-base transition-all shadow-xl shadow-[#C7F236]/20"
                             >
-                                <span>Bayar Pelunasan 50% via QRIS Instan</span>
-                                <i data-lucide="qr-code" class="w-5 h-5"></i>
+                                <span>{{ $isVa ? 'Bayar Pelunasan via Virtual Account / QRIS' : 'Bayar Pelunasan 50% via QRIS Instan' }}</span>
+                                <i data-lucide="{{ $isVa ? 'credit-card' : 'qr-code' }}" class="w-5 h-5"></i>
                             </a>
 
                         @else

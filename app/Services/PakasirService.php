@@ -39,12 +39,42 @@ class PakasirService
 
         $methodMap = [
             'qris' => 'qris',
+            'gopay' => 'qris',
+            'shopeepay' => 'qris',
+            'dana' => 'qris',
+            'ovo' => 'qris',
             'va_bni' => 'bni_va',
             'va_bri' => 'bri_va',
+            'va_cimb' => 'cimb_niaga_va',
             'va_permata' => 'permata_va',
+            'va_maybank' => 'maybank_va',
+            'va_sampoerna' => 'sampoerna_va',
+            'va_bnc' => 'bnc_va',
+            'va_atm_bersama' => 'atm_bersama_va',
+            'va_bca' => 'atm_bersama_va',
+            'va_mandiri' => 'atm_bersama_va',
+            'va_bsi' => 'atm_bersama_va',
+            'retail_indomaret' => 'qris',
+            'retail_alfamart' => 'qris',
         ];
 
         $targetMethod = $methodMap[$channel] ?? 'qris';
+
+        $bankMetadata = [
+            'va_bni' => ['bank_name' => 'Bank BNI', 'bank_code' => '009', 'guide_type' => 'bni'],
+            'va_bri' => ['bank_name' => 'Bank BRI (BRIVA)', 'bank_code' => '002', 'guide_type' => 'bri'],
+            'va_cimb' => ['bank_name' => 'Bank CIMB Niaga', 'bank_code' => '022', 'guide_type' => 'cimb'],
+            'va_permata' => ['bank_name' => 'Bank Permata', 'bank_code' => '013', 'guide_type' => 'permata'],
+            'va_maybank' => ['bank_name' => 'Bank Maybank', 'bank_code' => '016', 'guide_type' => 'maybank'],
+            'va_sampoerna' => ['bank_name' => 'Bank Sahabat Sampoerna', 'bank_code' => '523', 'guide_type' => 'sampoerna'],
+            'va_bnc' => ['bank_name' => 'Bank Neo Commerce (BNC)', 'bank_code' => '490', 'guide_type' => 'bnc'],
+            'va_bca' => ['bank_name' => 'BCA (Transfer VA Permata / ATM Bersama)', 'bank_code' => '013', 'guide_type' => 'bca_transfer'],
+            'va_mandiri' => ['bank_name' => 'Mandiri (Transfer VA Permata / ATM Bersama)', 'bank_code' => '013', 'guide_type' => 'mandiri_transfer'],
+            'va_bsi' => ['bank_name' => 'Bank Syariah Indonesia (BSI)', 'bank_code' => '013', 'guide_type' => 'bsi_transfer'],
+            'va_atm_bersama' => ['bank_name' => 'Jaringan ATM Bersama / Prima (Semua Bank)', 'bank_code' => '013', 'guide_type' => 'atm_bersama'],
+        ];
+
+        $bankInfo = $bankMetadata[$channel] ?? null;
 
         try {
             $response = Http::withoutVerifying()
@@ -76,7 +106,9 @@ class PakasirService
                         'success' => true,
                         'payment_url' => $directPayUrl,
                         'payment_method' => $payment['payment_method'] ?? $channel,
+                        'payment_channel' => $channel,
                         'payment_number' => $paymentNumber,
+                        'bank_info' => $bankInfo,
                         'total_payment' => $payment['total_payment'] ?? $amount,
                         'fee' => $payment['fee'] ?? 0,
                         'expired_at' => $payment['expired_at'] ?? null,
@@ -96,7 +128,9 @@ class PakasirService
             'success' => true,
             'payment_url' => $directPayUrl,
             'payment_method' => $channel,
+            'payment_channel' => $channel,
             'payment_number' => null,
+            'bank_info' => $bankInfo,
             'total_payment' => $amount,
             'fee' => 0,
             'expired_at' => null,

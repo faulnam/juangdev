@@ -25,6 +25,7 @@ class Order extends Model
         'dp_amount',
         'remaining_amount',
         'payment_scheme',
+        'payment_channel',
         'payment_status',
         'project_status',
         'pakasir_trx_id',

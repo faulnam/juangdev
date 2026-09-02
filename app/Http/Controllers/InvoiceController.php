@@ -115,6 +115,7 @@ class InvoiceController extends Controller
             'dp_amount' => $dp,
             'remaining_amount' => $remaining,
             'payment_scheme' => $validated['payment_scheme'],
+            'payment_channel' => $validated['payment_channel'] ?? 'qris',
             'payment_status' => 'unpaid',
             'project_status' => 'pending',
             'notes' => $validated['notes'] ?? null,
@@ -126,7 +127,7 @@ class InvoiceController extends Controller
         // WA notification is strictly sent ONLY after payment is completed (DP 50% or Full)
 
         // Generate genuine Pakasir Transaction (Live ASPI QRIS string, VA, or Direct Link)
-        $channel = $request->input('payment_channel', 'qris');
+        $channel = $request->input('payment_channel', $order->payment_channel ?? 'qris');
         $type = $isFull ? 'full' : 'dp';
         $pakasirData = PakasirService::createTransaction($order, $channel, $type);
 
@@ -156,6 +157,7 @@ class InvoiceController extends Controller
                 'dp_amount' => $order->dp_amount,
                 'remaining_amount' => $order->remaining_amount,
                 'payment_scheme' => $order->payment_scheme,
+                'payment_channel' => $order->payment_channel ?? $channel,
                 'payment_status' => $order->payment_status,
                 'project_status' => $order->project_status,
                 'notes' => $order->notes,
@@ -181,9 +183,10 @@ class InvoiceController extends Controller
 
         $settings = SiteSetting::pluck('value', 'key')->toArray();
 
-        // Generate real Pakasir transaction data for this invoice
+        // Generate real Pakasir transaction data for this invoice using its selected payment channel
         $type = ($order->payment_status === 'dp_paid') ? 'remaining' : ($order->payment_scheme === 'full_100' ? 'full' : 'dp');
-        $pakasirData = PakasirService::createTransaction($order, 'qris', $type);
+        $channel = $order->payment_channel ?? 'qris';
+        $pakasirData = PakasirService::createTransaction($order, $channel, $type);
 
         return view('pages.invoice', compact('order', 'settings', 'pakasirData'));
     }

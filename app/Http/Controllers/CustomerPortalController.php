@@ -91,11 +91,12 @@ class CustomerPortalController extends Controller
         // Check if customer already submitted testimonial
         $testimonial = Testimonial::where('name', $user->name)->latest()->first();
 
-        // Generate genuine Pakasir payment data (Live ASPI QRIS string / Link) for unpaid/pelunasan
+        // Generate genuine Pakasir payment data (Live ASPI QRIS string / VA / Link) for unpaid/pelunasan
         $pakasirData = null;
         if ($order->payment_status !== 'fully_paid') {
             $type = ($order->payment_status === 'dp_paid') ? 'remaining' : ($order->payment_scheme === 'full_100' ? 'full' : 'dp');
-            $pakasirData = \App\Services\PakasirService::createTransaction($order, 'qris', $type);
+            $channel = $order->payment_channel ?? 'qris';
+            $pakasirData = \App\Services\PakasirService::createTransaction($order, $channel, $type);
         }
 
         return view('pages.customer.order-detail', compact('user', 'order', 'settings', 'testimonial', 'pakasirData'));

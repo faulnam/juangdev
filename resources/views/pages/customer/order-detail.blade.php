@@ -329,7 +329,32 @@
 
                         <div class="flex justify-between items-start gap-4">
                             <span class="text-slate-500 shrink-0 uppercase tracking-tight">METODE PEMBAYARAN</span>
-                            <span class="rec-method font-bold text-slate-900 text-right">QRIS STANDAR INDONESIA</span>
+                            <span class="rec-method font-bold text-slate-900 text-right uppercase">
+                                @php
+                                    $ch = $order->payment_channel ?? 'qris';
+                                    $chMap = [
+                                        'qris' => 'QRIS INSTANT (SEMUA BANK & E-WALLET)',
+                                        'gopay' => 'GOPAY INSTANT',
+                                        'shopeepay' => 'SHOPEEPAY INSTANT',
+                                        'dana' => 'DANA INSTANT',
+                                        'ovo' => 'OVO INSTANT',
+                                        'va_bni' => 'BNI VIRTUAL ACCOUNT',
+                                        'va_bri' => 'BRI VIRTUAL ACCOUNT (BRIVA)',
+                                        'va_permata' => 'PERMATA VIRTUAL ACCOUNT',
+                                        'va_cimb' => 'CIMB NIAGA VIRTUAL ACCOUNT',
+                                        'va_maybank' => 'MAYBANK VIRTUAL ACCOUNT',
+                                        'va_sampoerna' => 'SAMPOERNA VIRTUAL ACCOUNT',
+                                        'va_bnc' => 'BNC VIRTUAL ACCOUNT',
+                                        'va_bca' => 'BCA VIRTUAL ACCOUNT (ATM BERSAMA)',
+                                        'va_mandiri' => 'MANDIRI VIRTUAL ACCOUNT (ATM BERSAMA)',
+                                        'va_bsi' => 'BSI VIRTUAL ACCOUNT (ATM BERSAMA)',
+                                        'va_atm_bersama' => 'ATM BERSAMA / TRANSFER BANK LAIN',
+                                        'retail_indomaret' => 'INDOMARET',
+                                        'retail_alfamart' => 'ALFAMART',
+                                    ];
+                                @endphp
+                                {{ $chMap[$ch] ?? strtoupper(str_replace('_', ' ', $ch)) }}
+                            </span>
                         </div>
 
                         <div class="flex justify-between items-start gap-4">
@@ -516,32 +541,175 @@
                             });
                     }
                 }">
+                    @php
+                        $ch = $order->payment_channel ?? 'qris';
+                        $isVa = str_starts_with($ch, 'va_') || str_contains($ch, 'va') || (isset($pakasirData['payment_method']) && str_ends_with($pakasirData['payment_method'], '_va'));
+                        $bankLogoMap = [
+                            'va_bca' => 'bca.svg',
+                            'va_mandiri' => 'mandiri.svg',
+                            'va_bri' => 'bri.svg',
+                            'va_bni' => 'bni.svg',
+                            'va_permata' => 'permata.svg',
+                            'va_cimb' => 'cimb.svg',
+                            'va_bsi' => 'bsi.svg',
+                        ];
+                        $bankLogo = $bankLogoMap[$ch] ?? null;
+                    @endphp
+
                     <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                         <div class="flex items-center gap-2">
                             <i data-lucide="credit-card" class="w-4 h-4 text-[#2563EB]"></i>
-                            <h3 class="text-sm font-bold text-slate-900">Pembayaran QRIS / Pakasir</h3>
+                            <h3 class="text-sm font-bold text-slate-900">
+                                {{ $isVa ? 'Pembayaran Virtual Account' : 'Pembayaran QRIS / Pakasir' }}
+                            </h3>
                         </div>
-                        <img src="{{ asset('images/payments/qris.svg') }}" alt="QRIS" class="h-4 w-auto">
+                        @if($isVa && $bankLogo)
+                            <img src="{{ asset('images/payments/' . $bankLogo) }}" alt="Bank" class="h-5 w-auto">
+                        @else
+                            <img src="{{ asset('images/payments/qris.svg') }}" alt="QRIS" class="h-4 w-auto">
+                        @endif
                     </div>
 
                     @if($order->payment_status !== 'fully_paid')
-                        <!-- QRIS Live Graphic Generated Directly from Pakasir -->
-                        <div class="rounded-2xl border-2 border-slate-100 p-4 bg-slate-50/60 text-center space-y-3">
-                            <div class="w-48 h-48 mx-auto bg-white rounded-2xl p-2.5 border border-slate-200 shadow-sm flex items-center justify-center">
-                                <img 
-                                    src="{{ $pakasirData['qr_image_url'] ?? ('https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' . urlencode($pakasirData['payment_url'] ?? route('invoice.show', $order->invoice_number))) }}" 
-                                    alt="QRIS Standar Pembayaran Pakasir" 
-                                    class="w-full h-full object-contain rounded-lg"
-                                >
+                        @if($isVa)
+                            <!-- 1. VIRTUAL ACCOUNT DISPLAY -->
+                            <div class="space-y-3" x-data="{ vaGuideTab: 'mbanking', vaCopied: false, showQris: false }">
+                                <!-- VA Number Box -->
+                                <div class="bg-slate-50 border-2 border-blue-100 rounded-2xl p-4 flex items-center justify-between gap-3">
+                                    <div class="min-w-0 flex-1">
+                                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Nomor Virtual Account Resmi</p>
+                                        <p class="font-mono font-black text-lg text-slate-900 tracking-wider truncate">
+                                            {{ $pakasirData['payment_number'] ?? 'Sedang memuat...' }}
+                                        </p>
+                                    </div>
+                                    <button 
+                                        type="button" 
+                                        @click="navigator.clipboard.writeText('{{ $pakasirData['payment_number'] ?? '' }}'); vaCopied = true; setTimeout(() => vaCopied = false, 2000);" 
+                                        class="px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer shadow-2xs"
+                                        :class="vaCopied ? 'bg-emerald-600 text-white' : 'bg-[#2563EB] hover:bg-[#1d4ed8] text-white'"
+                                    >
+                                        <span x-text="vaCopied ? '✓ Tersalin!' : 'Salin VA'">Salin VA</span>
+                                    </button>
+                                </div>
+
+                                <!-- Bank & Merchant Info -->
+                                <div class="grid grid-cols-2 gap-2 text-xs">
+                                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                                        <span class="text-[10px] text-slate-400 font-bold uppercase block">Bank Tujuan</span>
+                                        <span class="font-bold text-slate-800 text-xs block truncate">{{ $pakasirData['bank_info']['bank_name'] ?? 'Bank Permata / VA' }}</span>
+                                        @if(!empty($pakasirData['bank_info']['bank_code']))
+                                            <span class="text-[10px] text-[#2563EB] font-semibold block">Kode: {{ $pakasirData['bank_info']['bank_code'] }}</span>
+                                        @endif
+                                    </div>
+                                    <div class="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                                        <span class="text-[10px] text-slate-400 font-bold uppercase block">Nama Merchant</span>
+                                        <span class="font-bold text-slate-800 text-xs block">JUANGDEV / PAKASIR</span>
+                                        <span class="text-[10px] text-emerald-600 font-semibold block">Otomatis 24 Jam</span>
+                                    </div>
+                                </div>
+
+                                <!-- Exact Amount -->
+                                <div class="flex justify-between items-center text-xs bg-amber-50 p-3 rounded-xl border border-amber-200">
+                                    <div>
+                                        <span class="text-[10px] text-amber-800 font-bold uppercase block">Nominal Transfer Persis:</span>
+                                        <span class="font-black text-slate-900 text-sm">
+                                            Rp {{ number_format($pakasirData['total_payment'] ?? ($order->payment_status === 'dp_paid' ? $order->remaining_amount : $order->dp_amount), 0, ',', '.') }}
+                                        </span>
+                                    </div>
+                                    <button 
+                                        type="button" 
+                                        @click="navigator.clipboard.writeText('{{ $pakasirData['total_payment'] ?? ($order->payment_status === 'dp_paid' ? $order->remaining_amount : $order->dp_amount) }}'); alert('Nominal transfer berhasil disalin!');"
+                                        class="px-2.5 py-1 bg-white hover:bg-amber-100 text-amber-900 text-[11px] font-bold rounded-lg border border-amber-300 transition-colors shrink-0"
+                                    >
+                                        Salin
+                                    </button>
+                                </div>
+
+                                <!-- Transfer Guide -->
+                                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2">
+                                    <div class="flex items-center justify-between border-b border-slate-200 pb-1.5">
+                                        <span class="text-[10px] font-bold text-slate-700 uppercase">Panduan Transfer:</span>
+                                        <div class="flex gap-1 text-[10px]">
+                                            <button 
+                                                type="button" 
+                                                @click="vaGuideTab = 'mbanking'"
+                                                :class="vaGuideTab === 'mbanking' ? 'bg-[#2563EB] text-white font-bold' : 'bg-white text-slate-600 font-semibold'"
+                                                class="px-2 py-0.5 rounded-md transition-colors border border-slate-200"
+                                            >
+                                                m-Banking
+                                            </button>
+                                            <button 
+                                                type="button" 
+                                                @click="vaGuideTab = 'atm'"
+                                                :class="vaGuideTab === 'atm' ? 'bg-[#2563EB] text-white font-bold' : 'bg-white text-slate-600 font-semibold'"
+                                                class="px-2 py-0.5 rounded-md transition-colors border border-slate-200"
+                                            >
+                                                ATM
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div x-show="vaGuideTab === 'mbanking'" class="text-[11px] text-slate-600 space-y-1 leading-relaxed">
+                                        <p>1. Buka aplikasi m-Banking Anda.</p>
+                                        <p>2. Pilih menu <strong>Transfer</strong> &gt; <strong>Virtual Account</strong> (atau <strong>Transfer Antar Bank</strong> ke {{ $pakasirData['bank_info']['bank_name'] ?? 'Bank Permata (013)' }}).</p>
+                                        <p>3. Masukkan nomor VA: <strong class="font-mono text-slate-900">{{ $pakasirData['payment_number'] ?? '' }}</strong>.</p>
+                                        <p>4. Masukkan nominal tagihan tepat &amp; konfirmasi.</p>
+                                    </div>
+
+                                    <div x-show="vaGuideTab === 'atm'" class="text-[11px] text-slate-600 space-y-1 leading-relaxed" style="display:none;">
+                                        <p>1. Masukkan kartu ATM dan PIN Anda di mesin ATM.</p>
+                                        <p>2. Pilih <strong>Transaksi Lainnya</strong> &gt; <strong>Transfer</strong> &gt; <strong>Ke Rekening Bank Lain / Virtual Account</strong>.</p>
+                                        <p>3. Masukkan kode bank <strong>{{ $pakasirData['bank_info']['bank_code'] ?? '013' }}</strong> + nomor VA <strong>{{ $pakasirData['payment_number'] ?? '' }}</strong>.</p>
+                                        <p>4. Masukkan nominal tagihan tepat &amp; selesaikan transaksi.</p>
+                                    </div>
+                                </div>
+
+                                @if(!empty($pakasirData['payment_url']))
+                                    <a 
+                                        href="{{ $pakasirData['payment_url'] }}" 
+                                        target="_blank" 
+                                        class="w-full py-2.5 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 text-[#2563EB] text-xs font-bold inline-flex items-center justify-center gap-1.5 transition-colors"
+                                    >
+                                        <span>Buka Halaman Checkout Resmi Pakasir</span>
+                                        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                                    </a>
+                                @endif
+
+                                <!-- QRIS Alternate Accordion -->
+                                <div class="pt-1 text-center">
+                                    <button 
+                                        type="button" 
+                                        @click="showQris = !showQris"
+                                        class="text-xs font-bold text-[#2563EB] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                                    >
+                                        <span x-text="showQris ? '▲ Tutup Pilihan QRIS' : '▼ Atau Bayar Instan dengan Scan QRIS'"></span>
+                                    </button>
+                                    
+                                    <div x-show="showQris" class="mt-2 bg-white p-2.5 rounded-xl border border-slate-200 inline-block shadow-xs" style="display:none;">
+                                        <p class="text-[10px] font-bold text-slate-500 uppercase mb-1.5">Scan QRIS Semua Bank &amp; E-Wallet</p>
+                                        <img src="{{ $pakasirData['qr_image_url'] ?? ('https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' . urlencode($pakasirData['payment_url'] ?? '')) }}" class="w-40 h-40 mx-auto object-contain rounded-lg">
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <p class="text-[10px] font-black text-slate-700 uppercase tracking-wider">Pindai QRIS untuk Bayar Instan</p>
-                                <p class="text-[10px] text-slate-500 font-medium">BCA Mobile, Livin Mandiri, BRImo, BNI, GoPay, OVO, ShopeePay, DANA</p>
+                        @else
+                            <!-- 2. QRIS DISPLAY -->
+                            <div class="rounded-2xl border-2 border-slate-100 p-4 bg-slate-50/60 text-center space-y-3">
+                                <div class="w-48 h-48 mx-auto bg-white rounded-2xl p-2.5 border border-slate-200 shadow-sm flex items-center justify-center">
+                                    <img 
+                                        src="{{ $pakasirData['qr_image_url'] ?? ('https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=' . urlencode($pakasirData['payment_url'] ?? route('invoice.show', $order->invoice_number))) }}" 
+                                        alt="QRIS Standar Pembayaran Pakasir" 
+                                        class="w-full h-full object-contain rounded-lg"
+                                    >
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-black text-slate-700 uppercase tracking-wider">Pindai QRIS untuk Bayar Instan</p>
+                                    <p class="text-[10px] text-slate-500 font-medium">BCA Mobile, Livin Mandiri, BRImo, BNI, GoPay, OVO, ShopeePay, DANA</p>
+                                </div>
                             </div>
-                        </div>
+                        @endif
                     @endif
 
-                    <!-- Status Notification Banner (Gambar 5 Style) -->
+                    <!-- Status Notification Banner -->
                     <div class="p-3.5 rounded-xl border text-xs font-bold {{ $order->payment_status === 'fully_paid' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : ($order->payment_status === 'dp_paid' ? 'bg-amber-50 border-amber-200 text-amber-900' : 'bg-blue-50 border-blue-200 text-blue-900') }}">
                         @if($order->payment_status === 'fully_paid')
                             <p class="flex items-center gap-1.5">
@@ -551,12 +719,12 @@
                         @elseif($order->payment_status === 'dp_paid')
                             <p class="flex items-center gap-1.5">
                                 <i data-lucide="info" class="w-4 h-4 text-amber-600 shrink-0"></i>
-                                <span>Pembayaran DP 50% berhasil. Sisa pelunasan Rp {{ number_format($order->remaining_amount, 0, ',', '.') }} dapat dilunasi melalui pemindaian QRIS di atas.</span>
+                                <span>Pembayaran DP 50% berhasil. Sisa pelunasan Rp {{ number_format($order->remaining_amount, 0, ',', '.') }} dapat Anda selesaikan di atas.</span>
                             </p>
                         @else
                             <p class="flex items-center gap-1.5">
                                 <i data-lucide="clock" class="w-4 h-4 text-blue-600 shrink-0"></i>
-                                <span>Silakan scan QRIS di atas untuk konfirmasi pembayaran instan 24 jam otomatis.</span>
+                                <span>Silakan selesaikan pembayaran untuk verifikasi otomatis 24 jam real-time.</span>
                             </p>
                         @endif
                     </div>
