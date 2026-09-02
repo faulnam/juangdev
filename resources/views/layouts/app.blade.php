@@ -16,23 +16,41 @@
     <meta name="author" content="JuangDev">
     <link rel="canonical" href="@yield('canonical_url', url()->current())">
     
-    <!-- Open Graph / Facebook -->
+    @php
+        $rawOgImage = View::getSection('og_image', asset('logo1.png'));
+        $ogImage = $rawOgImage ? (str_starts_with($rawOgImage, 'http') ? $rawOgImage : url($rawOgImage)) : asset('logo1.png');
+        $imgExt = strtolower(pathinfo(parse_url($ogImage, PHP_URL_PATH) ?? '', PATHINFO_EXTENSION));
+        $mimeMap = [
+            'jpg' => 'image/jpeg',
+            'jpeg' => 'image/jpeg',
+            'png' => 'image/png',
+            'webp' => 'image/webp',
+            'gif' => 'image/gif',
+        ];
+        $ogImageType = $mimeMap[$imgExt] ?? 'image/png';
+        $resolvedTitle = View::getSection('og_title', View::getSection('title', 'JuangDev — Jasa Pembuatan Website & Custom Software'));
+        $resolvedDesc = View::getSection('og_description', View::getSection('meta_description', 'JuangDev membantu bisnis, startup, dan UMKM membangun website profesional, aplikasi web, toko online, dan sistem kustom berkualitas tinggi.'));
+    @endphp
+
+    <!-- Open Graph / WhatsApp / Facebook -->
     <meta property="og:site_name" content="JuangDev">
     <meta property="og:type" content="@yield('og_type', 'website')">
-    <meta property="og:title" content="@yield('og_title', View::getSection('title', 'JuangDev — Jasa Pembuatan Website & Custom Software'))">
-    <meta property="og:description" content="@yield('og_description', View::getSection('meta_description', 'JuangDev membantu bisnis, startup, dan UMKM membangun website profesional, aplikasi web, toko online, dan sistem kustom berkualitas tinggi.'))">
+    <meta property="og:title" content="{{ $resolvedTitle }}">
+    <meta property="og:description" content="{{ $resolvedDesc }}">
     <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:image" content="@yield('og_image', asset('logo1.png'))">
+    <meta property="og:image" content="{{ $ogImage }}">
+    <meta property="og:image:secure_url" content="{{ $ogImage }}">
+    <meta property="og:image:type" content="{{ $ogImageType }}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:alt" content="{{ $resolvedTitle }}">
     <meta property="og:locale" content="id_ID">
 
     <!-- Twitter Cards -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="@yield('og_title', View::getSection('title', 'JuangDev — Jasa Pembuatan Website & Custom Software'))">
-    <meta name="twitter:description" content="@yield('og_description', View::getSection('meta_description', 'JuangDev membantu bisnis, startup, dan UMKM membangun website profesional, aplikasi web, toko online, dan sistem kustom berkualitas tinggi.'))">
-    <meta name="twitter:image" content="@yield('og_image', asset('logo1.png'))">
+    <meta name="twitter:title" content="{{ $resolvedTitle }}">
+    <meta name="twitter:description" content="{{ $resolvedDesc }}">
+    <meta name="twitter:image" content="{{ $ogImage }}">
     
     <!-- Favicon & Touch Icons -->
     <link rel="icon" type="image/png" href="{{ asset('logo2.png') }}?v={{ filemtime(public_path('logo2.png')) }}">

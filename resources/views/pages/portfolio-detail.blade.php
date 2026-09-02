@@ -17,6 +17,11 @@
     $techStack = is_array($portfolio->technologies) ? $portfolio->technologies : [];
     $keyFeatures = is_array($portfolio->key_features) ? $portfolio->key_features : [];
     $gallery = is_array($portfolio->gallery) ? $portfolio->gallery : [];
+
+    $ogImage = asset('logo1.png');
+    if (!empty($portfolio->image_url)) {
+        $ogImage = str_starts_with($portfolio->image_url, 'http') ? $portfolio->image_url : asset(ltrim($portfolio->image_url, '/'));
+    }
 @endphp
 
 @section('title', $pageTitle)
@@ -24,7 +29,7 @@
 @section('og_type', 'article')
 @section('og_title', $ogTitle)
 @section('og_description', $ogDesc)
-@section('og_image', $portfolio->image_url ? (str_starts_with($portfolio->image_url, 'http') ? $portfolio->image_url : url($portfolio->image_url)) : asset('logo1.png'))
+@section('og_image', $ogImage)
 
 @section('content')
     <!-- Project Hero Header Section -->
