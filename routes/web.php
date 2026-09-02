@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\LlmsTxtController;
+use App\Http\Controllers\OgImageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,6 +52,11 @@ Route::post('/contact', [ContactPageController::class, 'submit'])->middleware('t
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/llms.txt', [LlmsTxtController::class, 'index'])->name('llms');
 Route::get('/llms-full.txt', [LlmsTxtController::class, 'full'])->name('llms.full');
+
+// Dynamic Lightweight Open Graph Images (<200KB JPEG for WhatsApp Link Previews)
+Route::get('/og-image/portfolio/{slug}', [OgImageController::class, 'portfolio'])->name('og.portfolio');
+Route::get('/og-image/blog/{slug}', [OgImageController::class, 'blog'])->name('og.blog');
+Route::get('/og-image/default', [OgImageController::class, 'defaultImage'])->name('og.default');
 
 use App\Http\Controllers\CustomerAuthController;
 use App\Http\Controllers\CustomerPortalController;

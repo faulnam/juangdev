@@ -29,7 +29,7 @@
 @section('og_type', 'article')
 @section('og_title', $ogTitle)
 @section('og_description', $ogDesc)
-@section('og_image', $ogImage)
+@section('og_image', route('og.portfolio', $portfolio->slug))
 
 @section('content')
     <!-- Project Hero Header Section -->

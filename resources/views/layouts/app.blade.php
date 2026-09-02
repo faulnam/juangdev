@@ -17,8 +17,8 @@
     <link rel="canonical" href="@yield('canonical_url', url()->current())">
     
     @php
-        $rawOgImage = View::getSection('og_image', asset('logo1.png'));
-        $ogImage = $rawOgImage ? (str_starts_with($rawOgImage, 'http') ? $rawOgImage : url($rawOgImage)) : asset('logo1.png');
+        $rawOgImage = View::getSection('og_image', route('og.default'));
+        $ogImage = $rawOgImage ? (str_starts_with($rawOgImage, 'http') ? $rawOgImage : url($rawOgImage)) : route('og.default');
         $imgExt = strtolower(pathinfo(parse_url($ogImage, PHP_URL_PATH) ?? '', PATHINFO_EXTENSION));
         $mimeMap = [
             'jpg' => 'image/jpeg',
@@ -27,7 +27,7 @@
             'webp' => 'image/webp',
             'gif' => 'image/gif',
         ];
-        $ogImageType = $mimeMap[$imgExt] ?? 'image/png';
+        $ogImageType = $mimeMap[$imgExt] ?? 'image/jpeg';
         $resolvedTitle = View::getSection('og_title', View::getSection('title', 'JuangDev — Jasa Pembuatan Website & Custom Software'));
         $resolvedDesc = View::getSection('og_description', View::getSection('meta_description', 'JuangDev membantu bisnis, startup, dan UMKM membangun website profesional, aplikasi web, toko online, dan sistem kustom berkualitas tinggi.'));
     @endphp
