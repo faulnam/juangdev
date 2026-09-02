@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+<html lang="id" class="scroll-smooth" prefix="og: https://ogp.me/ns#">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,6 +31,12 @@
         $resolvedTitle = View::getSection('og_title', View::getSection('title', 'JuangDev — Jasa Pembuatan Website & Custom Software'));
         $resolvedDesc = View::getSection('og_description', View::getSection('meta_description', 'JuangDev membantu bisnis, startup, dan UMKM membangun website profesional, aplikasi web, toko online, dan sistem kustom berkualitas tinggi.'));
     @endphp
+
+    <!-- Schema.org Microdata & WhatsApp Direct Crawl Tags -->
+    <meta itemprop="name" content="{{ $resolvedTitle }}">
+    <meta itemprop="description" content="{{ $resolvedDesc }}">
+    <meta itemprop="image" content="{{ $ogImage }}">
+    <link rel="image_src" href="{{ $ogImage }}">
 
     <!-- Open Graph / WhatsApp / Facebook -->
     <meta property="og:site_name" content="JuangDev">
