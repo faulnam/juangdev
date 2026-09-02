@@ -171,6 +171,11 @@
                         <div class="mb-8">
                             <p class="text-xs text-white/60 uppercase tracking-wider font-semibold mb-1">Mulai Dari</p>
                             <p class="text-3xl sm:text-4xl font-black text-[#C7F236]" x-text="currentTab.price"></p>
+                            <template x-if="currentTab.id === 'custom-app'">
+                                <p class="text-xs text-white/75 mt-2 font-medium leading-relaxed">
+                                    Mulai Rp199.000 — harga final tergantung kompleksitas fitur, dikonfirmasi setelah konsultasi
+                                </p>
+                            </template>
                         </div>
 
                         <div class="flex flex-wrap items-center gap-3.5">

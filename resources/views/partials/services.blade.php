@@ -98,6 +98,11 @@
                     <div class="mt-6 flex flex-col gap-3">
                         <div class="text-xs {{ $style['price'] }}">
                             Mulai dari <span class="text-base {{ $style['priceValue'] }}">{{ $service->starting_price ?? '99K' }}</span>
+                            @if($service->slug === 'custom-app' || $service->slug === 'aplikasi-web')
+                                <p class="text-[10px] opacity-80 mt-1 leading-tight font-medium">
+                                    Harga final tergantung kompleksitas fitur, dikonfirmasi setelah konsultasi
+                                </p>
+                            @endif
                         </div>
                         
                         <a 

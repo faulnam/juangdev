@@ -132,6 +132,11 @@
                                         </span>
                                     @endif
                                 </div>
+                                @if($catKey === 'custom-app')
+                                    <p class="text-[11px] leading-relaxed mt-2.5 font-medium {{ $isPopular ? 'text-[#0A1E5E]/80' : 'text-slate-500' }}">
+                                        Mulai Rp{{ $plan->price }} — harga final tergantung kompleksitas fitur, dikonfirmasi setelah konsultasi
+                                    </p>
+                                @endif
                             </div>
 
                             <!-- Features List -->

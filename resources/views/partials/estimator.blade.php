@@ -47,6 +47,13 @@
         attachmentPreview: null,
         isDragging: false,
         attachmentError: null,
+        tierSwitchModalOpen: false,
+        pendingBoilerplate: null,
+        pendingOldPlan: null,
+        pendingNewPlan: null,
+        agreedToTerms: false,
+        termsModalOpen: false,
+        privacyModalOpen: false,
 
         isVaPayment() {
             const ch = (this.selectedPaymentChannel || this.createdOrder?.payment_channel || this.pakasirData?.payment_channel || '').toString();
@@ -232,7 +239,57 @@
             if (!this.selectedBoilerplateId) return null;
             return this.portfolios.find(p => p.id === this.selectedBoilerplateId && p.is_boilerplate) || null;
         },
+        requestSelectBoilerplate(bp) {
+            if (!bp || !bp.is_boilerplate) {
+                this.selectedBoilerplateId = null;
+                this.boilerplateDropdownOpen = false;
+                return;
+            }
+
+            const bpCat = this.normalizeCategory(bp.category);
+            const srv = this.services.find(s => this.normalizeCategory(s.slug) === bpCat);
+            const plansForSrv = srv ? this.pricingPlans.filter(p => p.category === srv.slug) : this.activePlans;
+
+            if (bp.package_tier) {
+                const matchingPlan = plansForSrv.find(pl => pl.name.toLowerCase() === bp.package_tier.toLowerCase());
+                if (matchingPlan && matchingPlan.id !== this.selectedPlanId) {
+                    this.pendingBoilerplate = bp;
+                    this.pendingOldPlan = this.selectedPlan;
+                    this.pendingNewPlan = matchingPlan;
+                    this.tierSwitchModalOpen = true;
+                    this.boilerplateDropdownOpen = false;
+                    this.$nextTick(() => {
+                        if (window.lucide) window.lucide.createIcons();
+                    });
+                    return;
+                }
+            }
+
+            this.applyBoilerplate(bp);
+        },
+
+        confirmTierSwitch() {
+            if (this.pendingBoilerplate) {
+                this.applyBoilerplate(this.pendingBoilerplate);
+            }
+            this.tierSwitchModalOpen = false;
+            this.pendingBoilerplate = null;
+            this.pendingOldPlan = null;
+            this.pendingNewPlan = null;
+        },
+
+        cancelTierSwitch() {
+            this.tierSwitchModalOpen = false;
+            this.pendingBoilerplate = null;
+            this.pendingOldPlan = null;
+            this.pendingNewPlan = null;
+        },
+
         selectBoilerplate(bp) {
+            this.requestSelectBoilerplate(bp);
+        },
+
+        applyBoilerplate(bp) {
             if (!bp || !bp.is_boilerplate) {
                 this.selectedBoilerplateId = null;
                 this.boilerplateDropdownOpen = false;
@@ -353,6 +410,11 @@
             return new Intl.NumberFormat('id-ID').format(num || 0);
         },
         goToPaymentMethods() {
+            if (!this.agreedToTerms) {
+                alert('Harap setujui Syarat & Ketentuan serta Kebijakan Privasi JuangDev sebelum melanjutkan ke pemilihan metode pembayaran.');
+                return;
+            }
+
             if (!this.currentUser) {
                 window.dispatchEvent(new CustomEvent('open-auth-modal', {
                     detail: {
@@ -614,20 +676,28 @@
                     
                     <template x-if="discountSavings > 0">
                         <div class="flex items-center justify-between text-xs font-semibold text-slate-400">
-                            <span>Harga Normal:</span>
+                            <span>Harga Standar:</span>
                             <span class="line-through">Rp <span x-text="formatRupiah(originalTotalPrice)"></span></span>
                         </div>
                     </template>
                     <template x-if="discountSavings > 0">
-                        <div class="flex items-center justify-between text-xs font-bold text-rose-600 pb-1 border-b border-slate-100">
-                            <span>Hemat Diskon:</span>
-                            <span>- Rp <span x-text="formatRupiah(discountSavings)"></span></span>
+                        <div class="space-y-1 pb-1.5 border-b border-slate-100">
+                            <div class="flex items-center justify-between text-xs font-bold text-rose-600">
+                                <span>Hemat Diskon:</span>
+                                <span>- Rp <span x-text="formatRupiah(discountSavings)"></span></span>
+                            </div>
+                            <p class="text-[10px] text-slate-400 font-normal leading-tight">Harga estimator sudah termasuk potongan khusus pemesanan online</p>
                         </div>
                     </template>
 
-                    <div class="text-3xl sm:text-4xl lg:text-5xl font-black text-[#1a1f3c]">
-                        <span class="text-xl font-bold text-slate-400">Rp</span> 
-                        <span x-text="formatRupiah(totalPrice)">0</span>
+                    <div>
+                        <div class="text-3xl sm:text-4xl lg:text-5xl font-black text-[#1a1f3c]">
+                            <span class="text-xl font-bold text-slate-400">Rp</span> 
+                            <span x-text="formatRupiah(totalPrice)">0</span>
+                        </div>
+                        <p class="text-[10px] text-slate-400 font-medium leading-tight mt-1.5 italic">
+                            *Estimasi awal, dapat berubah sesuai kesepakatan akhir di sesi konsultasi
+                        </p>
                     </div>
                     <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#2563EB]">
                         <span>Uang Muka (DP 50%):</span>
@@ -817,6 +887,11 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <p class="text-[11px] text-amber-800 bg-amber-50 border border-amber-200/80 px-3.5 py-2.5 rounded-xl mt-2 leading-relaxed font-medium">
+                                <i data-lucide="info" class="w-3.5 h-3.5 inline mr-1 text-amber-600 stroke-[2.5]"></i>
+                                Mulai Rp199.000 — harga final tergantung kompleksitas fitur, dikonfirmasi setelah konsultasi
+                            </p>
                         </div>
                     </div>
 
@@ -955,7 +1030,7 @@
                                 <!-- Loop Matching Boilerplates -->
                                 <template x-for="bp in availableBoilerplates.filter(p => !searchBp || p.title.toLowerCase().includes(searchBp.toLowerCase()) || (p.description || '').toLowerCase().includes(searchBp.toLowerCase()))" :key="bp.id">
                                     <div 
-                                        @click="selectBoilerplate(bp)"
+                                        @click="requestSelectBoilerplate(bp)"
                                         :class="selectedBoilerplateId === bp.id ? 'bg-blue-50/90 border-[#2563EB] ring-1 ring-[#2563EB]' : 'border-slate-100 hover:bg-slate-50 hover:border-slate-200'"
                                         class="flex items-center justify-between p-3 rounded-xl border-2 cursor-pointer transition-all group text-left gap-2.5 min-w-0"
                                     >
@@ -1009,7 +1084,7 @@
                                         </p>
                                         <template x-for="bp in allCategoryBoilerplates.filter(p => !availableBoilerplates.some(ab => ab.id === p.id) && (!searchBp || p.title.toLowerCase().includes(searchBp.toLowerCase())))" :key="'other-' + bp.id">
                                             <div 
-                                                @click="selectBoilerplate(bp)"
+                                                @click="requestSelectBoilerplate(bp)"
                                                 class="flex items-center justify-between p-2.5 rounded-xl border border-dashed border-slate-200 hover:border-blue-300 hover:bg-blue-50/50 cursor-pointer transition-all mb-1.5 text-left opacity-85 hover:opacity-100 gap-2 min-w-0"
                                             >
                                                 <div class="flex items-center gap-2.5 min-w-0 flex-1">
@@ -1200,15 +1275,15 @@
                         <div class="mb-6">
                             <label class="block text-[11px] font-bold text-slate-600 mb-1.5 flex items-center justify-between">
                                 <span>Catatan / Spesifikasi Proyek (Opsional)</span>
-                                <span class="text-[10px] font-semibold" :class="(formData.details?.length || 0) >= 100 ? 'text-rose-600 font-bold' : 'text-slate-400'">
-                                    <span x-text="formData.details ? formData.details.length : 0"></span>/100 karakter
+                                <span class="text-[10px] font-semibold" :class="(formData.details?.length || 0) >= 500 ? 'text-rose-600 font-bold' : 'text-slate-400'">
+                                    <span x-text="formData.details ? formData.details.length : 0"></span>/500 karakter
                                 </span>
                             </label>
                             <textarea 
                                 x-model="formData.details"
                                 rows="3"
-                                maxlength="100"
-                                placeholder="Tuliskan catatan singkat proyek Anda (maksimal 100 karakter)..."
+                                maxlength="500"
+                                placeholder="Tuliskan catatan atau kebutuhan khusus proyek Anda (maksimal 500 karakter)..."
                                 class="w-full px-5 py-3.5 rounded-xl border-2 border-slate-100 bg-[#f8f9fc] text-[0.95rem] font-medium text-[#1a1f3c] placeholder:text-slate-400 focus:outline-none focus:border-[#2563EB] resize-none"
                             ></textarea>
 
@@ -1216,7 +1291,7 @@
                             <div class="mt-2.5 p-3 rounded-xl bg-amber-50/90 border border-amber-200/90 flex items-start gap-2.5 text-xs text-amber-900 leading-relaxed shadow-2xs">
                                 <i data-lucide="info" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
                                 <p class="font-medium text-[11px]">
-                                    <strong class="font-bold text-amber-950">Catatan:</strong> Maksimal 100 karakter. Jika Anda memiliki instruksi yang panjang, brief detail, atau file <i>guideline</i> proyek, dimohon untuk melampirkannya pada bagian berkas di bawah ini.
+                                    <strong class="font-bold text-amber-950">Catatan:</strong> Maksimal 500 karakter. Jika Anda memiliki instruksi yang panjang, brief detail, atau file <i>guideline</i> proyek, dimohon untuk melampirkannya pada bagian berkas di bawah ini.
                                 </p>
                             </div>
 
@@ -1311,11 +1386,35 @@
                             </div>
                         </div>
 
+                        <!-- Terms & Conditions Agreement Checkbox -->
+                        <div class="pt-2">
+                            <label class="flex items-start gap-3 p-4 rounded-2xl border-2 transition-all cursor-pointer text-left select-none"
+                                :class="agreedToTerms ? 'border-blue-300 bg-blue-50/50 shadow-xs' : 'border-slate-200 bg-slate-50/70 hover:bg-slate-50 hover:border-slate-300'"
+                            >
+                                <input 
+                                    type="checkbox" 
+                                    x-model="agreedToTerms" 
+                                    class="mt-1 w-4 h-4 rounded text-[#2563EB] focus:ring-[#2563EB] border-slate-300 shrink-0 cursor-pointer accent-[#2563EB]"
+                                >
+                                <span class="text-xs sm:text-[0.825rem] text-slate-700 leading-relaxed font-medium">
+                                    Saya menyetujui 
+                                    <button type="button" @click.stop="termsModalOpen = true" class="text-[#2563EB] font-bold hover:underline cursor-pointer">Syarat &amp; Ketentuan</button> 
+                                    dan 
+                                    <button type="button" @click.stop="privacyModalOpen = true" class="text-[#2563EB] font-bold hover:underline cursor-pointer">Kebijakan Privasi</button> 
+                                    JuangDev.
+                                </span>
+                            </label>
+                        </div>
+
                         <!-- Single Submit Button: "Pilih Metode Pembayaran" -->
                         <button 
                             type="button"
                             @click="goToPaymentMethods()"
-                            class="w-full flex items-center justify-center gap-2 rounded-xl py-4 text-sm font-black transition-all duration-300 bg-[#2563EB] text-white hover:bg-[#1d4ed8] shadow-lg shadow-[#2563EB]/25"
+                            :disabled="!agreedToTerms"
+                            :class="!agreedToTerms 
+                                ? 'opacity-40 cursor-not-allowed bg-slate-400 text-white shadow-none' 
+                                : 'bg-[#2563EB] text-white hover:bg-[#1d4ed8] shadow-lg shadow-[#2563EB]/25 cursor-pointer active:scale-[0.99]'"
+                            class="w-full flex items-center justify-center gap-2 rounded-xl py-4 text-sm font-black transition-all duration-300"
                         >
                             <span>Pilih Metode Pembayaran</span>
                             <i data-lucide="arrow-right" class="w-4 h-4"></i>
@@ -2208,6 +2307,270 @@
 
             </div>
 
+        </div>
+    </div>
+
+    <!-- 1. Tier Switch Confirmation Modal -->
+    <div 
+        x-show="tierSwitchModalOpen" 
+        x-cloak 
+        class="fixed inset-0 z-[999] flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+        role="dialog"
+        aria-modal="true"
+    >
+        <!-- Backdrop -->
+        <div 
+            x-show="tierSwitchModalOpen"
+            x-transition:enter="ease-out duration-300"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="ease-in duration-200"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            @click="cancelTierSwitch()" 
+            class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm transition-opacity"
+        ></div>
+
+        <!-- Modal Dialog Card -->
+        <div 
+            x-show="tierSwitchModalOpen"
+            x-transition:enter="ease-out duration-300"
+            x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+            x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+            x-transition:leave="ease-in duration-200"
+            x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+            x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+            class="relative w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-100 text-left overflow-hidden z-10"
+        >
+            <div class="flex items-start gap-4 mb-5">
+                <div class="w-12 h-12 rounded-2xl bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0 shadow-xs border border-blue-100">
+                    <i data-lucide="arrow-left-right" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg sm:text-xl font-black text-slate-900 leading-tight">
+                        Konfirmasi Perubahan Paket
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-1 font-medium">
+                        Template yang Anda pilih berada pada tingkat paket yang berbeda.
+                    </p>
+                </div>
+            </div>
+
+            <template x-if="pendingBoilerplate && pendingNewPlan">
+                <div class="space-y-4">
+                    <!-- Template Card Preview -->
+                    <div class="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                        <img 
+                            :src="pendingBoilerplate.image_url || '/placeholder.png'" 
+                            :alt="pendingBoilerplate.title"
+                            class="w-14 h-14 object-cover rounded-xl border border-slate-200 bg-white shrink-0 shadow-2xs"
+                            onerror="this.src='/placeholder.png'"
+                        >
+                        <div class="min-w-0 flex-1">
+                            <p class="text-xs font-bold text-slate-900 truncate" x-text="pendingBoilerplate.title"></p>
+                            <span class="inline-block text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-blue-100 text-[#2563EB] mt-1" x-text="'Paket ' + (pendingBoilerplate.package_tier || pendingNewPlan.name)"></span>
+                        </div>
+                    </div>
+
+                    <!-- Explanation Box -->
+                    <div class="p-4 rounded-2xl bg-blue-50/70 border border-blue-100 text-xs sm:text-sm text-slate-700 leading-relaxed space-y-2">
+                        <p>
+                            Template ini termasuk <strong class="text-[#2563EB]" x-text="'Paket ' + pendingNewPlan.name + ' (Rp ' + formatRupiah(parsePriceString(pendingNewPlan.price)) + ')'"></strong>.
+                        </p>
+                        <p>
+                            Memilih template ini akan mengubah paket Anda dari <strong class="text-slate-900" x-text="pendingOldPlan ? pendingOldPlan.name : 'Paket Sebelumnya'"></strong> ke <strong class="text-slate-900" x-text="pendingNewPlan.name"></strong>. Total biaya akan berubah dari <span class="line-through text-slate-400" x-text="pendingOldPlan ? 'Rp ' + formatRupiah(parsePriceString(pendingOldPlan.price)) : ''"></span> menjadi <strong class="text-[#2563EB] font-black" x-text="'Rp ' + formatRupiah(parsePriceString(pendingNewPlan.price))"></strong>. Lanjutkan?
+                        </p>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="flex items-center justify-end gap-3 pt-2">
+                        <button 
+                            type="button" 
+                            @click="cancelTierSwitch()"
+                            class="px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs sm:text-sm font-bold transition-all cursor-pointer"
+                        >
+                            Batal
+                        </button>
+                        <button 
+                            type="button" 
+                            @click="confirmTierSwitch()"
+                            class="px-6 py-2.5 rounded-xl bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-xs sm:text-sm font-black transition-all shadow-md shadow-[#2563EB]/25 cursor-pointer flex items-center gap-1.5"
+                        >
+                            <span>Ya, Ganti Paket</span>
+                            <i data-lucide="check" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <!-- 2. Syarat & Ketentuan Modal -->
+    <div 
+        x-show="termsModalOpen" 
+        x-cloak 
+        class="fixed inset-0 z-[999] flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+        role="dialog"
+        aria-modal="true"
+    >
+        <div 
+            x-show="termsModalOpen"
+            x-transition:enter="ease-out duration-300"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="ease-in duration-200"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            @click="termsModalOpen = false" 
+            class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm transition-opacity"
+        ></div>
+
+        <div 
+            x-show="termsModalOpen"
+            x-transition:enter="ease-out duration-300"
+            x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+            x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+            x-transition:leave="ease-in duration-200"
+            x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+            x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+            class="relative w-full max-w-2xl bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-100 text-left overflow-hidden z-10 max-h-[85vh] flex flex-col"
+        >
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center">
+                        <i data-lucide="file-text" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-black text-slate-900">Syarat &amp; Ketentuan Layanan</h3>
+                        <p class="text-xs text-slate-500 font-medium">Ketentuan resmi pengerjaan proyek JuangDev</p>
+                    </div>
+                </div>
+                <button 
+                    type="button" 
+                    @click="termsModalOpen = false"
+                    class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-sm font-bold transition-all cursor-pointer"
+                >
+                    ✕
+                </button>
+            </div>
+
+            <div class="overflow-y-auto pr-2 py-4 space-y-4 text-xs sm:text-sm text-slate-600 leading-relaxed flex-1">
+                <div class="p-4 rounded-2xl bg-blue-50/50 border border-blue-100 space-y-1">
+                    <h4 class="font-bold text-slate-900 text-sm">1. Skema Pembayaran &amp; Uang Muka (DP 50%)</h4>
+                    <p>Pengerjaan proyek resmi dimulai setelah Uang Muka (DP 50%) terverifikasi oleh sistem pembayaran atau transfer bank resmi. Sisa pelunasan (50%) dibayarkan setelah seluruh proses pengembangan dan demo website disetujui, sebelum serah terima akses penuh / source code / domain.</p>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
+                    <h4 class="font-bold text-slate-900 text-sm">2. Timeline &amp; Waktu Pengerjaan</h4>
+                    <p>Estimasi waktu pengerjaan dihitung sejak materi proyek (konten, logo, teks, gambar) telah diterima secara lengkap oleh tim JuangDev. Keterlambatan penyerahan materi dari pihak klien dapat mempengaruhi jadwal rilis proyek.</p>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
+                    <h4 class="font-bold text-slate-900 text-sm">3. Kebijakan Revisi &amp; Garansi Purna Jual</h4>
+                    <p>Setiap paket sudah mencakup garansi revisi minor (penyesuaian teks, warna, tata letak konten) hingga 3x selama masa pengerjaan, serta garansi perbaikan bug / kendala teknis selama 30 hari kalender setelah serah terima.</p>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
+                    <h4 class="font-bold text-slate-900 text-sm">4. Hak Cipta &amp; Kepemilikan Source Code</h4>
+                    <p>Setelah pelunasan 100% selesai dilakukan, seluruh hak akses administratif, kredensial hosting/domain, dan source code menjadi hak milik penuh klien tanpa biaya lisensi berkala yang tersembunyi.</p>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-blue-50/60 border border-blue-100 space-y-1.5">
+                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                        <h4 class="font-bold text-slate-900 text-sm">5. Biaya Pemeliharaan &amp; Perpanjangan (Maintenance)</h4>
+                        <span class="text-[10px] font-black bg-[#2563EB] text-white px-2.5 py-0.5 rounded-full uppercase shrink-0">Rp 200.000 / Tahun</span>
+                    </div>
+                    <p>Biaya pemeliharaan server &amp; sistem (maintenance) adalah <strong>Rp 200.000 / tahun</strong>, yang mulai dihitung <strong>1 tahun setelah tanggal serah terima proyek selesai</strong>. Biaya ini murni untuk perpanjangan pemeliharaan server/sistem (tidak termasuk biaya sewa nama domain atau penambahan fitur baru).</p>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-4 flex items-center justify-end shrink-0">
+                <button 
+                    type="button" 
+                    @click="termsModalOpen = false; agreedToTerms = true;"
+                    class="px-6 py-2.5 rounded-xl bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-xs sm:text-sm font-bold shadow-md transition-all cursor-pointer"
+                >
+                    Saya Mengerti &amp; Setuju
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Kebijakan Privasi Modal -->
+    <div 
+        x-show="privacyModalOpen" 
+        x-cloak 
+        class="fixed inset-0 z-[999] flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+        role="dialog"
+        aria-modal="true"
+    >
+        <div 
+            x-show="privacyModalOpen"
+            x-transition:enter="ease-out duration-300"
+            x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100"
+            x-transition:leave="ease-in duration-200"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
+            @click="privacyModalOpen = false" 
+            class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm transition-opacity"
+        ></div>
+
+        <div 
+            x-show="privacyModalOpen"
+            x-transition:enter="ease-out duration-300"
+            x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+            x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+            x-transition:leave="ease-in duration-200"
+            x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+            x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+            class="relative w-full max-w-2xl bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-100 text-left overflow-hidden z-10 max-h-[85vh] flex flex-col"
+        >
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-[#2563EB] flex items-center justify-center">
+                        <i data-lucide="shield-check" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-black text-slate-900">Kebijakan Privasi &amp; Data</h3>
+                        <p class="text-xs text-slate-500 font-medium">Perlindungan data &amp; kerahasiaan proyek JuangDev</p>
+                    </div>
+                </div>
+                <button 
+                    type="button" 
+                    @click="privacyModalOpen = false"
+                    class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center text-sm font-bold transition-all cursor-pointer"
+                >
+                    ✕
+                </button>
+            </div>
+
+            <div class="overflow-y-auto pr-2 py-4 space-y-4 text-xs sm:text-sm text-slate-600 leading-relaxed flex-1">
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
+                    <h4 class="font-bold text-slate-900 text-sm">1. Kerahasiaan Data &amp; Dokumen Proyek</h4>
+                    <p>Semua informasi, dokumen brief, aset materi, dan basis data yang Anda berikan kepada JuangDev diperlakukan secara rahasia dan hanya digunakan untuk keperluan perancangan serta pengembangan sistem Anda.</p>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
+                    <h4 class="font-bold text-slate-900 text-sm">2. Keamanan Pembayaran</h4>
+                    <p>Transaksi digital diproses melalui mitra payment gateway berizin resmi (Pakasir) dengan enkripsi data standar industri. JuangDev tidak pernah menyimpan data PIN atau kredensial perbankan pribadi klien.</p>
+                </div>
+
+                <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
+                    <h4 class="font-bold text-slate-900 text-sm">3. Non-Disclosure Agreement (NDA)</h4>
+                    <p>Untuk proyek Custom Web App atau sistem internal enterprise berskala besar, JuangDev siap menandatangani perjanjian kerahasiaan (NDA) resmi sebelum proses pengerjaan dimulai.</p>
+                </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-4 flex items-center justify-end shrink-0">
+                <button 
+                    type="button" 
+                    @click="privacyModalOpen = false; agreedToTerms = true;"
+                    class="px-6 py-2.5 rounded-xl bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-xs sm:text-sm font-bold shadow-md transition-all cursor-pointer"
+                >
+                    Saya Mengerti &amp; Setuju
+                </button>
+            </div>
         </div>
     </div>
 </section>

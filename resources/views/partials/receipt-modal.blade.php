@@ -201,6 +201,9 @@
             <p class="text-[10px] text-slate-600 font-bold uppercase tracking-wider">
                 &copy; {{ date('Y') }} JUANG SOLUSI DIGITAL (JUANGDEV)
             </p>
+            <p class="text-[9px] text-slate-500 leading-relaxed font-mono">
+                *Bebas biaya maintenance 1 thn sejak serah terima. Perpanjangan maintenance thn berikutnya: Rp 200.000/thn (pure maintenance).
+            </p>
             <p class="text-[9px] text-slate-400 leading-relaxed font-mono">
                 Bukti transaksi ini diterbitkan secara elektronik dan sah secara hukum perundang-undangan Republik Indonesia.
             </p>

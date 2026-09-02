@@ -417,10 +417,6 @@
                             <div class="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-[#2563EB]/30 blur-2xl pointer-events-none"></div>
 
                             <div class="relative z-10">
-                                <span class="inline-block bg-[#C7F236] text-[#0A1E5E] text-[10px] font-extrabold rounded-full px-3 py-1 mb-3 uppercase tracking-wider">
-                                    Solusi Bisnis Digital
-                                </span>
-                                
                                 <h4 class="text-xl font-black text-white leading-tight mb-2">
                                     Ingin Membangun Website Seperti Ini?
                                 </h4>

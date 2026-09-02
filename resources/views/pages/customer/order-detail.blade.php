@@ -256,6 +256,46 @@
                     </div>
                 </div>
 
+                <!-- Annual Maintenance & Renewal Info Card -->
+                <div class="bg-gradient-to-br from-blue-50/80 via-white to-slate-50 rounded-3xl p-6 border border-blue-100 shadow-sm space-y-3.5">
+                    <div class="flex items-center justify-between gap-3 flex-wrap border-b border-blue-100/80 pb-3">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-xl bg-[#2563EB] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                                <i data-lucide="wrench" class="w-4 h-4"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-black text-slate-900">Biaya Pemeliharaan (Maintenance Tahunan)</h4>
+                                <p class="text-[11px] text-slate-500 font-medium">Dihitung 1 tahun sejak tanggal serah terima proyek selesai</p>
+                            </div>
+                        </div>
+                        <span class="text-[11px] font-black bg-[#2563EB] text-white px-3 py-1 rounded-full uppercase tracking-wide shadow-2xs">
+                            Rp 200.000 / Tahun
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-700 font-medium pt-1">
+                        <div class="flex items-start gap-2.5 bg-white p-3 rounded-2xl border border-slate-200/70">
+                            <div class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 mt-0.5">
+                                <i data-lucide="check" class="w-3 h-3 stroke-[3]"></i>
+                            </div>
+                            <div class="leading-relaxed">
+                                <span class="font-bold text-slate-900 block">Tahun Pertama (Gratis)</span>
+                                Bebas biaya maintenance selama 1 tahun penuh terhitung sejak proyek resmi diserahterimakan.
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-2.5 bg-white p-3 rounded-2xl border border-slate-200/70">
+                            <div class="w-5 h-5 rounded-full bg-blue-100 text-[#2563EB] flex items-center justify-center shrink-0 mt-0.5">
+                                <i data-lucide="refresh-cw" class="w-3 h-3 stroke-[3]"></i>
+                            </div>
+                            <div class="leading-relaxed">
+                                <span class="font-bold text-slate-900 block">Tahun Berikutnya (Rp 200rb/thn)</span>
+                                Pure biaya perpanjangan pemeliharaan server &amp; sistem (di luar domain / fitur baru).
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Official Visible E-Receipt Card (Formal Struk Slip Style - No Outer Border) -->
                 <div id="receipt-print-area" class="receipt-card bg-white p-4 sm:p-6 relative text-slate-900 shadow-none overflow-hidden space-y-3.5" style="font-family: 'Courier New', Courier, 'Courier Prime', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;">
                     

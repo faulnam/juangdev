@@ -15,10 +15,6 @@
             <div class="absolute bottom-0 left-0 w-80 h-80 bg-[#2563EB]/40 rounded-full blur-[100px] pointer-events-none"></div>
 
             <div class="relative z-10 max-w-3xl mx-auto">
-                <span class="inline-block bg-[#C7F236] text-[#0A1E5E] text-xs font-black uppercase tracking-wider px-4 py-1.5 rounded-full mb-6 shadow-md">
-                    Siap Memulai?
-                </span>
-                
                 <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight tracking-tight mb-6">
                     Wujudkan Website Impian Bisnis Anda Bersama <span class="text-[#C7F236] font-serif italic">JuangDev</span>
                 </h2>

@@ -46,9 +46,6 @@
                 <div class="absolute -left-20 -bottom-20 w-72 h-72 bg-[#C7F236]/10 rounded-full blur-3xl pointer-events-none"></div>
 
                 <div class="relative z-10 max-w-2xl mx-auto">
-                    <span class="inline-block text-xs font-bold uppercase tracking-wider text-[#C7F236] bg-white/10 px-3.5 py-1 rounded-full mb-4">
-                        Punya Spesifikasi Khusus?
-                    </span>
                     <h3 class="text-2xl sm:text-3xl font-black mb-4">
                         Butuh Konsultasi Kustom &amp; Penawaran Khusus?
                     </h3>

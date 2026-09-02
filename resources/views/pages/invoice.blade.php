@@ -124,38 +124,27 @@
                     </div>
                 </div>
 
-                @if($order->notes || $order->attachment_path)
-                    <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/90 space-y-3">
-                        @if($order->notes)
-                            <div>
-                                <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Catatan / Spesifikasi Proyek dari Klien</h4>
-                                <p class="text-xs text-slate-700 font-medium leading-relaxed bg-white p-3 rounded-xl border border-slate-200">
-                                    "{{ $order->notes }}"
-                                </p>
-                            </div>
-                        @endif
-
-                        @if($order->attachment_path)
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 {{ $order->notes ? 'border-t border-slate-200/60' : '' }}">
-                                <div class="flex items-center gap-2.5 min-w-0">
-                                    <div class="w-8 h-8 rounded-lg bg-blue-100 text-[#2563EB] flex items-center justify-center shrink-0">
-                                        <i data-lucide="paperclip" class="w-4 h-4"></i>
-                                    </div>
-                                    <div class="min-w-0">
-                                        <p class="text-xs font-bold text-slate-900 truncate">{{ $order->attachment_name }}</p>
-                                        <p class="text-[10px] text-slate-400 font-medium">{{ $order->formatted_attachment_size }}</p>
-                                    </div>
+                @if($order->attachment_path)
+                    <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/90">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <div class="w-8 h-8 rounded-lg bg-blue-100 text-[#2563EB] flex items-center justify-center shrink-0">
+                                    <i data-lucide="paperclip" class="w-4 h-4"></i>
                                 </div>
-                                <a 
-                                    href="{{ $order->attachment_url }}" 
-                                    target="_blank" 
-                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:border-blue-300 text-[#2563EB] text-xs font-bold shadow-2xs transition-all shrink-0"
-                                >
-                                    <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                                    <span>Unduh Berkas Lampiran</span>
-                                </a>
+                                <div class="min-w-0">
+                                    <p class="text-xs font-bold text-slate-900 truncate">{{ $order->attachment_name }}</p>
+                                    <p class="text-[10px] text-slate-400 font-medium">{{ $order->formatted_attachment_size }}</p>
+                                </div>
                             </div>
-                        @endif
+                            <a 
+                                href="{{ $order->attachment_url }}" 
+                                target="_blank" 
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200 hover:border-blue-300 text-[#2563EB] text-xs font-bold shadow-2xs transition-all shrink-0"
+                            >
+                                <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                                <span>Unduh Berkas Lampiran</span>
+                            </a>
+                        </div>
                     </div>
                 @endif
 
@@ -233,6 +222,14 @@
                                 </tr>
                             </tfoot>
                         </table>
+                    </div>
+
+                    <!-- Annual Maintenance Info Note -->
+                    <div class="mt-4 p-4 rounded-2xl bg-blue-50/70 border border-blue-100 flex items-start gap-3 text-xs text-slate-700">
+                        <i data-lucide="info" class="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5"></i>
+                        <div class="leading-relaxed">
+                            <strong class="text-slate-900 font-bold">Informasi Pemeliharaan (Maintenance):</strong> Pemeliharaan sistem bebas biaya selama 1 tahun pertama sejak tanggal serah terima proyek. Biaya perpanjangan pemeliharaan server &amp; sistem tahun berikutnya adalah <span class="font-bold text-[#2563EB]">Rp 200.000 / tahun</span> (pure pemeliharaan server &amp; sistem, tidak termasuk domain/penambahan fitur baru).
+                        </div>
                     </div>
                 </div>
 
