@@ -73,7 +73,7 @@
                             class="inline-flex items-center gap-1.5 bg-white/10 hover:bg-white/20 text-white text-xs font-bold px-3.5 py-1.5 rounded-full transition-all print:hidden cursor-pointer"
                         >
                             <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                            <span>Download Resi PDF</span>
+                            <span>Download Invoice PDF</span>
                         </button>
                     </div>
                 </div>
@@ -383,7 +383,7 @@ function downloadReceiptPdf(btn) {
     var invNum = '{{ $order->invoice_number }}';
     var opt = {
         margin: [4, 4, 4, 4],
-        filename: 'Resi-JuangDev-' + invNum + '.pdf',
+        filename: 'Invoice-JuangDev-' + invNum + '.pdf',
         image: { type: 'jpeg', quality: 1.0 },
         html2canvas: { 
             scale: 2.5, 
@@ -510,7 +510,7 @@ function printThermalReceipt() {
         '}'
     ].join('\n');
 
-    printWin.document.write('<!DOCTYPE html><html><head><title>Bukti Transaksi Resmi - JuangDev</title><meta charset="utf-8"><style>' + css + '</style></head><body><div class="receipt-container">' + clone.innerHTML + '</div><scr' + 'ipt>setTimeout(function(){window.print();},400);</scr' + 'ipt></body></html>');
+    printWin.document.write('<!DOCTYPE html><html><head><title>Invoice Resmi - JuangDev</title><meta charset="utf-8"><style>' + css + '</style></head><body><div class="receipt-container">' + clone.innerHTML + '</div><scr' + 'ipt>setTimeout(function(){window.print();},400);</scr' + 'ipt></body></html>');
     printWin.document.close();
 }
 </script>

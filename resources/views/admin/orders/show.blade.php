@@ -16,7 +16,7 @@
         default => 'sedang dalam peninjauan tim teknis'
     };
 
-    $waUpdateText = "Halo Kak {$order->customer_name},\n\nKami dari tim *JuangDev* ingin menginformasikan update status pengerjaan proyek Anda (*{$order->project_name}* - #{$order->invoice_number}).\n\nStatus saat ini: Proyek Anda *{$statusText}*.\n\nDetail spesifikasi & resi transaksi dapat dipantau langsung di:\n" . route('invoice.show', $order->invoice_number) . "\n\nJika ada kebutuhan atau pertanyaan tambahan, silakan balas pesan ini. Terima kasih! 🙏\n— JuangDev Team";
+    $waUpdateText = "Halo Kak {$order->customer_name},\n\nKami dari tim *JuangDev* ingin menginformasikan update status pengerjaan proyek Anda (*{$order->project_name}* - #{$order->invoice_number}).\n\nStatus saat ini: Proyek Anda *{$statusText}*.\n\nDetail spesifikasi & invoice transaksi dapat dipantau langsung di:\n" . route('invoice.show', $order->invoice_number) . "\n\nJika ada kebutuhan atau pertanyaan tambahan, silakan balas pesan ini. Terima kasih! 🙏\n— JuangDev Team";
     $waUpdateUrl = "https://wa.me/{$clientPhone}?text=" . urlencode($waUpdateText);
 @endphp
 
@@ -51,7 +51,7 @@
                 class="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-2 shadow-xs transition-all cursor-pointer"
             >
                 <i data-lucide="download" class="w-4 h-4"></i>
-                <span>Download Resi PDF</span>
+                <span>Download Invoice PDF</span>
             </button>
         </div>
     </div>
@@ -313,7 +313,7 @@ function downloadReceiptPdf(btn) {
     var invNum = '{{ $order->invoice_number }}';
     var opt = {
         margin: [4, 4, 4, 4],
-        filename: 'Resi-JuangDev-' + invNum + '.pdf',
+        filename: 'Invoice-JuangDev-' + invNum + '.pdf',
         image: { type: 'jpeg', quality: 1.0 },
         html2canvas: { 
             scale: 2.5, 

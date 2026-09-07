@@ -50,11 +50,11 @@
                     class="px-4 py-2 rounded-xl bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-xs font-bold shadow-xs flex items-center gap-2 transition-all cursor-pointer"
                 >
                     <i data-lucide="download" class="w-3.5 h-3.5"></i>
-                    <span>Download Resi PDF</span>
+                    <span>Download Invoice PDF</span>
                 </button>
 
                 <a 
-                    href="https://wa.me/?text={{ urlencode('Halo, berikut adalah bukti transaksi resmi pesanan JuangDev saya #' . $order->invoice_number . ' - ' . url('/invoice/' . $order->invoice_number)) }}" 
+                    href="https://wa.me/?text={{ urlencode('Halo, berikut adalah invoice resmi pesanan JuangDev saya #' . $order->invoice_number . ' - ' . url('/invoice/' . $order->invoice_number)) }}" 
                     target="_blank"
                     class="px-4 py-2 rounded-xl bg-[#10B981] hover:bg-[#059669] text-white text-xs font-bold shadow-xs flex items-center gap-2 transition-all"
                 >
@@ -311,15 +311,15 @@
                         <div class="mt-3 pt-2.5 border-t border-dashed border-slate-200">
                             <h2 class="rec-title text-sm sm:text-base font-black text-slate-900 uppercase tracking-wider">
                                 @if($order->payment_status === 'fully_paid')
-                                    *** BUKTI TRANSAKSI RESMI (LUNAS 100%) ***
+                                    *** INVOICE RESMI (LUNAS 100%) ***
                                 @elseif($order->payment_status === 'dp_paid')
-                                    *** BUKTI PEMBAYARAN UANG MUKA (DP 50%) ***
+                                    *** INVOICE RESMI (DP 50% LUNAS) ***
                                 @else
-                                    *** TAGIHAN TRANSAKSI RESMI (INVOICE) ***
+                                    *** INVOICE TAGIHAN RESMI ***
                                 @endif
                             </h2>
                             <p class="rec-status-subtitle text-[10px] font-bold text-slate-500 mt-0.5 tracking-tight uppercase">
-                                Bukti Pembayaran Elektronik Sah &amp; Terverifikasi
+                                Invoice Elektronik Sah &amp; Terverifikasi
                             </p>
                         </div>
                     </div>
@@ -446,14 +446,7 @@
                             </div>
                         @endif
 
-                        @if($order->notes)
-                            <div class="pt-1.5 border-t border-dashed border-slate-200 text-left">
-                                <span class="text-[10px] font-bold uppercase tracking-tight text-slate-400 block mb-0.5">CATATAN KLIEN:</span>
-                                <p class="p-2 rounded bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold leading-relaxed">
-                                    "{{ $order->notes }}"
-                                </p>
-                            </div>
-                        @endif
+
                     </div>
 
                     <!-- Dotted Separator -->
@@ -526,7 +519,7 @@
                             &copy; {{ date('Y') }} JUANG SOLUSI DIGITAL (JUANGDEV)
                         </p>
                         <p class="text-[9px] text-slate-400 leading-relaxed font-mono">
-                            Bukti transaksi ini diterbitkan secara elektronik dan sah secara hukum perundang-undangan Republik Indonesia.
+                            Invoice ini diterbitkan secara elektronik dan sah secara hukum perundang-undangan Republik Indonesia.
                         </p>
                     </div>
 
@@ -540,7 +533,7 @@
                         class="w-full sm:w-1/2 py-3 px-4 rounded-xl bg-[#2563EB] hover:bg-[#1d4ed8] text-white text-xs font-black flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs"
                     >
                         <i data-lucide="download" class="w-4 h-4"></i>
-                        <span>Download Resi PDF</span>
+                        <span>Download Invoice PDF</span>
                     </button>
 
                     <a 
@@ -912,7 +905,7 @@ function downloadReceiptPdf(btn) {
     var invNum = '{{ $order->invoice_number }}';
     var opt = {
         margin: [4, 4, 4, 4],
-        filename: 'Resi-JuangDev-' + invNum + '.pdf',
+        filename: 'Invoice-JuangDev-' + invNum + '.pdf',
         image: { type: 'jpeg', quality: 1.0 },
         html2canvas: { 
             scale: 2.5, 
@@ -1039,7 +1032,7 @@ function printThermalReceipt() {
         '}'
     ].join('\n');
 
-    printWin.document.write('<!DOCTYPE html><html><head><title>Bukti Transaksi Resmi - JuangDev</title><meta charset="utf-8"><style>' + css + '</style></head><body><div class="receipt-container">' + clone.innerHTML + '</div><scr' + 'ipt>setTimeout(function(){window.print();},400);</scr' + 'ipt></body></html>');
+    printWin.document.write('<!DOCTYPE html><html><head><title>Invoice Resmi - JuangDev</title><meta charset="utf-8"><style>' + css + '</style></head><body><div class="receipt-container">' + clone.innerHTML + '</div><scr' + 'ipt>setTimeout(function(){window.print();},400);</scr' + 'ipt></body></html>');
     printWin.document.close();
 }
 </script>

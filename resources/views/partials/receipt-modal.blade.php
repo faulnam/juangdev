@@ -46,15 +46,15 @@
             <div class="mt-3 pt-2.5 border-t border-dashed border-slate-200">
                 <h2 class="rec-title text-sm sm:text-base font-black text-slate-900 uppercase tracking-wider">
                     @if($isPaidFull)
-                        *** BUKTI TRANSAKSI RESMI (LUNAS 100%) ***
+                        *** INVOICE RESMI (LUNAS 100%) ***
                     @elseif($isDpPaid)
-                        *** BUKTI PEMBAYARAN UANG MUKA (DP 50%) ***
+                        *** INVOICE RESMI (DP 50% LUNAS) ***
                     @else
-                        *** TAGIHAN TRANSAKSI RESMI (INVOICE) ***
+                        *** INVOICE TAGIHAN RESMI ***
                     @endif
                 </h2>
                 <p class="rec-status-subtitle text-[10px] font-bold text-slate-500 mt-0.5 tracking-tight uppercase">
-                    Bukti Pembayaran Elektronik Sah &amp; Terverifikasi
+                    Invoice Elektronik Sah &amp; Terverifikasi
                 </p>
             </div>
         </div>
@@ -205,7 +205,7 @@
                 *Bebas biaya maintenance 1 thn sejak serah terima. Perpanjangan maintenance thn berikutnya: Rp 200.000/thn (pure maintenance).
             </p>
             <p class="text-[9px] text-slate-400 leading-relaxed font-mono">
-                Bukti transaksi ini diterbitkan secara elektronik dan sah secara hukum perundang-undangan Republik Indonesia.
+                Invoice ini diterbitkan secara elektronik dan sah secara hukum perundang-undangan Republik Indonesia.
             </p>
         </div>
 

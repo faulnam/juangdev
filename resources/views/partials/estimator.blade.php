@@ -1779,7 +1779,7 @@
                     </div>
                 </div>
 
-                <!-- VIEW 3: Payment Instructions & Cetak Resi Button (In-Place) -->
+                <!-- VIEW 3: Payment Instructions & Cetak/Download Invoice Button (In-Place) -->
                 <div x-show="estimatorStep === 'payment_instruction'" x-cloak class="space-y-6 text-center py-4">
                     <div class="w-16 h-16 rounded-full bg-blue-100 text-[#2563EB] mx-auto flex items-center justify-center shadow-lg shadow-blue-500/20">
                         <i data-lucide="qr-code" class="w-8 h-8 stroke-[2.5]"></i>
@@ -2284,7 +2284,7 @@
                         </div>
                     </template>
 
-                    <!-- Print Receipt Button -->
+                    <!-- Download Invoice Button -->
                     <div class="pt-2 border-t border-slate-100 flex flex-col sm:flex-row items-center gap-3">
                         <button 
                             type="button" 
@@ -2292,7 +2292,7 @@
                             class="w-full sm:w-1/2 py-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center justify-center gap-2 cursor-pointer"
                         >
                             <i data-lucide="printer" class="w-4 h-4"></i>
-                            <span>Cetak Resi / Download PDF</span>
+                            <span>Cetak Invoice / Download PDF</span>
                         </button>
 
                         <button 
@@ -2688,16 +2688,16 @@ function printThermalReceipt() {
     rem = formatRupiah(remNum);
 
     if (payStatus === 'fully_paid') {
-        title = 'Transaksi Berhasil (Lunas 100%)';
+        title = '*** INVOICE RESMI (LUNAS 100%) ***';
         trxType = 'Pelunasan Proyek (100% LUNAS)';
         currentPaid = total;
         rem = 'Rp 0 (LUNAS)';
     } else if (payStatus === 'dp_paid') {
-        title = 'Transaksi Berhasil (DP 50%)';
+        title = '*** INVOICE RESMI (DP 50% LUNAS) ***';
         trxType = 'Pembayaran Uang Muka (DP 50%)';
         currentPaid = dp;
     } else {
-        title = 'Tagihan Transaksi Resmi';
+        title = '*** INVOICE TAGIHAN RESMI ***';
         trxType = 'Tagihan Menunggu Pembayaran';
         currentPaid = dp;
     }
@@ -2818,7 +2818,7 @@ function printThermalReceipt() {
         '}'
     ].join('\n');
 
-    printWin.document.write('<!DOCTYPE html><html><head><title>Bukti Transaksi Resmi - JuangDev</title><meta charset="utf-8"><style>' + css + '</style></head><body><div class="receipt-container">' + clone.innerHTML + '</div><scr' + 'ipt>setTimeout(function(){window.print();},400);</scr' + 'ipt></body></html>');
+    printWin.document.write('<!DOCTYPE html><html><head><title>Invoice Resmi - JuangDev</title><meta charset="utf-8"><style>' + css + '</style></head><body><div class="receipt-container">' + clone.innerHTML + '</div><scr' + 'ipt>setTimeout(function(){window.print();},400);</scr' + 'ipt></body></html>');
     printWin.document.close();
 }
 </script>
