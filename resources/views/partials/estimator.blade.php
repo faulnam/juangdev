@@ -2539,7 +2539,7 @@
                         <h4 class="font-bold text-slate-900 text-sm">5. Biaya Pemeliharaan &amp; Perpanjangan (Maintenance)</h4>
                         <span class="text-[10px] font-black bg-[#2563EB] text-white px-2.5 py-0.5 rounded-full uppercase shrink-0" x-text="annualMaintenanceFee > 0 ? ('Rp ' + formatRupiah(annualMaintenanceFee) + ' / Tahun') : 'Rp 0 / Tahun (Gratis)'"></span>
                     </div>
-                    <p>Biaya pemeliharaan server &amp; sistem (maintenance) dihitung secara transparan dari <strong>total harga fitur add-on yang dipilih per bulan dikalikan 10</strong> untuk masa 1 tahun pemeliharaan (sudah mencakup perpanjangan seluruh server, sistem, dan seluruh fitur add-on yang Anda pilih). Biaya maintenance ini <strong>belum dibayarkan saat DP 50%</strong>, melainkan ditagihkan bersamaan dengan pelunasan sisa 50% saat proyek telah selesai diserahterimakan.</p>
+                    <p>Biaya pemeliharaan server &amp; sistem (maintenance) dihitung secara transparan dari <strong>total harga fitur add-on yang dipilih per bulan akan di jadikan satu paket maintenence</strong> untuk masa 1 tahun pemeliharaan (sudah mencakup perpanjangan seluruh server, sistem, dan seluruh fitur add-on yang Anda pilih). Biaya maintenance ini <strong>belum dibayarkan saat DP 50%</strong>, melainkan ditagihkan bersamaan dengan pelunasan sisa 50% saat proyek telah selesai diserahterimakan.</p>
                 </div>
             </div>
 
