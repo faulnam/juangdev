@@ -240,7 +240,7 @@
                     <div class="mt-4 p-4 rounded-2xl bg-blue-50/70 border border-blue-100 flex items-start gap-3 text-xs text-slate-700">
                         <i data-lucide="info" class="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5"></i>
                         <div class="leading-relaxed">
-                            <strong class="text-slate-900 font-bold">Informasi Pemeliharaan (Maintenance):</strong> Biaya pemeliharaan server &amp; sistem (maintenance) dihitung secara transparan dari Biaya Dasar Pemeliharaan Sistem (Rp 100.000 / tahun) ditambah total fitur add-on terpilih per bulan dikali 10 untuk 1 tahun (<span class="font-bold text-[#2563EB]">{{ $order->formatted_maintenance }}</span>). Biaya maintenance ini ditagihkan saat pelunasan serah terima proyek selesai.
+                            <strong class="text-slate-900 font-bold">Informasi Pemeliharaan (Maintenance):</strong> Biaya pemeliharaan server &amp; sistem mencakup Biaya Dasar Pemeliharaan Sistem (Rp 100.000 / tahun) serta paket pemeliharaan seluruh fitur add-on yang Anda pilih selama 1 tahun (<span class="font-bold text-[#2563EB]">{{ $order->formatted_maintenance }}</span>). Biaya maintenance ini ditagihkan saat pelunasan serah terima proyek selesai.
                         </div>
                     </div>
                 </div>

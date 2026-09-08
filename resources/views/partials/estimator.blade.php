@@ -1154,7 +1154,7 @@
                             </div>
                             <div class="flex-1 text-[11px] font-medium">
                                 <span class="font-bold text-slate-900 block mb-0.5">Ketentuan Biaya Add-on &amp; Maintenance:</span>
-                                Biaya maintenance 1 tahun mencakup <strong>Biaya Dasar Pemeliharaan Sistem (Rp 100.000 / thn)</strong> ditambah akumulasi fitur add-on terpilih (harga bulanan &times; 10). Seluruh biaya maintenance ini <em>belum dibayarkan saat DP 50%</em>, melainkan dibayarkan saat pelunasan serah terima proyek selesai.
+                                Biaya maintenance 1 tahun mencakup <strong>Biaya Dasar Pemeliharaan Sistem (Rp 100.000 / thn)</strong> serta pemeliharaan seluruh fitur add-on terpilih. Seluruh biaya maintenance ini <em>belum dibayarkan saat DP 50%</em>, melainkan dibayarkan saat pelunasan serah terima proyek selesai.
                             </div>
                         </div>
 
@@ -2547,7 +2547,7 @@
                         <h4 class="font-bold text-slate-900 text-sm">5. Biaya Pemeliharaan &amp; Perpanjangan (Maintenance)</h4>
                         <span class="text-[10px] font-black bg-[#2563EB] text-white px-2.5 py-0.5 rounded-full uppercase shrink-0" x-text="'Rp ' + formatRupiah(annualMaintenanceFee) + ' / Tahun'"></span>
                     </div>
-                    <p>Biaya pemeliharaan server &amp; sistem (maintenance) dihitung secara transparan dari <strong>Biaya Dasar Pemeliharaan Sistem sebesar Rp 100.000 / tahun</strong> ditambah total akumulasi fitur add-on yang dipilih (harga bulanan &times; 10) untuk masa 1 tahun pemeliharaan (sudah mencakup pemeliharaan server, sistem, dan seluruh fitur add-on yang Anda pilih). Biaya maintenance ini <strong>belum dibayarkan saat DP 50%</strong>, melainkan ditagihkan bersamaan dengan pelunasan sisa 50% saat proyek telah selesai diserahterimakan.</p>
+                    <p>Biaya pemeliharaan server &amp; sistem (maintenance) mencakup <strong>Biaya Dasar Pemeliharaan Sistem sebesar Rp 100.000 / tahun</strong> serta pemeliharaan seluruh fitur add-on yang Anda pilih untuk masa 1 tahun pemeliharaan (sudah mencakup pemeliharaan server, sistem, dan seluruh fitur add-on). Biaya maintenance ini <strong>belum dibayarkan saat DP 50%</strong>, melainkan ditagihkan bersamaan dengan pelunasan sisa 50% saat proyek telah selesai diserahterimakan.</p>
                 </div>
             </div>
 

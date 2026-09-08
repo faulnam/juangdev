@@ -204,7 +204,7 @@
                         <div class="flex justify-between items-center p-3.5 bg-blue-50/60 border-y border-blue-100/70">
                             <div>
                                 <span class="text-[#2563EB] font-bold block text-xs">Biaya Maintenance 1 Tahun</span>
-                                <span class="text-[10px] text-slate-500 font-medium">Add-on Terpilih ({{ $order->formatted_monthly_addons }}) x 10</span>
+                                <span class="text-[10px] text-slate-500 font-medium">Dasar Sistem + Fitur Add-on Terpilih</span>
                             </div>
                             <span class="font-black text-[#2563EB] text-xs">{{ $order->formatted_maintenance }}</span>
                         </div>
