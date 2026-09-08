@@ -156,6 +156,15 @@
                 </span>
             </div>
 
+            @if(isset($order) && $order->maintenance_amount > 0)
+                <div class="flex justify-between items-center text-[#2563EB]">
+                    <span class="uppercase tracking-tight font-bold">BIAYA MAINTENANCE 1 TAHUN</span>
+                    <span class="font-bold">
+                        {{ $order->formatted_maintenance }}
+                    </span>
+                </div>
+            @endif
+
             <div class="flex justify-between items-center">
                 <span class="text-slate-500 uppercase tracking-tight">TAGIHAN UANG MUKA (DP 50%)</span>
                 <span class="rec-dp font-semibold text-slate-900">
@@ -164,7 +173,7 @@
             </div>
 
             <div class="flex justify-between items-center">
-                <span class="text-slate-500 uppercase tracking-tight">SISA PELUNASAN (50%)</span>
+                <span class="text-slate-500 uppercase tracking-tight">SISA PELUNASAN (50% + MAINT)</span>
                 <span class="rec-rem font-semibold text-slate-900">
                     {{ isset($order) ? ($order->payment_status === 'fully_paid' ? 'Rp 0 [LUNAS]' : $order->formatted_remaining) : 'Rp 0' }}
                 </span>
@@ -202,7 +211,7 @@
                 &copy; {{ date('Y') }} JUANG SOLUSI DIGITAL (JUANGDEV)
             </p>
             <p class="text-[9px] text-slate-500 leading-relaxed font-mono">
-                *Bebas biaya maintenance 1 thn sejak serah terima. Perpanjangan maintenance thn berikutnya: Rp 200.000/thn (pure maintenance).
+                *Biaya maintenance 1 tahun ({{ isset($order) && $order->maintenance_amount > 0 ? $order->formatted_maintenance : 'Rp 0' }}) mencakup server, sistem &amp; add-on terpilih, dibayarkan saat pelunasan serah terima proyek.
             </p>
             <p class="text-[9px] text-slate-400 leading-relaxed font-mono">
                 Invoice ini diterbitkan secara elektronik dan sah secara hukum perundang-undangan Republik Indonesia.

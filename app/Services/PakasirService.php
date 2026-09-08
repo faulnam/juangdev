@@ -249,6 +249,7 @@ class PakasirService
     public static function sendCustomerInvoiceWa(Order $order): void
     {
         $bpText = $order->boilerplate_name ? ("\n- Template Desain: " . $order->boilerplate_name) : '';
+        $maintText = $order->maintenance_amount > 0 ? ("\n- Biaya Maintenance 1 Tahun: " . $order->formatted_maintenance . " (Add-on x 10)") : "\n- Biaya Maintenance 1 Tahun: Rp 0 (Gratis)";
         $msg = "TAGIHAN RESMI DAN KONFIRMASI PESANAN\n"
             . "JuangDev Digital Solutions\n\n"
             . "Kepada Yth. Bapak/Ibu " . $order->customer_name . ",\n\n"
@@ -260,8 +261,9 @@ class PakasirService
             . "- Paket Pilihan: " . ($order->package_name ?? '-')
             . $bpText . "\n"
             . "- Total Nilai Proyek: " . $order->formatted_total . "\n"
-            . "- Tagihan Uang Muka (DP 50%): " . $order->formatted_dp . "\n"
-            . "- Sisa Pelunasan (50%): " . $order->formatted_remaining . "\n\n"
+            . "- Tagihan Uang Muka (DP 50%): " . $order->formatted_dp . " (Belum termasuk maintenance)"
+            . $maintText . "\n"
+            . "- Sisa Pelunasan saat Selesai: " . $order->formatted_remaining . " (Sisa 50% + Maintenance 1 Thn)\n\n"
             . "Tautan Resmi Tagihan & Pembayaran:\n"
             . $order->invoice_url . "\n\n"
             . "Pembayaran Uang Muka (DP 50%) maupun Pelunasan dapat dilakukan secara mandiri melalui tautan resmi di atas.\n\n"
@@ -279,6 +281,7 @@ class PakasirService
         $adminPhone = env('ADMIN_WA_NUMBER') ?? SiteSetting::where('key', 'whatsapp_number')->value('value') ?? '62859171681988';
 
         $bpText = $order->boilerplate_name ? ("\n- Template Desain: " . $order->boilerplate_name) : '';
+        $maintText = $order->maintenance_amount > 0 ? ("\n- Maintenance 1 Thn: " . $order->formatted_maintenance) : "\n- Maintenance 1 Thn: Rp 0";
         $notesText = $order->notes ? ("\n- Catatan / Brief Klien: \"" . $order->notes . "\"") : '';
         $attachmentText = $order->attachment_name ? ("\n- Lampiran File: " . $order->attachment_name . " (" . $order->formatted_attachment_size . ")\n  Link Lampiran: " . $order->attachment_url) : '';
 
@@ -295,8 +298,9 @@ class PakasirService
             . "- Paket: " . ($order->package_name ?? '-')
             . $bpText . "\n"
             . "- Total Nilai Proyek: " . $order->formatted_total . "\n"
-            . "- Tagihan DP (50%): " . $order->formatted_dp . "\n"
-            . "- Sisa Pelunasan (50%): " . $order->formatted_remaining
+            . "- Tagihan DP (50%): " . $order->formatted_dp
+            . $maintText . "\n"
+            . "- Sisa Pelunasan: " . $order->formatted_remaining
             . $notesText
             . $attachmentText . "\n\n"
             . "Tautan Invoice Resmi:\n"
@@ -314,6 +318,7 @@ class PakasirService
         $orderDetailUrl = route('customer.orders.show', $order->invoice_number);
 
         if ($paymentType === 'dp') {
+            $maintText = $order->maintenance_amount > 0 ? ("\n- Biaya Maintenance 1 Thn: " . $order->formatted_maintenance) : '';
             $msg = "KONFIRMASI PEMBAYARAN UANG MUKA (DP 50%)\n"
                 . "JuangDev Digital Solutions\n\n"
                 . "Kepada Yth. Bapak/Ibu " . $order->customer_name . ",\n\n"
@@ -323,8 +328,9 @@ class PakasirService
                 . "- Layanan: " . $order->service_name . "\n"
                 . "- Paket: " . ($order->package_name ?? '-') . "\n"
                 . "- Total Nilai Proyek: " . $order->formatted_total . "\n"
-                . "- Jumlah DP Diterima: " . $order->formatted_dp . " (LUNAS)\n"
-                . "- Sisa Pelunasan (50%): " . $order->formatted_remaining . "\n"
+                . "- Jumlah DP Diterima: " . $order->formatted_dp . " (LUNAS)"
+                . $maintText . "\n"
+                . "- Sisa Pelunasan: " . $order->formatted_remaining . " (Sisa 50% + Maintenance 1 Thn)\n"
                 . "- Status Pembayaran: DP 50% LUNAS\n"
                 . "- Status Pengerjaan: Dalam Pengerjaan\n\n"
                 . "KETENTUAN SISA PELUNASAN:\n"
@@ -337,7 +343,7 @@ class PakasirService
                 . "Hormat kami,\n"
                 . "Tim Manajemen JuangDev";
         } else {
-            $pelunasanAmount = ($order->payment_scheme === 'full_100') ? $order->formatted_total : 'Rp ' . number_format($order->total_amount - $order->dp_amount, 0, ',', '.');
+            $pelunasanAmount = ($order->payment_scheme === 'full_100') ? $order->formatted_total : 'Rp ' . number_format($order->remaining_amount ?: ($order->total_amount - $order->dp_amount + $order->maintenance_amount), 0, ',', '.');
             $msg = "KONFIRMASI PELUNASAN DAN SERAH TERIMA PROYEK\n"
                 . "JuangDev Digital Solutions\n\n"
                 . "Kepada Yth. Bapak/Ibu " . $order->customer_name . ",\n\n"
@@ -345,7 +351,7 @@ class PakasirService
                 . "Rincian Transaksi:\n"
                 . "- Total Nilai Proyek: " . $order->formatted_total . "\n"
                 . "- Uang Muka (DP 50%): " . $order->formatted_dp . " (Lunas Sebelumnya)\n"
-                . "- Pembayaran Pelunasan: " . $pelunasanAmount . " (Lunas Diterima)\n"
+                . "- Pembayaran Pelunasan: " . $order->formatted_remaining . " (Lunas Diterima)\n"
                 . "- Sisa Tagihan: Rp 0 (LUNAS 100%)\n"
                 . "- Status Pembayaran: LUNAS SEPENUHNYA (100%)\n"
                 . "- Status Proyek: Selesai / Serah Terima\n\n"

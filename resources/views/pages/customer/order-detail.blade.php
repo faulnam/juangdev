@@ -200,6 +200,16 @@
                         <span class="font-black text-slate-900 text-sm">{{ $order->formatted_total }}</span>
                     </div>
 
+                    @if($order->maintenance_amount > 0)
+                        <div class="flex justify-between items-center p-3.5 bg-blue-50/60 border-y border-blue-100/70">
+                            <div>
+                                <span class="text-[#2563EB] font-bold block text-xs">Biaya Maintenance 1 Tahun</span>
+                                <span class="text-[10px] text-slate-500 font-medium">Add-on Terpilih ({{ $order->formatted_monthly_addons }}) x 10</span>
+                            </div>
+                            <span class="font-black text-[#2563EB] text-xs">{{ $order->formatted_maintenance }}</span>
+                        </div>
+                    @endif
+
                     <div class="flex justify-between items-center p-3.5 bg-white">
                         <span class="text-slate-500 font-medium">Uang Muka (DP 50%)</span>
                         <div class="flex items-center gap-2">
@@ -217,7 +227,10 @@
                     </div>
 
                     <div class="flex justify-between items-center p-3.5 bg-slate-50/70">
-                        <span class="text-slate-500 font-medium">Sisa Pelunasan (50%)</span>
+                        <div>
+                            <span class="text-slate-500 font-medium block">Sisa Pelunasan</span>
+                            <span class="text-[10px] text-slate-400 font-medium">Sisa 50% + Maintenance 1 Tahun</span>
+                        </div>
                         <div>
                             @if($order->payment_status === 'fully_paid')
                                 <span class="font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded text-[10px]">
@@ -245,7 +258,7 @@
                                 </span>
                             @elseif($order->payment_status === 'dp_paid')
                                 <span class="font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-0.5 rounded-full text-[11px]">
-                                    DP 50% Diterima (Sisa Rp {{ number_format($order->remaining_amount, 0, ',', '.') }})
+                                    DP 50% Diterima (Pelunasan Rp {{ number_format($order->remaining_amount, 0, ',', '.') }})
                                 </span>
                             @else
                                 <span class="font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2.5 py-0.5 rounded-full text-[11px]">
@@ -265,11 +278,11 @@
                             </div>
                             <div>
                                 <h4 class="text-sm font-black text-slate-900">Biaya Pemeliharaan (Maintenance Tahunan)</h4>
-                                <p class="text-[11px] text-slate-500 font-medium">Dihitung 1 tahun sejak tanggal serah terima proyek selesai</p>
+                                <p class="text-[11px] text-slate-500 font-medium">Dihitung dari total fitur add-on terpilih per bulan dikali 10</p>
                             </div>
                         </div>
                         <span class="text-[11px] font-black bg-[#2563EB] text-white px-3 py-1 rounded-full uppercase tracking-wide shadow-2xs">
-                            Rp 200.000 / Tahun
+                            {{ $order->maintenance_amount > 0 ? $order->formatted_maintenance : 'Rp 0 / Tahun (Gratis)' }}
                         </span>
                     </div>
 
@@ -279,8 +292,12 @@
                                 <i data-lucide="check" class="w-3 h-3 stroke-[3]"></i>
                             </div>
                             <div class="leading-relaxed">
-                                <span class="font-bold text-slate-900 block">Tahun Pertama (Gratis)</span>
-                                Bebas biaya maintenance selama 1 tahun penuh terhitung sejak proyek resmi diserahterimakan.
+                                <span class="font-bold text-slate-900 block">Maintenance 1 Tahun Pertama</span>
+                                @if($order->maintenance_amount > 0)
+                                    Total <strong>{{ $order->formatted_maintenance }}</strong> dibayarkan saat pelunasan serah terima proyek selesai untuk pemeliharaan server, sistem, dan seluruh add-on terpilih.
+                                @else
+                                    Bebas biaya maintenance (Rp 0) selama 1 tahun penuh terhitung sejak serah terima proyek selesai.
+                                @endif
                             </div>
                         </div>
 
@@ -289,8 +306,8 @@
                                 <i data-lucide="refresh-cw" class="w-3 h-3 stroke-[3]"></i>
                             </div>
                             <div class="leading-relaxed">
-                                <span class="font-bold text-slate-900 block">Tahun Berikutnya (Rp 200rb/thn)</span>
-                                Pure biaya perpanjangan pemeliharaan server &amp; sistem (di luar domain / fitur baru).
+                                <span class="font-bold text-slate-900 block">Tahun Berikutnya (Perpanjangan)</span>
+                                Biaya perpanjangan tahun berikutnya mengikuti paket fitur add-on aktif yang Anda pilih ({{ $order->formatted_maintenance }}).
                             </div>
                         </div>
                     </div>
@@ -476,6 +493,15 @@
                             </span>
                         </div>
 
+                        @if($order->maintenance_amount > 0)
+                            <div class="flex justify-between items-center text-[#2563EB]">
+                                <span class="uppercase tracking-tight font-bold">BIAYA MAINTENANCE 1 TAHUN</span>
+                                <span class="font-bold">
+                                    {{ $order->formatted_maintenance }}
+                                </span>
+                            </div>
+                        @endif
+
                         <div class="flex justify-between items-center">
                             <span class="text-slate-500 uppercase tracking-tight">TAGIHAN UANG MUKA (DP 50%)</span>
                             <span class="rec-dp font-semibold text-slate-900">
@@ -484,7 +510,7 @@
                         </div>
 
                         <div class="flex justify-between items-center">
-                            <span class="text-slate-500 uppercase tracking-tight">SISA PELUNASAN (50%)</span>
+                            <span class="text-slate-500 uppercase tracking-tight">SISA PELUNASAN (50% + MAINT)</span>
                             <span class="rec-rem font-semibold text-slate-900">
                                 {{ $order->payment_status === 'fully_paid' ? 'Rp 0 [LUNAS]' : $order->formatted_remaining }}
                             </span>

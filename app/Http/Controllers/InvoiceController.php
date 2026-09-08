@@ -53,9 +53,20 @@ class InvoiceController extends Controller
             ? (int) $validated['discount_amount'] 
             : max(0, $originalAmount - $total);
 
+        $addons = $validated['addons'] ?? [];
+        $monthlyAddons = 0;
+        if (is_array($addons)) {
+            foreach ($addons as $addon) {
+                if (is_array($addon) && isset($addon['price'])) {
+                    $monthlyAddons += (int) $addon['price'];
+                }
+            }
+        }
+        $maintenanceAmount = $monthlyAddons * 10;
+
         $isFull = ($validated['payment_scheme'] === 'full_100');
-        $dp = $isFull ? $total : (int) round($total * 0.5);
-        $remaining = $isFull ? 0 : ($total - $dp);
+        $dp = $isFull ? ($total + $maintenanceAmount) : (int) round($total * 0.5);
+        $remaining = $isFull ? 0 : (($total - $dp) + $maintenanceAmount);
 
         $userId = auth()->id();
         if (!$userId) {
@@ -108,7 +119,8 @@ class InvoiceController extends Controller
             'package_name' => $validated['package_name'] ?? null,
             'boilerplate_id' => $boilerplateId,
             'boilerplate_name' => $boilerplateName,
-            'addons' => $validated['addons'] ?? [],
+            'addons' => $addons,
+            'maintenance_amount' => $maintenanceAmount,
             'original_amount' => $originalAmount,
             'discount_amount' => $discountAmount,
             'total_amount' => $total,
@@ -151,6 +163,11 @@ class InvoiceController extends Controller
                     'package_tier' => $order->boilerplate->package_tier,
                     'live_url' => $order->boilerplate->live_url,
                 ] : null,
+                'addons' => $order->addons,
+                'monthly_addons_total' => $order->monthly_addons_total,
+                'formatted_monthly_addons' => $order->formatted_monthly_addons,
+                'maintenance_amount' => $order->maintenance_amount,
+                'formatted_maintenance' => $order->formatted_maintenance,
                 'original_amount' => $order->original_amount,
                 'discount_amount' => $order->discount_amount,
                 'total_amount' => $order->total_amount,
@@ -266,7 +283,7 @@ class InvoiceController extends Controller
                     $order->update([
                         'payment_status' => $newStatus,
                         'project_status' => ($newStatus === 'fully_paid') ? 'completed' : 'in_progress',
-                        'remaining_amount' => ($newStatus === 'fully_paid') ? 0 : ($order->total_amount - $order->dp_amount),
+                        'remaining_amount' => ($newStatus === 'fully_paid') ? 0 : (($order->total_amount - $order->dp_amount) + $order->maintenance_amount),
                     ]);
                     PakasirService::sendCustomerPaymentSuccessWa($order, $newStatus === 'fully_paid' ? 'full' : 'dp');
                 }

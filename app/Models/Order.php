@@ -19,6 +19,7 @@ class Order extends Model
         'boilerplate_id',
         'boilerplate_name',
         'addons',
+        'maintenance_amount',
         'original_amount',
         'discount_amount',
         'total_amount',
@@ -47,6 +48,7 @@ class Order extends Model
 
     protected $casts = [
         'addons' => 'array',
+        'maintenance_amount' => 'integer',
         'original_amount' => 'integer',
         'discount_amount' => 'integer',
         'total_amount' => 'integer',
@@ -54,6 +56,51 @@ class Order extends Model
         'remaining_amount' => 'integer',
         'attachment_size' => 'integer',
     ];
+
+    public function getMonthlyAddonsTotalAttribute(): int
+    {
+        $addons = $this->addons;
+        if (!is_array($addons)) {
+            return 0;
+        }
+
+        $sum = 0;
+        foreach ($addons as $addon) {
+            if (is_array($addon) && isset($addon['price'])) {
+                $sum += (int) $addon['price'];
+            }
+        }
+        return $sum;
+    }
+
+    public function getFormattedMonthlyAddonsAttribute(): string
+    {
+        return 'Rp ' . number_format($this->monthly_addons_total, 0, ',', '.') . ' / bln';
+    }
+
+    public function getMaintenanceAmountAttribute(): int
+    {
+        if (isset($this->attributes['maintenance_amount']) && (int)$this->attributes['maintenance_amount'] > 0) {
+            return (int) $this->attributes['maintenance_amount'];
+        }
+
+        return $this->monthly_addons_total * 10;
+    }
+
+    public function getFormattedMaintenanceAttribute(): string
+    {
+        return 'Rp ' . number_format($this->maintenance_amount, 0, ',', '.') . ' / Tahun';
+    }
+
+    public function getPelunasanAmountAttribute(): int
+    {
+        return ($this->total_amount - $this->dp_amount) + $this->maintenance_amount;
+    }
+
+    public function getFormattedPelunasanAttribute(): string
+    {
+        return 'Rp ' . number_format($this->pelunasan_amount, 0, ',', '.');
+    }
 
     public function getHasDiscountAttribute(): bool
     {

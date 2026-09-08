@@ -182,12 +182,16 @@
 
                                 @if(!empty($order->addons))
                                     @foreach($order->addons as $addon)
+                                        @php
+                                            $addonTitle = is_array($addon) ? ($addon['title'] ?? ($addon['name'] ?? '-')) : $addon;
+                                            $addonPrice = is_array($addon) && isset($addon['price']) && $addon['price'] > 0 ? '+ Rp ' . number_format($addon['price'], 0, ',', '.') . ' / bln' : 'Termasuk';
+                                        @endphp
                                         <tr>
                                             <td class="py-3 px-6 text-slate-600">
-                                                Fitur Tambahan: {{ is_array($addon) ? ($addon['title'] ?? '-') : $addon }}
+                                                Fitur Tambahan: {{ $addonTitle }}
                                             </td>
                                             <td class="py-3 px-6 text-right text-slate-600 font-medium">
-                                                Termasuk
+                                                {{ $addonPrice }}
                                             </td>
                                         </tr>
                                     @endforeach
@@ -206,17 +210,25 @@
                                 @endif
                                 <tr>
                                     <td class="py-3.5 px-6 text-right uppercase text-xs text-slate-500">
-                                        {{ $order->has_discount ? 'Total Investasi Proyek (Setelah Diskon):' : 'Total Investasi Proyek:' }}
+                                        {{ $order->has_discount ? 'Total Nilai Proyek (Setelah Diskon):' : 'Total Nilai Proyek:' }}
                                     </td>
                                     <td class="py-3.5 px-6 text-right text-base text-slate-900 font-black">{{ $order->formatted_total }}</td>
                                 </tr>
+                                @if($order->maintenance_amount > 0)
+                                    <tr class="bg-blue-50/50">
+                                        <td class="py-3 px-6 text-right uppercase text-xs text-[#2563EB] font-bold">
+                                            Biaya Maintenance 1 Tahun (Add-on x 10):
+                                        </td>
+                                        <td class="py-3 px-6 text-right text-sm text-[#2563EB] font-black">{{ $order->formatted_maintenance }}</td>
+                                    </tr>
+                                @endif
                                 <tr>
                                     <td class="py-3.5 px-6 text-right uppercase text-xs text-slate-500">Tagihan DP 50%:</td>
                                     <td class="py-3.5 px-6 text-right text-base text-[#2563EB] font-black">{{ $order->formatted_dp }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="py-3.5 px-6 text-right uppercase text-xs text-slate-500">Sisa Pelunasan (50%):</td>
-                                    <td class="py-3.5 px-6 text-right text-base text-slate-700 font-black">
+                                    <td class="py-3.5 px-6 text-right uppercase text-xs text-slate-500">Sisa Pelunasan (50% + Maintenance):</td>
+                                    <td class="py-3.5 px-6 text-right text-base text-slate-900 font-black">
                                         {{ $order->payment_status === 'fully_paid' ? 'Rp 0 (LUNAS)' : $order->formatted_remaining }}
                                     </td>
                                 </tr>
@@ -228,7 +240,7 @@
                     <div class="mt-4 p-4 rounded-2xl bg-blue-50/70 border border-blue-100 flex items-start gap-3 text-xs text-slate-700">
                         <i data-lucide="info" class="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5"></i>
                         <div class="leading-relaxed">
-                            <strong class="text-slate-900 font-bold">Informasi Pemeliharaan (Maintenance):</strong> Pemeliharaan sistem bebas biaya selama 1 tahun pertama sejak tanggal serah terima proyek. Biaya perpanjangan pemeliharaan server &amp; sistem tahun berikutnya adalah <span class="font-bold text-[#2563EB]">Rp 200.000 / tahun</span> (pure pemeliharaan server &amp; sistem, tidak termasuk domain/penambahan fitur baru).
+                            <strong class="text-slate-900 font-bold">Informasi Pemeliharaan (Maintenance):</strong> Biaya pemeliharaan server &amp; sistem (maintenance) dihitung secara transparan dari total fitur add-on terpilih per bulan dikali 10 untuk 1 tahun (<span class="font-bold text-[#2563EB]">{{ $order->maintenance_amount > 0 ? $order->formatted_maintenance : 'Rp 0 / Tahun (Gratis)' }}</span>). Biaya maintenance ini ditagihkan saat pelunasan serah terima proyek selesai.
                         </div>
                     </div>
                 </div>

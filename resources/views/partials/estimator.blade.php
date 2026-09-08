@@ -364,6 +364,22 @@
             }
             return this.planPriceNumber;
         },
+        get totalAddonsMonthly() {
+            let sum = 0;
+            this.selectedFeatureIds.forEach(fid => {
+                const feat = this.serviceFeatures.find(f => f.id === fid);
+                if (feat) {
+                    sum += parseInt(feat.price || 0);
+                }
+            });
+            return sum;
+        },
+        get annualMaintenanceFee() {
+            return this.totalAddonsMonthly * 10;
+        },
+        get projectPrice() {
+            return this.planPriceNumber;
+        },
         get originalTotalPrice() {
             let total = 0;
             if (this.selectedPlan) {
@@ -371,12 +387,6 @@
             } else if (this.selectedService) {
                 total += parseInt(this.selectedService.base_price || 0);
             }
-            this.selectedFeatureIds.forEach(fid => {
-                const feat = this.serviceFeatures.find(f => f.id === fid);
-                if (feat) {
-                    total += parseInt(feat.price || 0);
-                }
-            });
             return total;
         },
         get discountSavings() {
@@ -392,19 +402,16 @@
             } else if (this.selectedService) {
                 total += parseInt(this.selectedService.base_price || 0);
             }
-            this.selectedFeatureIds.forEach(fid => {
-                const feat = this.serviceFeatures.find(f => f.id === fid);
-                if (feat) {
-                    total += parseInt(feat.price || 0);
-                }
-            });
             return total;
         },
         get dpPrice() {
             return Math.round(this.totalPrice * 0.5);
         },
+        get pelunasanPrice() {
+            return (this.totalPrice - this.dpPrice) + this.annualMaintenanceFee;
+        },
         get payableAmount() {
-            return this.formData.paymentScheme === 'full_100' ? this.totalPrice : this.dpPrice;
+            return this.formData.paymentScheme === 'full_100' ? (this.totalPrice + this.annualMaintenanceFee) : this.dpPrice;
         },
         formatRupiah(num) {
             return new Intl.NumberFormat('id-ID').format(num || 0);
@@ -699,9 +706,24 @@
                             *Estimasi awal, dapat berubah sesuai kesepakatan akhir di sesi konsultasi
                         </p>
                     </div>
-                    <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-[#2563EB]">
-                        <span>Uang Muka (DP 50%):</span>
-                        <span>Rp <span x-text="formatRupiah(dpPrice)">0</span></span>
+                    <div class="pt-3 border-t border-slate-100 space-y-2 text-xs">
+                        <div class="flex items-center justify-between font-bold text-[#2563EB]">
+                            <span>Uang Muka (DP 50% Hari Ini):</span>
+                            <span>Rp <span x-text="formatRupiah(dpPrice)">0</span></span>
+                        </div>
+                        <div class="flex items-center justify-between text-[11px] font-semibold text-slate-500">
+                            <span>Biaya Maintenance 1 Tahun:</span>
+                            <span :class="annualMaintenanceFee > 0 ? 'text-slate-800 font-bold' : 'text-slate-400'">
+                                <span x-text="annualMaintenanceFee > 0 ? ('Rp ' + formatRupiah(annualMaintenanceFee) + ' / Thn') : 'Rp 0 (Gratis)'"></span>
+                            </span>
+                        </div>
+                        <div class="flex items-center justify-between text-xs font-black text-slate-900 pt-1.5 border-t border-slate-100">
+                            <span>Estimasi Pelunasan (Selesai):</span>
+                            <span class="text-emerald-700">Rp <span x-text="formatRupiah(pelunasanPrice)">0</span></span>
+                        </div>
+                        <p class="text-[9px] text-slate-400 leading-tight">
+                            *Pelunasan dibayarkan saat proyek selesai (Sisa 50% + Maintenance 1 Tahun).
+                        </p>
                     </div>
 
                     <!-- Selected Boilerplate Badge & Thumbnail Preview in Total Box -->
@@ -1120,10 +1142,22 @@
 
                     <!-- Step 4: Add-on Features -->
                     <div>
-                        <label class="flex items-center gap-2 text-[0.8rem] font-black text-[#1e2547] uppercase tracking-wider mb-4">
+                        <label class="flex items-center gap-2 text-[0.8rem] font-black text-[#1e2547] uppercase tracking-wider mb-2">
                             <span class="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs">4</span> 
                             Fitur Tambahan / Add-on (Opsional)
                         </label>
+
+                        <!-- Educational Banner for Monthly Addon & Maintenance -->
+                        <div class="mb-3.5 p-3.5 rounded-2xl bg-blue-50/70 border border-blue-200/80 flex items-start gap-3 text-xs text-blue-900 leading-relaxed shadow-2xs">
+                            <div class="w-6 h-6 rounded-lg bg-[#2563EB] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+                                <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                            </div>
+                            <div class="flex-1 text-[11px] font-medium">
+                                <span class="font-bold text-slate-900 block mb-0.5">Ketentuan Biaya Add-on &amp; Maintenance:</span>
+                                Harga fitur add-on di bawah merupakan <strong>biaya per bulan (/bln)</strong>. Seluruh add-on yang dipilih akan diakumulasikan menjadi <strong>1 paket Biaya Maintenance 1 Tahun (dikalikan 10)</strong>. Biaya maintenance ini <em>belum dibayarkan saat DP 50%</em>, melainkan dibayarkan saat pelunasan serah terima proyek selesai.
+                            </div>
+                        </div>
+
                         <div class="space-y-2.5">
                             <template x-for="feature in serviceFeatures" :key="feature.id">
                                 <button 
@@ -1140,7 +1174,7 @@
                                         x-text="feature.title"
                                     ></span>
                                     <div class="flex items-center gap-3">
-                                        <span class="text-xs font-semibold text-slate-500" x-text="'+ Rp ' + formatRupiah(feature.price)"></span>
+                                        <span class="text-xs font-semibold text-slate-500" x-text="'+ Rp ' + formatRupiah(feature.price) + ' / bln'"></span>
                                         <div 
                                             :class="selectedFeatureIds.includes(feature.id) ? 'bg-emerald-500 text-white' : 'bg-slate-200 text-slate-400'"
                                             class="w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold transition-colors"
@@ -1152,6 +1186,20 @@
                                 </button>
                             </template>
                         </div>
+
+                        <!-- Dynamic Add-on & Maintenance Breakdown Card -->
+                        <template x-if="selectedFeatureIds.length > 0">
+                            <div class="mt-3 p-3.5 rounded-2xl bg-emerald-50/80 border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-emerald-950 font-medium">
+                                <div>
+                                    <span class="font-bold block text-emerald-900">Add-on Terpilih (<span x-text="selectedFeatureIds.length"></span> Fitur):</span>
+                                    <span class="text-[11px] text-emerald-800">Total Biaya: <strong>Rp <span x-text="formatRupiah(totalAddonsMonthly)"></span> / bulan</strong></span>
+                                </div>
+                                <div class="sm:text-right bg-white px-3.5 py-1.5 rounded-xl border border-emerald-200 shrink-0 shadow-2xs">
+                                    <span class="text-[10px] uppercase font-bold text-slate-500 block">Biaya Maintenance 1 Tahun (x10):</span>
+                                    <span class="text-xs font-black text-emerald-700">Rp <span x-text="formatRupiah(annualMaintenanceFee)"></span> / Tahun</span>
+                                </div>
+                            </div>
+                        </template>
                     </div>
 
                     <hr class="border-slate-100">
@@ -1254,7 +1302,9 @@
                                     <div>
                                         <p class="text-xs font-black text-slate-900 uppercase">Uang Muka (DP 50%)</p>
                                         <p class="text-sm font-bold text-[#2563EB] mt-0.5" x-text="'Rp ' + formatRupiah(dpPrice)"></p>
-                                        <p class="text-[10px] text-slate-500 font-medium mt-1">Sisa 50% dilunasi saat proyek selesai 100%.</p>
+                                        <p class="text-[10px] text-slate-500 font-medium mt-1">
+                                            Bayar 50% di awal. Sisa 50% + Maintenance 1 Thn (<span class="font-bold text-slate-700" x-text="'Rp ' + formatRupiah(pelunasanPrice)"></span>) dilunasi saat proyek selesai.
+                                        </p>
                                     </div>
                                 </label>
 
@@ -1265,8 +1315,10 @@
                                     <input type="radio" name="scheme" value="full_100" x-model="formData.paymentScheme" class="mt-1 text-[#2563EB]">
                                     <div>
                                         <p class="text-xs font-black text-slate-900 uppercase">Pelunasan Langsung (100%)</p>
-                                        <p class="text-sm font-bold text-slate-900 mt-0.5" x-text="'Rp ' + formatRupiah(totalPrice)"></p>
-                                        <p class="text-[10px] text-slate-500 font-medium mt-1">Pembayaran penuh di awal tanpa repot.</p>
+                                        <p class="text-sm font-bold text-slate-900 mt-0.5" x-text="'Rp ' + formatRupiah(totalPrice + annualMaintenanceFee)"></p>
+                                        <p class="text-[10px] text-slate-500 font-medium mt-1">
+                                            Pembayaran penuh di awal (Proyek + Maintenance 1 Thn).
+                                        </p>
                                     </div>
                                 </label>
                             </div>
@@ -2077,9 +2129,16 @@
                         </div>
 
                         <div class="flex justify-between text-xs">
-                            <span class="text-slate-500 font-medium">Total Investasi Proyek:</span>
+                            <span class="text-slate-500 font-medium">Total Nilai Proyek:</span>
                             <span class="font-black text-slate-900" x-text="'Rp ' + formatRupiah(createdOrder?.total_amount || 0)"></span>
                         </div>
+
+                        <template x-if="createdOrder?.maintenance_amount > 0">
+                            <div class="flex justify-between text-xs text-[#2563EB]">
+                                <span class="font-bold">Biaya Maintenance 1 Tahun:</span>
+                                <span class="font-black" x-text="'Rp ' + formatRupiah(createdOrder?.maintenance_amount || 0) + ' / Thn'"></span>
+                            </div>
+                        </template>
 
                         <div class="pt-2 border-t border-slate-200 flex justify-between text-xs">
                             <span class="text-slate-600 font-bold">DP 50% (Uang Muka):</span>
@@ -2091,7 +2150,7 @@
                         </div>
 
                         <div class="flex justify-between text-xs">
-                            <span class="text-slate-600 font-bold">Sisa Pelunasan (50%):</span>
+                            <span class="text-slate-600 font-bold">Sisa Pelunasan (50% + Maintenance):</span>
                             <span :class="createdOrder?.payment_status === 'fully_paid' ? 'text-emerald-600 font-black' : 'text-slate-900 font-black'">
                                 <span x-text="createdOrder?.payment_status === 'fully_paid' ? 'Rp 0 (LUNAS ✓)' : 'Rp ' + formatRupiah(createdOrder?.remaining_amount || 0)"></span>
                             </span>
@@ -2224,7 +2283,7 @@
                                     class="w-full py-4 rounded-xl bg-[#2563EB] hover:bg-[#1d4ed8] text-white font-black text-xs flex items-center justify-center gap-2 shadow-lg shadow-[#2563EB]/20"
                                 >
                                     <span>Bayar </span>
-                                    <span x-text="createdOrder?.payment_status === 'dp_paid' ? 'Pelunasan 50% (Rp ' + formatRupiah(createdOrder?.remaining_amount || 0) + ')' : 'DP 50% (Rp ' + formatRupiah(createdOrder?.dp_amount || 0) + ')'"></span>
+                                    <span x-text="createdOrder?.payment_status === 'dp_paid' ? 'Pelunasan (Rp ' + formatRupiah(createdOrder?.remaining_amount || 0) + ')' : 'DP 50% (Rp ' + formatRupiah(createdOrder?.dp_amount || 0) + ')'"></span>
                                     <span> via Pakasir</span>
                                     <i data-lucide="arrow-right" class="w-4 h-4"></i>
                                 </button>
@@ -2239,7 +2298,7 @@
                                 <span>Pembayaran DP 50% Berhasil Dikonfirmasi</span>
                             </div>
                             <p class="text-[11px] text-blue-800 font-medium leading-relaxed">
-                                Notifikasi konfirmasi resmi telah dikirim ke WhatsApp Anda. <b>Sisa kekurangan (50%)</b> dapat Anda lunasi setelah pengerjaan proyek selesai secara langsung melalui menu <b>Detail Pesanan</b> di profil akun Anda.
+                                Notifikasi konfirmasi resmi telah dikirim ke WhatsApp Anda. <b>Sisa pelunasan (50% + Maintenance 1 Tahun)</b> dapat Anda selesaikan setelah pengerjaan proyek selesai secara langsung melalui menu <b>Detail Pesanan</b> di profil akun Anda.
                             </p>
                             <div class="pt-1 flex flex-wrap items-center justify-center gap-2">
                                 <a 
@@ -2457,7 +2516,7 @@
             <div class="overflow-y-auto pr-2 py-4 space-y-4 text-xs sm:text-sm text-slate-600 leading-relaxed flex-1">
                 <div class="p-4 rounded-2xl bg-blue-50/50 border border-blue-100 space-y-1">
                     <h4 class="font-bold text-slate-900 text-sm">1. Skema Pembayaran &amp; Uang Muka (DP 50%)</h4>
-                    <p>Pengerjaan proyek resmi dimulai setelah Uang Muka (DP 50%) terverifikasi oleh sistem pembayaran atau transfer bank resmi. Sisa pelunasan (50%) dibayarkan setelah seluruh proses pengembangan dan demo website disetujui, sebelum serah terima akses penuh / source code / domain.</p>
+                    <p>Pengerjaan proyek resmi dimulai setelah Uang Muka (DP 50%) terverifikasi oleh sistem pembayaran resmi. Sisa pelunasan (50% nilai proyek + Biaya Maintenance 1 Tahun) dibayarkan setelah seluruh proses pengembangan dan demo website disetujui, sebelum serah terima akses penuh / kredensial / source code / domain.</p>
                 </div>
 
                 <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1">
@@ -2478,9 +2537,9 @@
                 <div class="p-4 rounded-2xl bg-blue-50/60 border border-blue-100 space-y-1.5">
                     <div class="flex items-center justify-between gap-2 flex-wrap">
                         <h4 class="font-bold text-slate-900 text-sm">5. Biaya Pemeliharaan &amp; Perpanjangan (Maintenance)</h4>
-                        <span class="text-[10px] font-black bg-[#2563EB] text-white px-2.5 py-0.5 rounded-full uppercase shrink-0">Rp 200.000 / Tahun</span>
+                        <span class="text-[10px] font-black bg-[#2563EB] text-white px-2.5 py-0.5 rounded-full uppercase shrink-0" x-text="annualMaintenanceFee > 0 ? ('Rp ' + formatRupiah(annualMaintenanceFee) + ' / Tahun') : 'Rp 0 / Tahun (Gratis)'"></span>
                     </div>
-                    <p>Biaya pemeliharaan server &amp; sistem (maintenance) adalah <strong>Rp 200.000 / tahun</strong>, yang mulai dihitung <strong>1 tahun setelah tanggal serah terima proyek selesai</strong>. Biaya ini murni untuk perpanjangan pemeliharaan server/sistem (tidak termasuk biaya sewa nama domain atau penambahan fitur baru).</p>
+                    <p>Biaya pemeliharaan server &amp; sistem (maintenance) dihitung secara transparan dari <strong>total harga fitur add-on yang dipilih per bulan dikalikan 10</strong> untuk masa 1 tahun pemeliharaan (sudah mencakup perpanjangan seluruh server, sistem, dan seluruh fitur add-on yang Anda pilih). Biaya maintenance ini <strong>belum dibayarkan saat DP 50%</strong>, melainkan ditagihkan bersamaan dengan pelunasan sisa 50% saat proyek telah selesai diserahterimakan.</p>
                 </div>
             </div>
 

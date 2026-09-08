@@ -23,12 +23,15 @@
 
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Nama Fitur Add-on *</label>
-                    <input type="text" name="title" required placeholder="Contoh: Payment Gateway Integration" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-[#2563EB]">
+                    <input type="text" name="title" required placeholder="Contoh: Domain .COM / AI Chatbot" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-[#2563EB]">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Tambahan Biaya (Rp) *</label>
-                    <input type="number" name="price" required placeholder="Contoh: 500000" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-[#2563EB]">
+                    <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Biaya Bulanan (Rp/bulan) *</label>
+                    <input type="number" name="price" required placeholder="Contoh: 20000" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-[#2563EB]">
+                    <p class="text-[10px] text-slate-400 mt-1 font-medium leading-relaxed">
+                        *Di Estimator, akumulasi add-on terpilih dikali 10 untuk 1 tahun biaya maintenance.
+                    </p>
                 </div>
 
                 <div>
@@ -61,7 +64,7 @@
             <div class="p-4 sm:p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                     <h3 class="text-base font-black text-slate-900">Daftar Fitur Add-on</h3>
-                    <p class="text-xs text-slate-400 font-medium">Add-on yang berstatus aktif akan muncul di pilihan Estimator Interaktif.</p>
+                    <p class="text-xs text-slate-400 font-medium">Add-on berstatus aktif akan muncul di Estimator (Biaya per bulan, Maintenance = Total Addon x 10).</p>
                 </div>
                 <div class="relative">
                     <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
@@ -79,7 +82,8 @@
                     <thead class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold tracking-wider border-b border-slate-100">
                         <tr>
                             <th class="py-3 px-6">Nama Fitur</th>
-                            <th class="py-3 px-6">Tambahan Biaya</th>
+                            <th class="py-3 px-6">Biaya per Bulan</th>
+                            <th class="py-3 px-6">Maintenance 1 Thn (x10)</th>
                             <th class="py-3 px-6">Status</th>
                             <th class="py-3 px-6 text-right">Aksi</th>
                         </tr>
@@ -97,7 +101,10 @@
                                     @endif
                                 </td>
                                 <td class="py-3.5 px-6 font-bold text-emerald-600">
-                                    + Rp {{ number_format($feature->price, 0, ',', '.') }}
+                                    + Rp {{ number_format($feature->price, 0, ',', '.') }} / bln
+                                </td>
+                                <td class="py-3.5 px-6 font-bold text-[#2563EB]">
+                                    Rp {{ number_format($feature->price * 10, 0, ',', '.') }} / thn
                                 </td>
                                 <td class="py-3.5 px-6">
                                     @if($feature->is_active)
@@ -169,8 +176,9 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Tambahan Biaya (Rp) *</label>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Biaya Bulanan (Rp/bulan) *</label>
                         <input type="number" name="price" x-model="editItem.price" required class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-medium focus:outline-none focus:border-[#2563EB]">
+                        <p class="text-[10px] text-slate-400 mt-1 font-medium">*Di Estimator dikali 10 untuk 1 tahun maintenance.</p>
                     </div>
 
                     <div>
