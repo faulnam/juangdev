@@ -278,11 +278,11 @@
                             </div>
                             <div>
                                 <h4 class="text-sm font-black text-slate-900">Biaya Pemeliharaan (Maintenance Tahunan)</h4>
-                                <p class="text-[11px] text-slate-500 font-medium">Dihitung dari total fitur add-on terpilih per bulan dikali 10</p>
+                                <p class="text-[11px] text-slate-500 font-medium">Biaya dasar pemeliharaan sistem (Rp 100.000/thn) + akumulasi add-on terpilih</p>
                             </div>
                         </div>
                         <span class="text-[11px] font-black bg-[#2563EB] text-white px-3 py-1 rounded-full uppercase tracking-wide shadow-2xs">
-                            {{ $order->maintenance_amount > 0 ? $order->formatted_maintenance : 'Rp 0 / Tahun (Gratis)' }}
+                            {{ $order->formatted_maintenance }}
                         </span>
                     </div>
 
@@ -293,11 +293,7 @@
                             </div>
                             <div class="leading-relaxed">
                                 <span class="font-bold text-slate-900 block">Maintenance 1 Tahun Pertama</span>
-                                @if($order->maintenance_amount > 0)
-                                    Total <strong>{{ $order->formatted_maintenance }}</strong> dibayarkan saat pelunasan serah terima proyek selesai untuk pemeliharaan server, sistem, dan seluruh add-on terpilih.
-                                @else
-                                    Bebas biaya maintenance (Rp 0) selama 1 tahun penuh terhitung sejak serah terima proyek selesai.
-                                @endif
+                                Total <strong>{{ $order->formatted_maintenance }}</strong> dibayarkan saat pelunasan serah terima proyek selesai untuk pemeliharaan server, sistem dasar, dan seluruh add-on terpilih.
                             </div>
                         </div>
 
@@ -307,7 +303,7 @@
                             </div>
                             <div class="leading-relaxed">
                                 <span class="font-bold text-slate-900 block">Tahun Berikutnya (Perpanjangan)</span>
-                                Biaya perpanjangan tahun berikutnya mengikuti paket fitur add-on aktif yang Anda pilih ({{ $order->formatted_maintenance }}).
+                                Biaya perpanjangan tahun berikutnya mengikuti paket pemeliharaan sistem dasar dan fitur add-on aktif yang Anda pilih ({{ $order->formatted_maintenance }}).
                             </div>
                         </div>
                     </div>

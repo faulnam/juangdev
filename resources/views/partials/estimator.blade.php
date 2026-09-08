@@ -375,7 +375,7 @@
             return sum;
         },
         get annualMaintenanceFee() {
-            return this.totalAddonsMonthly * 10;
+            return 100000 + (this.totalAddonsMonthly * 10);
         },
         get projectPrice() {
             return this.planPriceNumber;
@@ -713,8 +713,8 @@
                         </div>
                         <div class="flex items-center justify-between text-[11px] font-semibold text-slate-500">
                             <span>Biaya Maintenance 1 Tahun:</span>
-                            <span :class="annualMaintenanceFee > 0 ? 'text-slate-800 font-bold' : 'text-slate-400'">
-                                <span x-text="annualMaintenanceFee > 0 ? ('Rp ' + formatRupiah(annualMaintenanceFee) + ' / Thn') : 'Rp 0 (Gratis)'"></span>
+                            <span class="text-slate-800 font-bold">
+                                <span x-text="'Rp ' + formatRupiah(annualMaintenanceFee) + ' / Thn'"></span>
                             </span>
                         </div>
                         <div class="flex items-center justify-between text-xs font-black text-slate-900 pt-1.5 border-t border-slate-100">
@@ -1154,7 +1154,7 @@
                             </div>
                             <div class="flex-1 text-[11px] font-medium">
                                 <span class="font-bold text-slate-900 block mb-0.5">Ketentuan Biaya Add-on &amp; Maintenance:</span>
-                                Harga fitur add-on di bawah merupakan <strong>biaya per bulan (/bln)</strong>. Seluruh add-on yang dipilih akan diakumulasikan menjadi <strong>1 paket Biaya Maintenance 1 Tahun</strong>. Biaya maintenance ini <em>belum dibayarkan saat DP 50%</em>, melainkan dibayarkan saat pelunasan serah terima proyek selesai.
+                                Biaya maintenance 1 tahun mencakup <strong>Biaya Dasar Pemeliharaan Sistem (Rp 100.000 / thn)</strong> ditambah akumulasi fitur add-on terpilih (harga bulanan &times; 10). Seluruh biaya maintenance ini <em>belum dibayarkan saat DP 50%</em>, melainkan dibayarkan saat pelunasan serah terima proyek selesai.
                             </div>
                         </div>
 
@@ -1188,18 +1188,26 @@
                         </div>
 
                         <!-- Dynamic Add-on & Maintenance Breakdown Card -->
-                        <template x-if="selectedFeatureIds.length > 0">
-                            <div class="mt-3 p-3.5 rounded-2xl bg-emerald-50/80 border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-emerald-950 font-medium">
-                                <div>
-                                    <span class="font-bold block text-emerald-900">Add-on Terpilih (<span x-text="selectedFeatureIds.length"></span> Fitur):</span>
-                                    <span class="text-[11px] text-emerald-800">Total Biaya: <strong>Rp <span x-text="formatRupiah(totalAddonsMonthly)"></span> / bulan</strong></span>
+                        <div class="mt-3 p-3.5 rounded-2xl bg-slate-50/90 border border-slate-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-slate-800 font-medium">
+                            <div class="space-y-0.5">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-slate-900">Rincian Maintenance 1 Tahun:</span>
+                                    <span class="text-[10px] text-[#2563EB] font-bold bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100">Dasar: Rp 100.000 / Thn</span>
                                 </div>
-                                <div class="sm:text-right bg-white px-3.5 py-1.5 rounded-xl border border-emerald-200 shrink-0 shadow-2xs">
-                                    <span class="text-[10px] uppercase font-bold text-slate-500 block">Biaya Maintenance 1 Tahun (x10):</span>
-                                    <span class="text-xs font-black text-emerald-700">Rp <span x-text="formatRupiah(annualMaintenanceFee)"></span> / Tahun</span>
-                                </div>
+                                <span class="text-[11px] text-slate-500">
+                                    <template x-if="selectedFeatureIds.length > 0">
+                                        <span>Add-on Terpilih (<span x-text="selectedFeatureIds.length"></span> Fitur): <strong>+ Rp <span x-text="formatRupiah(totalAddonsMonthly * 10)"></span> / Thn</strong></span>
+                                    </template>
+                                    <template x-if="selectedFeatureIds.length === 0">
+                                        <span>Belum ada fitur add-on tambahan yang dipilih.</span>
+                                    </template>
+                                </span>
                             </div>
-                        </template>
+                            <div class="sm:text-right bg-white px-3.5 py-1.5 rounded-xl border border-slate-200 shrink-0 shadow-2xs">
+                                <span class="text-[10px] uppercase font-bold text-slate-500 block">Total Maintenance 1 Thn:</span>
+                                <span class="text-xs font-black text-emerald-700">Rp <span x-text="formatRupiah(annualMaintenanceFee)"></span> / Tahun</span>
+                            </div>
+                        </div>
                     </div>
 
                     <hr class="border-slate-100">
@@ -2537,9 +2545,9 @@
                 <div class="p-4 rounded-2xl bg-blue-50/60 border border-blue-100 space-y-1.5">
                     <div class="flex items-center justify-between gap-2 flex-wrap">
                         <h4 class="font-bold text-slate-900 text-sm">5. Biaya Pemeliharaan &amp; Perpanjangan (Maintenance)</h4>
-                        <span class="text-[10px] font-black bg-[#2563EB] text-white px-2.5 py-0.5 rounded-full uppercase shrink-0" x-text="annualMaintenanceFee > 0 ? ('Rp ' + formatRupiah(annualMaintenanceFee) + ' / Tahun') : 'Rp 0 / Tahun (Gratis)'"></span>
+                        <span class="text-[10px] font-black bg-[#2563EB] text-white px-2.5 py-0.5 rounded-full uppercase shrink-0" x-text="'Rp ' + formatRupiah(annualMaintenanceFee) + ' / Tahun'"></span>
                     </div>
-                    <p>Biaya pemeliharaan server &amp; sistem (maintenance) dihitung secara transparan dari <strong>total harga fitur add-on yang dipilih per bulan akan di jadikan satu paket maintenence</strong> untuk masa 1 tahun pemeliharaan (sudah mencakup perpanjangan seluruh server, sistem, dan seluruh fitur add-on yang Anda pilih). Biaya maintenance ini <strong>belum dibayarkan saat DP 50%</strong>, melainkan ditagihkan bersamaan dengan pelunasan sisa 50% saat proyek telah selesai diserahterimakan.</p>
+                    <p>Biaya pemeliharaan server &amp; sistem (maintenance) dihitung secara transparan dari <strong>Biaya Dasar Pemeliharaan Sistem sebesar Rp 100.000 / tahun</strong> ditambah total akumulasi fitur add-on yang dipilih (harga bulanan &times; 10) untuk masa 1 tahun pemeliharaan (sudah mencakup pemeliharaan server, sistem, dan seluruh fitur add-on yang Anda pilih). Biaya maintenance ini <strong>belum dibayarkan saat DP 50%</strong>, melainkan ditagihkan bersamaan dengan pelunasan sisa 50% saat proyek telah selesai diserahterimakan.</p>
                 </div>
             </div>
 

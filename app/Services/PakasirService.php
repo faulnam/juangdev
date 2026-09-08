@@ -249,7 +249,7 @@ class PakasirService
     public static function sendCustomerInvoiceWa(Order $order): void
     {
         $bpText = $order->boilerplate_name ? ("\n- Template Desain: " . $order->boilerplate_name) : '';
-        $maintText = $order->maintenance_amount > 0 ? ("\n- Biaya Maintenance 1 Tahun: " . $order->formatted_maintenance . " (Add-on x 10)") : "\n- Biaya Maintenance 1 Tahun: Rp 0 (Gratis)";
+        $maintText = "\n- Biaya Maintenance 1 Tahun: " . $order->formatted_maintenance . " (Dasar Rp 100.000" . ($order->monthly_addons_total > 0 ? " + Add-on)" : ")");
         $msg = "TAGIHAN RESMI DAN KONFIRMASI PESANAN\n"
             . "JuangDev Digital Solutions\n\n"
             . "Kepada Yth. Bapak/Ibu " . $order->customer_name . ",\n\n"

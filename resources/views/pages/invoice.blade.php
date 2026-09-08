@@ -217,7 +217,7 @@
                                 @if($order->maintenance_amount > 0)
                                     <tr class="bg-blue-50/50">
                                         <td class="py-3 px-6 text-right uppercase text-xs text-[#2563EB] font-bold">
-                                            Biaya Maintenance 1 Tahun (Add-on x 10):
+                                            Biaya Maintenance 1 Tahun:
                                         </td>
                                         <td class="py-3 px-6 text-right text-sm text-[#2563EB] font-black">{{ $order->formatted_maintenance }}</td>
                                     </tr>
@@ -240,7 +240,7 @@
                     <div class="mt-4 p-4 rounded-2xl bg-blue-50/70 border border-blue-100 flex items-start gap-3 text-xs text-slate-700">
                         <i data-lucide="info" class="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5"></i>
                         <div class="leading-relaxed">
-                            <strong class="text-slate-900 font-bold">Informasi Pemeliharaan (Maintenance):</strong> Biaya pemeliharaan server &amp; sistem (maintenance) dihitung secara transparan dari total fitur add-on terpilih per bulan dikali 10 untuk 1 tahun (<span class="font-bold text-[#2563EB]">{{ $order->maintenance_amount > 0 ? $order->formatted_maintenance : 'Rp 0 / Tahun (Gratis)' }}</span>). Biaya maintenance ini ditagihkan saat pelunasan serah terima proyek selesai.
+                            <strong class="text-slate-900 font-bold">Informasi Pemeliharaan (Maintenance):</strong> Biaya pemeliharaan server &amp; sistem (maintenance) dihitung secara transparan dari Biaya Dasar Pemeliharaan Sistem (Rp 100.000 / tahun) ditambah total fitur add-on terpilih per bulan dikali 10 untuk 1 tahun (<span class="font-bold text-[#2563EB]">{{ $order->formatted_maintenance }}</span>). Biaya maintenance ini ditagihkan saat pelunasan serah terima proyek selesai.
                         </div>
                     </div>
                 </div>

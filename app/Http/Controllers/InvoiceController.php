@@ -62,7 +62,7 @@ class InvoiceController extends Controller
                 }
             }
         }
-        $maintenanceAmount = $monthlyAddons * 10;
+        $maintenanceAmount = 100000 + ($monthlyAddons * 10);
 
         $isFull = ($validated['payment_scheme'] === 'full_100');
         $dp = $isFull ? ($total + $maintenanceAmount) : (int) round($total * 0.5);

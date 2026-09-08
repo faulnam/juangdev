@@ -156,14 +156,12 @@
                 </span>
             </div>
 
-            @if(isset($order) && $order->maintenance_amount > 0)
-                <div class="flex justify-between items-center text-[#2563EB]">
-                    <span class="uppercase tracking-tight font-bold">BIAYA MAINTENANCE 1 TAHUN</span>
-                    <span class="font-bold">
-                        {{ $order->formatted_maintenance }}
-                    </span>
-                </div>
-            @endif
+            <div class="flex justify-between items-center text-[#2563EB]">
+                <span class="uppercase tracking-tight font-bold">BIAYA MAINTENANCE 1 TAHUN</span>
+                <span class="font-bold">
+                    {{ isset($order) ? $order->formatted_maintenance : 'Rp 100.000 / Tahun' }}
+                </span>
+            </div>
 
             <div class="flex justify-between items-center">
                 <span class="text-slate-500 uppercase tracking-tight">TAGIHAN UANG MUKA (DP 50%)</span>
@@ -211,7 +209,7 @@
                 &copy; {{ date('Y') }} JUANG SOLUSI DIGITAL (JUANGDEV)
             </p>
             <p class="text-[9px] text-slate-500 leading-relaxed font-mono">
-                *Biaya maintenance 1 tahun ({{ isset($order) && $order->maintenance_amount > 0 ? $order->formatted_maintenance : 'Rp 0' }}) mencakup server, sistem &amp; add-on terpilih, dibayarkan saat pelunasan serah terima proyek.
+                *Biaya maintenance 1 tahun ({{ isset($order) ? $order->formatted_maintenance : 'Rp 100.000 / Tahun' }}) mencakup server dasar, sistem &amp; add-on terpilih, dibayarkan saat pelunasan serah terima proyek.
             </p>
             <p class="text-[9px] text-slate-400 leading-relaxed font-mono">
                 Invoice ini diterbitkan secara elektronik dan sah secara hukum perundang-undangan Republik Indonesia.

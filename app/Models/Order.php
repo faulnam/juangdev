@@ -84,7 +84,7 @@ class Order extends Model
             return (int) $this->attributes['maintenance_amount'];
         }
 
-        return $this->monthly_addons_total * 10;
+        return 100000 + ($this->monthly_addons_total * 10);
     }
 
     public function getFormattedMaintenanceAttribute(): string
