@@ -1154,7 +1154,7 @@
                             </div>
                             <div class="flex-1 text-[11px] font-medium">
                                 <span class="font-bold text-slate-900 block mb-0.5">Ketentuan Biaya Add-on &amp; Maintenance:</span>
-                                Harga fitur add-on di bawah merupakan <strong>biaya per bulan (/bln)</strong>. Seluruh add-on yang dipilih akan diakumulasikan menjadi <strong>1 paket Biaya Maintenance 1 Tahun (dikalikan 10)</strong>. Biaya maintenance ini <em>belum dibayarkan saat DP 50%</em>, melainkan dibayarkan saat pelunasan serah terima proyek selesai.
+                                Harga fitur add-on di bawah merupakan <strong>biaya per bulan (/bln)</strong>. Seluruh add-on yang dipilih akan diakumulasikan menjadi <strong>1 paket Biaya Maintenance 1 Tahun</strong>. Biaya maintenance ini <em>belum dibayarkan saat DP 50%</em>, melainkan dibayarkan saat pelunasan serah terima proyek selesai.
                             </div>
                         </div>
 
