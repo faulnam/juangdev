@@ -190,17 +190,17 @@
                             </div>
                         </div>
 
-                        <!-- CTA Actions -->
-                        <div class="pt-4 space-y-3">
+                        <!-- CTA Actions (Saweria / Neo-Brutalist Style) -->
+                        <div class="pt-4 space-y-3.5">
                             @if($portfolio->live_url)
                                 <a 
                                     href="{{ $portfolio->live_url }}" 
                                     target="_blank" 
                                     rel="noopener noreferrer" 
-                                    class="w-full inline-flex items-center justify-center gap-2 bg-[#2563EB] hover:bg-[#1d4ed8] text-white font-bold text-sm py-3 px-5 rounded-xl transition-all duration-200 shadow-sm"
+                                    class="group relative w-full inline-flex items-center justify-center gap-2.5 bg-[#2563EB] hover:bg-[#1d4ed8] text-white font-black text-sm sm:text-[15px] py-3.5 px-6 rounded-2xl border-2 border-[#0A1E5E] shadow-[4px_4px_0px_#0A1E5E] hover:shadow-[2px_2px_0px_#0A1E5E] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all duration-150 cursor-pointer"
                                 >
-                                    <i data-lucide="external-link" class="w-4 h-4"></i>
-                                    <span>Kunjungi Website Live</span>
+                                    <i data-lucide="external-link" class="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5] transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"></i>
+                                    <span class="tracking-tight">Kunjungi Website Live</span>
                                 </a>
                             @endif
 
@@ -218,10 +218,10 @@
 
                             <a 
                                 href="{{ $estimatorRedirectUrl }}" 
-                                class="w-full inline-flex items-center justify-center gap-2 bg-[#C7F236] hover:bg-[#b5dd2a] text-[#0A1E5E] font-bold text-sm py-3 px-5 rounded-xl transition-all duration-200 shadow-sm"
+                                class="group relative w-full inline-flex items-center justify-center gap-2.5 bg-[#C7F236] hover:bg-[#b8e428] text-[#0A1E5E] font-black text-sm sm:text-[15px] py-3.5 px-6 rounded-2xl border-2 border-[#0A1E5E] shadow-[4px_4px_0px_#0A1E5E] hover:shadow-[2px_2px_0px_#0A1E5E] hover:translate-x-[2px] hover:translate-y-[2px] active:translate-x-[4px] active:translate-y-[4px] active:shadow-none transition-all duration-150 cursor-pointer"
                             >
-                                <i data-lucide="calculator" class="w-4 h-4"></i>
-                                <span>Hitung Estimasi Proyek</span>
+                                <i data-lucide="calculator" class="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.5] transition-transform duration-200 group-hover:rotate-12 group-hover:scale-110"></i>
+                                <span class="tracking-tight">Hitung Estimasi Proyek</span>
                             </a>
                         </div>
 
